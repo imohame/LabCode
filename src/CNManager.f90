@@ -602,13 +602,13 @@ end module CN_Objects_manager
 !!!!!!!!        implicit none
         use CN_Objects_manager
         dimension ix(4,*)
-      iElemconnect(1:4,1:ElemCountAct)=ix(1:4,1:ElemCountAct)
-!!      do i=1,ElemCountAct
-!!          iElemconnect(1,i)=ix(1,i)
-!!          iElemconnect(2,i)=ix(2,i)
-!!          iElemconnect(3,i)=ix(3,i)
-!!          iElemconnect(4,i)=ix(4,i)
-!!      enddo
+!!      iElemconnect(1:4,1:ElemCountAct)=ix(1:4,1:ElemCountAct)
+      do i=1,ElemCountAct
+          iElemconnect(1,i)=ix(1,i)
+          iElemconnect(2,i)=ix(2,i)
+          iElemconnect(3,i)=ix(3,i)
+          iElemconnect(4,i)=ix(4,i)
+      enddo
     end subroutine
 !###################################################################
 !###################################################################
