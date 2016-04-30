@@ -361,7 +361,7 @@
 
    90 format(' solution phase  time=',e12.5,'  step number=',i6)
   100 format(' enter desired time step size (e10.0) ')
-  110 format(e10.0)
+!!!!!!!!!  110 format(e10.0)
   120 format('  total iterations (last step)     = ',i6,2x,'(',i5,')',/, &
             '  total stiffness reformations     = ',i6,2x,'(',i5,')',/, &
             '  total rhs evaluations            = ',i6,2x,'(',i5,')',/, &

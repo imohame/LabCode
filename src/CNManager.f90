@@ -554,7 +554,7 @@ module CN_Objects_manager
             use  mod_file_units
             implicit none
             real*8 ,  intent(inout) :: DijSijd(*),rhocp(*)
-            real*8 , intent(out) ::thermalkd(ElemCountAct)
+            real*8 , intent(in) ::thermalkd(ElemCountAct)
             
             integer i                        
             
