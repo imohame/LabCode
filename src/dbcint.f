@@ -43,7 +43,7 @@ c
    14 write (unit=mssg,fmt=50) n
       call termin (txts,mssg,lcount,1)
 c
-   20 format(3i5,4e10.0)
+   20 format(3i5,4e10.1)
    30 format(///' b o u n d a r y   d i s p l a c e m e n t  '
      1        ,'  c a r d s '//4x,
      2        ' node    direction    load curve   load curve multipl',

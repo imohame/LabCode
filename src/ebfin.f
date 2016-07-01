@@ -59,7 +59,7 @@ c
      1          ' ---------------------- '//,
      2 t5,'element',t20,'force-x',t35,'force-y'/)
    81 format(t5,i5,t20,e12.5,t35,e12.5)
-   90 format(i5,2(e10.0),i5)
+   90 format(i5,2(e10.1),i5)
   110 format(' error reading element body force',/,
      1       ' cards, probably for element #',i6)
   120 format(' new format for element body force loads'/
