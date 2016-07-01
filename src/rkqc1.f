@@ -40,7 +40,7 @@ c      WRITE(6,*)YTEMP(I)
 C SCALE RELATIVE TO THE REQUIRE EPS(ACCURACY)
            ERRMAX1=ERRMAX1/EPS1
 ck           write(27,121) errmax
-121        format(5x,'errmax =',e15.9/)
+121        format(5x,'errmax =',e17.9/)
            IF(ERRMAX1 .GT. ONE1)THEN
 C
 C  TRUNCUATION ERROR TOO LARGE REDUCE STEPSIZE
@@ -48,7 +48,7 @@ C  TRUNCUATION ERROR TOO LARGE REDUCE STEPSIZE
            H1=SAFETY1*H1*(ERRMAX1**PSHRNK1)
 c  CHECK  FORsSTIFFNESS AND POSSIBLE STABILITY PROBLEMS
 ck           write(27,122) h,hmin
-122        format(5x,'H =',e15.9,2x,'HMIN =',e15.9/)
+122        format(5x,'H =',e17.9,2x,'HMIN =',e17.9/)
        IF(H1 .LE. HMIN1 )THEN
 	   write(*,*) 'calling implicit1'
        CALL IMPLICIT1(YSAV1,XSAV1,HTRY1,N1)
