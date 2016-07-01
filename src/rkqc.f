@@ -52,7 +52,7 @@ c      WRITE(6,*)YTEMP(I)
 C SCALE RELATIVE TO THE REQUIRE EPS(ACCURACY)
            ERRMAX=ERRMAX/EPS
 ck           write(27,121) errmax
-121        format(5x,'errmax =',e15.9/)
+121        format(5x,'errmax =',e17.9/)
            IF(ERRMAX .GT. ONE)THEN
 C
 C  TRUNCUATION ERROR TOO LARGE REDUCE STEPSIZE
@@ -60,7 +60,7 @@ C  TRUNCUATION ERROR TOO LARGE REDUCE STEPSIZE
              H=SAFETY*H*(ERRMAX**PSHRNK)
 c  CHECK  FORsSTIFFNESS AND POSSIBLE STABILITY PROBLEMS
 ck           write(27,122) h,hmin
-122          format(5x,'H =',e15.9,2x,'HMIN =',e15.9/) 
+122          format(5x,'H =',e17.9,2x,'HMIN =',e17.9/) 
 
 
              IF (H .LE. HMIN)THEN
