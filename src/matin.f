@@ -331,7 +331,7 @@ c
 
    20 format(2i7,4e15.5)
    40 format(12a6)
-   70 format(8e10.0)
+   70 format(8e10.1)
 ck   71 format(16i5)
   110 format(///' m a t e r i a l   d e f i n i t i o n s'//
      1        ' material models                         '/

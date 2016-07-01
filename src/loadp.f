@@ -97,13 +97,13 @@ c
       write (unit=mssg,fmt=160) i
       call termin (txts,mssg,lcount,1)
 c
-  110 format(5i5,4e10.0,2i5)
+  110 format(5i5,4e10.1,2i5)
   120 format(///' p r e s s u r e  c a r d s'//' card no.',2x,'loadc',
      1 2x,'node1',2x,'node2',6x,'pmult1',6x,'pmult2',6x,
      2 'y-max ',6x,'z-max ',2x,'start time',2x,'shear flag')
   130 format(2i7,2x,2i7,2x,5e12.3,i10)
   140 format(/'fatal error on pressure b.c. cards ')
-  150 format(4i5,3e10.0,2i5,2e10.0)
+  150 format(4i5,3e10.1,2i5,2e10.1)
   151 format(4i5,3e10.3,2i5,2e10.3)
   160 format(' error reading pressure cards, probably card #',i4)
       end

@@ -163,18 +163,18 @@ c
      1 'its boundary condition code has been reset to 3')
   180 format(///'warning ',i4,' disconnected nodes found in mesh'/
      1 'they have been constrained- see output file for node numbers')
-  190 format(11i5,e15.0,i5)
+  190 format(11i5,e15.1,i5)
   200 format(/' error in element data',i5)
   210 format(///4x,'e l e m e n t   i n f o r m a t i o n '/
      1 /'     m          bet        mtyp',5x,4('node',i1,3x))
   220 format(1x,i5,8x,e10.2,i7,4(4x,i4))
-  230 format(6e10.0)
+  230 format(6e10.1)
   240 format(' magnetic body forces   x=',e11.3,'   z=',e11.3,5x,
      1 'birth=',e11.3,'   death=',e11.3,'   burial=',e11.3)
   241 format( 'birth=',e11.3,'   death=',e11.3,'   burial=',e11.3)
-  250 format(7i5,e10.0,i5)
+  250 format(7i5,e10.1,i5)
   251 format(7i5,4e10.3)
-  252 format(7i5,4e10.0)
+  252 format(7i5,4e10.1)
   260 format(' error reading element cards, probably element#',i6)
   270 format(i5,4(4x,i4))
       end

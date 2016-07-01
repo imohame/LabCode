@@ -80,9 +80,9 @@ c
       write (unit=mssg,fmt=260) i
   216 call termin (txts,mssg,lcount,1)
 c
-  220 format(i5,2e10.0,i5)
+  220 format(i5,2e10.1,i5)
   230 format(/' fatal error on initial velocity cards ')
   240 format(/' fatal error on initial acceleration cards ')
-  250 format(3e10.0)
+  250 format(3e10.1)
   260 format (' error read initial velocity cards, probably card #',i5)
       end

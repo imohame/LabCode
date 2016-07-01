@@ -127,7 +127,7 @@ c
       return
 
    80 format(/' element stress results for step ',i5,
-     1 ' at time',3x,e10.4)
+     1 ' at time',3x,e14.4)
 c  200 format(/,' element',i5,' int pt:',t25,'1',t40,'2',t55,
 c     1 '3',t70,'4')
 c  210 format(' material',i4,' state:',t22,a7,t37,a7,t52,a7,

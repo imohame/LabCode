@@ -39,7 +39,7 @@ c
    36 write (unit=mssg,fmt=90) in
       call termin (txts,mssg,lcount,1)
 c
-   40 format(i5,2e10.0)
+   40 format(i5,2e10.1)
    50 format(///' n o d a l   m a s s   d a t a   '//
      1          '   node     y-mass     z-mass')
    60 format(i7,6e11.3)

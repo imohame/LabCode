@@ -42,7 +42,7 @@ c
       call termin (txts,mssg,lcount,1)
 c
    50 format(2i5)
-   60 format(2e10.0)
+   60 format(2e10.1)
    70 format(/' fatal error - number of points (npts) exceeds maximum ('
      1,i5,')')
    80 format(/' fatal error - load curves out of order  ')

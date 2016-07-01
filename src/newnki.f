@@ -326,10 +326,10 @@ c
    10 format(i5,9i5)
    20 format(11i5)
    30 format(8i5)
-   40 format(6i5,3e10.0)
-   50 format(e10.3,i7,i7,4i5,2e10.0,4i5)
-   60 format(6i5,e10.0,3i5)
-   70 format(4e10.0,i5)
+   40 format(6i5,3e10.1)
+   50 format(e10.3,i7,i7,4i5,2e10.1,4i5)
+   60 format(6i5,e10.1,3i5)
+   70 format(4e10.1,i5)
   109 format(//t25,'P R O B L E M     D E F I N I T I O N'//)
   110 format(
      1 ' number of materials ................................ ',i5,/,

@@ -48,7 +48,7 @@ c
 c
    22 call termin (txts,mssg,lcount,1)
 c
-   30 format(i5,e10.0)
+   30 format(i5,e10.1)
    40 format(//' y - a c c e l e r a t i o n '//5x,
      1       'load curve number=',i3,5x,'scale factor=',e10.3)
    50 format(//' z - a c c e l e r a t i o n '//5x,
