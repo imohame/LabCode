@@ -2,7 +2,13 @@
 c     implicit double precision (a-h,o-z)                                    dp
 c
        use mod_parameters
-      common/vect16/ls(nelemg)
+      common/vect16/
+     1 ls(nelemg),u12(nelemg),u14(nelemg),u21(nelemg),
+     > u22(nelemg),u24(nelemg),
+     2 u41(nelemg),u42(nelemg),u44(nelemg),q1(nelemg),
+     > q2(nelemg),q3(nelemg),q4(nelemg),
+     3 t11(nelemg),t12(nelemg),t14(nelemg),t41(nelemg),
+     > t44(nelemg)
       dimension lm(44*iprec,*),mht(*)
 c
       do 10 i=1,n
