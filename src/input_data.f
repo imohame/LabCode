@@ -1,4 +1,4 @@
-      subroutine input_data                                                     
+      subroutine input_data
 *
       parameter (n_dim = 3, nss = 24, no_mat = 1000 ) !added WML 91109
       integer, parameter :: nume   = 40000
@@ -6,16 +6,16 @@
       common/wblock2/  g_source, g_immob, g_minter, g_recov, b_v,
      1                             b_vvec(87),nmo,nim
       common/wblock3/  density_ms, density_ims,thermalEnthalpy(1000)
-      common /wblock5/ enthalpy_coef, thermal_coef, temp    
+      common /wblock5/ enthalpy_coef, thermal_coef, temp
       common /wblock7/ slip_n0(1000,nss,3), slip_s0(1000,nss,3)!Changed to accomodate multiple slip WML 91109
       common /wblock9/ slip_n0_t(1000,nss,3),slip_s0_t(1000,nss,3)
-      common /wblock10/ng,grain_mo(1000,3),bv(no_mat,87),nssmat(1000)  !added WML 91109  
+      common /wblock10/ng,grain_mo(1000,3),bv(no_mat,87),nssmat(1000)  !added WML 91109
      >        ,nssimmat(1000)
-      common /wblock11/ pd_counter,rhoim0(1000,nss),rhomo0(1000,nss)  
+      common /wblock11/ pd_counter,rhoim0(1000,nss),rhomo0(1000,nss)
 !!!!!!!      common/WMLthermal/thermalflag
 !!!!!!!      integer thermalflag
 	  common /nab/ gn_bcc(3,43,43), n_bcc(3,43,43), np(43)
-	  common /nab1/ gn_fcc(3,18,18), n_fcc(3,18,18), np1(18)	  
+	  common /nab1/ gn_fcc(3,18,18), n_fcc(3,18,18), np1(18)
 	  common /nab2/ gn_hcpt(3,86,86), n_hcpt(3,86,86), np2(86)
 	  common /nab3/gn_hcp(3,87,87), n_hcp(3,87,87), den_im2(87),
      > np3(87)
@@ -43,7 +43,7 @@
 	  common /cracktipcircle/ ndcircle
 	  common /fractureplane/ planeflag(nume), planeflag0(nume)
 	  common /precrack2/ rlflag
-	  
+
       character *80 txt
 	  real dum, gbvec, b_v, inie, qepower, qppower, gbco
 	  integer strflag1, ctr_flag, gbflag
@@ -56,54 +56,54 @@
 
 
       data (((slip_n00(i,j,k), k = 1, 3), j = 1, 24), i = 1, 4)
-     >      / 1 , 1 , 1,  1, 1, 1,  1, 1, 1, 
-     >       -1 ,-1 , 1, -1,-1, 1, -1,-1, 1, 
+     >      / 1 , 1 , 1,  1, 1, 1,  1, 1, 1,
+     >       -1 ,-1 , 1, -1,-1, 1, -1,-1, 1,
      >       -1 , 1 , 1, -1, 1, 1, -1, 1, 1,
      >        1 ,-1 , 1,  1,-1, 1,  1,-1, 1,
      >        0 , 0 , 0,  0, 0, 0,  0, 0, 0,
      >        0 , 0 , 0,  0, 0, 0,  0, 0, 0,
      >        0 , 0 , 0,  0, 0, 0,  0, 0, 0,
      >        0 , 0 , 0,  0, 0, 0,  0, 0, 0,
-     >       -1 , 1 , 0, -1, 0, 1,  0,-1, 1, 
-     >        1 , 1 ,-2,  1,-2, 1, -2, 1, 1,  
+     >       -1 , 1 , 0, -1, 0, 1,  0,-1, 1,
+     >        1 , 1 ,-2,  1,-2, 1, -2, 1, 1,
      >        1 , 1 , 0,  1, 0, 1,  0,-1, 1,
      >        2 , 1 , 1,  1,-1, 2,  1, 2,-1,
      >        1 , 1 , 0,  0, 1, 1, -1, 0, 1,
-     >        1 , 2 , 1, -1, 1, 2,  2, 1,-1, 
+     >        1 , 2 , 1, -1, 1, 2,  2, 1,-1,
      >        1 , 0 , 1,  0, 1, 1, -1, 1, 0,
      >        1 , 1 , 2,  2,-1, 1, -1, 2, 1,
-     >        0,0 ,-1.594,0,0 ,-1.594,0,0 ,-1.594, 
-     >         1,1.232,1.594, -2,0.134,-1.594,1,-1.366,0,  
+     >        0,0 ,-1.594,0,0 ,-1.594,0,0 ,-1.594,
+     >         1,1.232,1.594, -2,0.134,-1.594,1,-1.366,0,
      >        1,1.232,0,-2,0.134,-3.188,1,-1.366,-1.594,
      >        -1,-1.232,-3.188,2,-0.134,0,-1,1.366,-1.594,
      >         1,1.232,0,1,1.232,0,-2,0.134,-3.188,
-     >         -2,0.134,-3.188,1,-1.366,-1.594,1,-1.366,-1.594, 
+     >         -2,0.134,-3.188,1,-1.366,-1.594,1,-1.366,-1.594,
      >        -1,-1.232,-3.188,-1,-1.232,-3.188,2,-0.134,0,
      >        2,-0.134,0, -1,1.366,-1.594,-1,1.366,-1.594,
-     >        0,0,0.3137,0,0,0.3137,0,0,0.3137, 
-     >        1,1.1547,0, -0.5,-1.4434,0,-0.5,0.2887,0,   
+     >        0,0,0.3137,0,0,0.3137,0,0,0.3137,
+     >        1,1.1547,0, -0.5,-1.4434,0,-0.5,0.2887,0,
      >      1,1.1547,0.3137,-0.5,-1.4434,0.3137,-0.5,0.2887,0.3137,
      >      -1,-1.1547,0.3137,0.5,1.4434,0.3137,0.5,-0.2887,0.3137,
      >       1,1.1547,0.3137, 1,1.1547,0.3137,-0.5,-1.4434,0.3137,
      >   -0.5,-1.4434,0.3137,-0.5,0.2887,0.3137,-0.5,0.2887,0.3137,
      >       -1,-1.1547,0.3137,-1,-1.1547,0.3137,0.5,1.4434,0.3137,
      >     0.5,1.4434,0.3137,0.5,-0.2887,0.3137,0.5,-0.2887,0.3137/
-      
+
 
       data (((slip_s00(i,j,k), k = 1, 3), j = 1, 24), i = 1, 4)
-     >      /-1 , 0 , 1, -1, 1, 0,  0,-1, 1, 
-     >		  0 , 1 , 1, -1, 1, 0,  1, 0, 1, 
+     >      /-1 , 0 , 1, -1, 1, 0,  0,-1, 1,
+     >		  0 , 1 , 1, -1, 1, 0,  1, 0, 1,
      >		  1 , 0 , 1,  1, 1, 0,  0,-1, 1,
      >		  0 , 1 , 1,  1, 1, 0, -1, 0, 1,
      >        0 , 0 , 0,  0, 0, 0,  0, 0, 0,
      >        0 , 0 , 0,  0, 0, 0,  0, 0, 0,
      >        0 , 0 , 0,  0, 0, 0,  0, 0, 0,
      >        0 , 0 , 0,  0, 0, 0,  0, 0, 0,
-     >        1 , 1 , 1,  1, 1, 1,  1, 1, 1, 
+     >        1 , 1 , 1,  1, 1, 1,  1, 1, 1,
      >        1 , 1 , 1,  1, 1, 1,  1, 1, 1,
      >       -1 , 1 , 1, -1, 1, 1, -1, 1, 1,
      >       -1 , 1 , 1, -1, 1, 1, -1, 1, 1,
-     >        1 ,-1 , 1,  1,-1, 1,  1,-1, 1, 
+     >        1 ,-1 , 1,  1,-1, 1,  1,-1, 1,
      >        1 ,-1 , 1,  1,-1, 1,  1,-1, 1,
      >        1 , 1 ,-1,  1, 1,-1,  1, 1,-1,
      >        1 , 1 ,-1,  1, 1,-1,  1, 1,-1,
@@ -117,21 +117,21 @@
      >          0,0.866,-1.594,1,-0.5,-1.594,2,-0.0446,-0.5313,
      >		   1,0,0,-0.5,0.866,0,-0.5,-0.866,0,
      >		  -0.5,0.866,0,1,0,0,-0.5,-0.866,0,
-     >        -0.5,0.866,0,1,0,0,-0.5,-0.866,0,      
+     >        -0.5,0.866,0,1,0,0,-0.5,-0.866,0,
      >		  -0.5,0.866,0,1,0,0,0.5,0.866,0,
-     >        -0.5,-0.866,1.594,-1,0,-1.594,0.5,0.866,1.594, 
+     >        -0.5,-0.866,1.594,-1,0,-1.594,0.5,0.866,1.594,
      >        -0.5,0.866,1.594,1,0,1.594,0.5,-0.866,1.594,
      >         1,0 ,1.594,0.5,0.866,1.594,-0.5,-0.866,1.594,
      >         0.5,-0.866,1.594,-1, 0,-1.594,-0.5,0.866,1.594 /
 
       write(*,*) 'beginning of input data'
       open(60,file = 'data.in', status = 'unknown')
-	  
+
 	  open(61,file = 'a.txt', status = 'unknown')
 	  open(62,file = 'b.txt', status = 'unknown')
 	  open(63,file = 'c.txt', status = 'unknown')
 	  open(85,file = 'd.txt', status = 'unknown')
-	  
+
 	  open(64,file = 'a1.txt', status = 'unknown')
 	  open(65,file = 'b1.txt', status = 'unknown')
 	  open(66,file = 'c1.txt', status = 'unknown')
@@ -147,8 +147,8 @@
 	  open(84,file = 'c4.txt', status = 'unknown')
 	  open(88,file = 'd4.txt', status = 'unknown')
 
-	  open(89,file = 'gb.f', status = 'unknown')
-	  
+!!!!	  open(89,file = 'gb.f', status = 'unknown')
+
 	  cleave_n0(1,1) = 1.
 	  cleave_n0(1,2) = 0.
 	  cleave_n0(1,3) = 0.
@@ -158,8 +158,8 @@
 	  cleave_n0(3,1) = 0.
 	  cleave_n0(3,2) = 0.
 	  cleave_n0(3,3) = 1.
-	  
-	  
+
+
 	  do i = 1, nume
 	  planeflag(i)=0
 	  planeflag0(i)=0
@@ -174,22 +174,22 @@
 	  inie(i)=0.0
 	  ecount(i)=0
 	  end do
-	  
-	  read(89,*) ngbctr
-	  write(999,*) ngbctr
-	  do i = 1,ngbctr
-	  read(89,*) j1,j2,j3,j4
-	  write(999,*) j1,j2,j3,j4
-	  gbflag(j1,1)=j2
-	  gbflag(j1,2)=j3
-	  gbflag(j1,3)=j4
-	  gbflag(j2,1)=j1
-	  gbflag(j2,2)=j3
-	  gbflag(j2,3)=j4
-	  end do
-	  
+
+!!!	  read(89,*) ngbctr
+!!!	  write(999,*) ngbctr
+!!!	  do i = 1,ngbctr
+!!!	  read(89,*) j1,j2,j3,j4
+!!!	  write(999,*) j1,j2,j3,j4
+!!!	  gbflag(j1,1)=j2
+!!!	  gbflag(j1,2)=j3
+!!!	  gbflag(j1,3)=j4
+!!!	  gbflag(j2,1)=j1
+!!!	  gbflag(j2,2)=j3
+!!!	  gbflag(j2,3)=j4
+!!!	  end do
+
 	  call edge(a(k03),a(k04),a(k08))
-	  
+
 	  do i = 1, 43
 	  do j = 1, 43
 	  do k = 1, 3
@@ -199,7 +199,7 @@
 	  end do
 	  read(63,*) np(i)
 	  end do
-	  
+
 	  do i = 1, 18
 	  do j = 1, 18
 	  do k = 1, 3
@@ -209,7 +209,7 @@
 	  end do
 	  read(66,*) np1(i)
 	  end do
-	  
+
 	  do i = 1, 86
 	  do j = 1, 86
 	  do k = 1, 3
@@ -218,8 +218,8 @@
 	  end do
 	  end do
 	  read(69,*) np2(i)
-	  end do	 
-	  
+	  end do
+
 	  do i = 1, 87
 	  do j = 1, 87
 	  do k = 1, 3
@@ -228,15 +228,15 @@
 	  end do
 	  end do
 	  read(84,*) np3(i)
-	  end do 
-	  
+	  end do
+
 	  do i = 1, 43
 	  do j = 1, 24
 		  read(85,*) dum
 		  aijbcc(j,i) = sqrt(dum)
 	  end do
 	  end do
-	  
+
 	  do i = 1, 18
 	  do j = 1, 12
 		  read(86,*) dum
@@ -250,7 +250,7 @@
 		  aijhcpt(j,i) = sqrt(dum)
 	  end do
 	  end do
-	  
+
 	  do i = 1, 87
 	  do j = 1, 24
 		  read(88,*) dum
@@ -279,8 +279,8 @@
       read (60,*) density_ms
       read (60,*) density_ims
       !read (60,*) enthalpy_coef
-      
-c     Elements for pre-existing crack	  	
+
+!!!c     Elements for pre-existing crack
 	  read(60,*) npc
 	  do i=1, npc
 	      read(60,*) elepc(i)
@@ -289,12 +289,12 @@ c     Elements for pre-existing crack
 	  read(60,*) nelec
 	  read(60,*) ncsj
 	  read(60,*) gbco
-      
-      
-      
+
+
+
       read (60,*) ng
       do i = 1, ng
-	  read (60,*) var_no(i),grain_mo(i,1), grain_mo(i,2), 
+	  read (60,*) var_no(i),grain_mo(i,1), grain_mo(i,2),
      >  grain_mo(i,3)
 	  if (var_no(i) .lt. 1) then   !fcc
 	  nssmat(i) = 12
@@ -302,16 +302,16 @@ c     Elements for pre-existing crack
 	  else if ((var_no(i) .ge. 1) .and. (var_no(i) .le. 24)) then   !bcc
 	  nssmat(i) = 24
 	  nssimmat(i) = 43
-	  else if ((var_no(i) .ge. 25) .and. (var_no(i) .le. 60)) then 
+	  else if ((var_no(i) .ge. 25) .and. (var_no(i) .le. 60)) then
 	  nssmat(i) = 12
-	  nssimmat(i) = 18	  
+	  nssimmat(i) = 18
 	  else if (var_no(i) == 61) then    !hcpt
 	  nssmat(i) = 24
 	  nssimmat(i) = 86
 	  else if (var_no(i) == 62) then   !hcp
 	  nssmat(i) = 24
 	  nssimmat(i) = 87
-	  
+
 	  end if
 	  write(*,*) 'input_data', nssimmat(i)
 !c	  if (thermalflag.eq.0) then
@@ -321,40 +321,40 @@ c     Elements for pre-existing crack
       end do
 !c	  write(*,*) 'in input_data' !WMLWRITE51210
 !c	  write(*,*) nssmat(1)
-	  
 
-	  
+
+
 	  do i = 1, ng
 	  do j = 1, nssimmat(i)
-       
+
 	  bv(i,j) = b_v
 	  end do
-	  end do 
+	  end do
       write(*,*) bv(1,1),'bv'
       do i = 1, ng
-	  if (var_no(i) .lt. 1) then 
+	  if (var_no(i) .lt. 1) then
          do j = 1, nssmat(i)
 		 do k = 1, 3
                slip_n0(i,j,k) = slip_n00(1,j,k)
 			   slip_s0(i,j,k) = slip_s00(1,j,k)
          end do
 		 end do
-	 else if ((var_no(i) .ge. 1) .and. (var_no(i) .le. 24)) then 
+	 else if ((var_no(i) .ge. 1) .and. (var_no(i) .le. 24)) then
 		 do j = 1, nssmat(i)
 		 do k = 1, 3
                slip_n0(i,j,k) = slip_n00(2,j,k)
 			   slip_s0(i,j,k) = slip_s00(2,j,k)
          end do
 		 end do
-	  else if ((var_no(i) .ge. 25) .and. (var_no(i) .le. 60)) then 
+	  else if ((var_no(i) .ge. 25) .and. (var_no(i) .le. 60)) then
          do j = 1, nssmat(i)
 		 do k = 1, 3
                slip_n0(i,j,k) = slip_n00(1,j,k)
 			   slip_s0(i,j,k) = slip_s00(1,j,k)
          end do
 		 end do
-		 
-		 else if (var_no(i) == 61) then 
+
+		 else if (var_no(i) == 61) then
 		 do j = 1, nssmat(i)
 		 do k = 1, 3
                slip_n0(i,j,k) = slip_n00(3,j,k)
@@ -368,24 +368,28 @@ c     Elements for pre-existing crack
 			   slip_s0(i,j,k) = slip_s00(4,j,k)
          end do
 		 end do
-		 
-		 
+
+
 	  end if
-      end do   
-	  
+      end do
+
 	  do i=1,ng
-		 do j=1,nssmat(i)
-			  rhoim0(i,j) = density_ims
-			  rhomo0(i,j) = density_ms
+		    do j=1,nssmat(i)
+			      rhoim0(i,j) = density_ims
+			      rhomo0(i,j) = density_ms
 			  end do
-			  end do
+	  end do
 
       call transform(nss,slip_n0,slip_s0,slip_n0_t,slip_s0_t, var_no)
-! #####################################################
-!      read the multiple time step specs ....dtimesteps.in
-      call ReaddtimestepsSpecs()
+      ! #####################################################
+      !      read the multiple time step specs ....dtimesteps.in
+            call ReaddtimestepsSpecs()
 
-! #####################################################     
+      ! #####################################################
+      ! #####################################################
+      !      read to read the GB data, normals, element map
+            call GBReadInput()
+      ! #####################################################
 
       return
       end

@@ -1,0 +1,41 @@
+# Compiled Object files
+# *.slo
+# *.lo
+# *.o
+# *.obj
+# 
+# Precompiled Headers
+# *.gch
+# *.pch
+# 
+# Compiled Dynamic libraries
+# *.so
+# *.dylib
+# *.dll
+# 
+# 
+# Compiled Static libraries
+# *.lai
+# *.la
+# *.a
+# *.lib
+# 
+# Executables
+# *.exe
+# *.out
+# *.app
+
+
+# entire folders
+./crystal2d
+*.DS_Store
+
+# Fortran module files
+*.mod
+*.o
+
+# input files
+*.txt
+*.in
+
+/crystal2d/
