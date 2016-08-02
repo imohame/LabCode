@@ -64,6 +64,16 @@ module mod_GBdata
 end module mod_GBdata
 !#####################################################
 !#####################################################
+module mod_Fract
+    integer FractLinesCount,bFractFlag
+!!!    real*8, ALLOCATABLE :: FractNormals(:,:)
+    INTEGER, ALLOCATABLE :: FractElemIds(:,:)
+
+    save
+
+end module mod_Fract
+!#####################################################
+!#####################################################
    !------ module for the files in/out unit numbers
 module mod_file_units
 !    integer :: ifile_unit_mazout           =18
