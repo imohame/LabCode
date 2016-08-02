@@ -10,24 +10,26 @@ subroutine FractReadApplyPreCrackCleavagePlanes()!y,z,ix)
     common /precrack/ npc, elepc(100)
     ! dimension y(*), z(*), ix(4,*)
 
+    integer npc, elepc
     integer*4 setvbuf3f_local
     integer i,j,elemId,IERR
     real*8 Vcx,Vcy
 
+    write(*, *) '-->>>>>>>>FractReadApplyPreCrackCleavagePlanes'
     IERR=0
     i=0
     FractLinesCount=0
     bFractFlag=0
-    write(*, *) 'beginning of CrackProp ... reading CrackProp.in'
+    write(*, *) 'beginning of CrackProp ... reading cracks.in'
 
-    open(70, file = 'CrackProp.in', status = 'unknown',IOSTAT=IERR, ERR=90)
+    open(70, file = 'cracks.in', status = 'unknown',IOSTAT=IERR, ERR=90)
     read (70, *) FractLinesCount
 !!! if the fracture is not active then exit
     if (FractLinesCount == 0) goto 90
     bFractFlag=1
 
 
-    open(7011, file = 'CrackProp2.in', status = 'unknown')
+    open(7011, file = 'cracks2.in', status = 'unknown')
     ierr=setvbuf3f_local(7011,1,100)
 
     write (7011, *) FractLinesCount
@@ -40,6 +42,7 @@ subroutine FractReadApplyPreCrackCleavagePlanes()!y,z,ix)
       read(70, *) elemId
       elepc(i)=elemId
       write(7011, *) elemId
+      write(*, *) 'Pre-exist crack, element', elemId, 'cracks.in'
       do j = 1, 3
         abc(362+j,elemId,1) = 0.0
         abc(365+j,elemId,1) = Vcx
@@ -49,14 +52,14 @@ subroutine FractReadApplyPreCrackCleavagePlanes()!y,z,ix)
 
     close(70)
     close(7011)
-
+    write(*, *) '-->>>>>>>>FractReadApplyPreCrackCleavagePlanes'
     return
 !    -------------------------------------------
 !    -------------------------------------------
     90  IF (IERR .EQ. 29 ) THEN
-        write(*, *) '------------------------ no input file .. reading CrackProp.in'
+        write(*, *) '------------------------ no input file .. reading cracks.in'
       ELSE
-        write(*, *) 'Unrecoverable error in .. reading CrackProp.in, code =', IERR
+        write(*, *) 'Unrecoverable error in .. reading cracks.in, code =', IERR
         STOP
       END IF
 

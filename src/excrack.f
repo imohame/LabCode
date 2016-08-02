@@ -21,18 +21,23 @@ c     generate pre-exist crack
 	  dimension y(*), ix(4,*)
 
 	  if(nstep==0 .and. excf==1) then
+      write(*, *) '-->>>>>>>>excrack --start'
+      write(*, *) 'Pre-exist crack, # element', npc
+!!!      write(*, *) 'Pre-exist crack, # element', elepc
 	      do i=1, npc
 		      ele=elepc(i)
+!!!          write(*, *) 'Pre-exist crack, element', elepc(i)
 			  strflag1(ele)=2
 			  crackop(ele)=1
 !!!!			  ncleave(2,ele)=0.0
 !!!!			  ncleave(3,ele)=1.0
-		      write(*, *) 'Pre-exist crack, element', ele, 'overlapping'
+!!!		      write(*, *) 'Pre-exist crack, element', ele, 'excrack'
 		  end do
 
 
-c         crack velocity part
+!c         crack velocity part
 		  if(npc>0) then
+        write(*, *) '-->>>>>>>> crack velocity part'
 		      ncrack=1
 			  if(rlflag==0) then   ! propagating to from left to right
 			      nelefail(1)=1
@@ -40,8 +45,10 @@ c         crack velocity part
 				  nelefail(2)=npc
 				  do i=1,npc
 				      tipelenum(2,i)=elepc(i)
-			      end do
+			    end do
 			  else if(rlflag==1) then  ! propagating to from right to left
+!          write(*, *) '>>>>>>>>> nelefail(2)',nelefail(2)
+!          write(*, *) '>>>>>>>>> tipelenum(2,1)',tipelenum(2,1)
 			      nelefail(2)=1
 			      tipelenum(2,1)=0
 				  nelefail(1)=npc
@@ -52,6 +59,7 @@ c         crack velocity part
 		  end if
 
 		  excf=0
+      write(*, *) '-->>>>>>>>excrack --end'
 
 	  end if !! if(nstep==0 .and. excf==1) then
 

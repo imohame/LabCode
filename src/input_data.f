@@ -391,9 +391,9 @@
             call GBReadInput()
 ! #####################################################
 ! #####################################################
-!      to read precracked elements and apply proper cleavage planes
-       call FractReadApplyPreCrackCleavagePlanes()!a(k03),a(k04),a(k02))
-!!!!!!      call FractReadApplyPreCrackCleavagePlanes(y,z,ix)
+!C      to read precracked elements and apply proper cleavage planes
+!       call FractReadApplyPreCrackCleavagePlanes()!a(k03),a(k04),a(k02))
+!!!!      call FractReadApplyPreCrackCleavagePlanes(y,z,ix)
 ! #####################################################
 
       return

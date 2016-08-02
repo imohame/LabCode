@@ -105,7 +105,12 @@
       call GBApplyCleavagePlanes()
 ! #####################################################
 ! #####################################################
-     
+!      to read precracked elements and apply proper cleavage planes
+       call FractReadApplyPreCrackCleavagePlanes()!a(k03),a(k04),a(k02))
+! #####################################################
+! #####################################################
+        write(*, *) '-->>>>>>>>initial_values --done'
+
 !!!!           write(*,*)Y_modulus(1:numelt)
 !!!!           write(*,*)possion_ratio(1:numelt)
 !!!!           write(*,*)tau_y(1:numelt)
