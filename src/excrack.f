@@ -25,8 +25,8 @@ c     generate pre-exist crack
 		      ele=elepc(i)
 			  strflag1(ele)=2
 			  crackop(ele)=1
-			  ncleave(2,ele)=0.0
-			  ncleave(3,ele)=1.0
+!!!!			  ncleave(2,ele)=0.0
+!!!!			  ncleave(3,ele)=1.0
 		      write(*, *) 'Pre-exist crack, element', ele, 'overlapping'
 		  end do
 

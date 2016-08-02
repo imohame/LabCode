@@ -3,10 +3,12 @@
 !!###################################################################
 !###################################################################
 !###################################################################
-subroutine FractReadApplyPreCrackLines()
+subroutine FractReadApplyPreCrackCleavagePlanes()!y,z,ix)
     use mod_Fract
     use  mod_parameters
     common /wblock8/ abc(573,nume,4),his(573,nume,4)
+    common /precrack/ npc, elepc(100)
+    ! dimension y(*), z(*), ix(4,*)
 
     integer*4 setvbuf3f_local
     integer i,j,elemId,IERR
@@ -18,31 +20,35 @@ subroutine FractReadApplyPreCrackLines()
     bFractFlag=0
     write(*, *) 'beginning of CrackProp ... reading CrackProp.in'
 
-    open(60, file = 'CrackProp.in', status = 'old',IOSTAT=IERR, ERR=90)
-    read (60, *) FractLinesCount
+    open(70, file = 'CrackProp.in', status = 'unknown',IOSTAT=IERR, ERR=90)
+    read (70, *) FractLinesCount
 !!! if the fracture is not active then exit
     if (FractLinesCount == 0) goto 90
     bFractFlag=1
 
 
-    open(6011, file = 'CrackProp2.in', status = 'unknown')
-    ierr=setvbuf3f_local(6011,1,100)
+    open(7011, file = 'CrackProp2.in', status = 'unknown')
+    ierr=setvbuf3f_local(7011,1,100)
 
-    write (6011, *) FractLinesCount
-    read(60, *) Vcx,Vcy
-    write(6011, *) Vcx,Vcy
+    write (7011, *) FractLinesCount
+    read(70, *) Vcx,Vcy
+    write(7011, *) Vcx,Vcy
+
+    npc=FractLinesCount
 
     do i = 1, FractLinesCount
-      read(60, *) elemId
-      write(6011, *) elemId
+      read(70, *) elemId
+      elepc(i)=elemId
+      write(7011, *) elemId
       do j = 1, 3
         abc(362+j,elemId,1) = 0.0
         abc(365+j,elemId,1) = Vcx
         abc(368+j,elemId,1) = Vcy
+      end do
     end do
 
-    close(60)
-    close(6011)
+    close(70)
+    close(7011)
 
     return
 !    -------------------------------------------
@@ -50,7 +56,7 @@ subroutine FractReadApplyPreCrackLines()
     90  IF (IERR .EQ. 29 ) THEN
         write(*, *) '------------------------ no input file .. reading CrackProp.in'
       ELSE
-        write(*, *) 'Unrecoverable error in .. reading GBnormal.in, code =', IERR
+        write(*, *) 'Unrecoverable error in .. reading CrackProp.in, code =', IERR
         STOP
       END IF
 

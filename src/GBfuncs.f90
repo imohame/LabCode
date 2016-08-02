@@ -24,7 +24,7 @@ subroutine GBReadNormals()
     GBAreaCount=0
     write(*, *) 'beginning of ReadGBNormals ... reading GBnormal.in'
 
-    open(60, file = 'GBnormal.in', status = 'old',IOSTAT=IERR, ERR=90)
+    open(60, file = 'GBnormal.in', status = 'unknown',IOSTAT=IERR, ERR=90)
     open(6011, file = 'GBnormal2.in', status = 'unknown')
     ierr=setvbuf3f_local(6011,1,100)
 
@@ -138,6 +138,5 @@ subroutine GBApplyCleavagePlanes()
         abc(368+j,GBelemId,1) = GBNormals(GBareaId,2)
       end do
     end do
-
 
 END

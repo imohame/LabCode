@@ -392,8 +392,8 @@
 ! #####################################################
 ! #####################################################
 !      to read precracked elements and apply proper cleavage planes
-            call FractApplyCleavagePlanes(a(k03),a(k04),a(k02))
-!!!!!!      call FractApplyCleavagePlanes(y,z,ix)
+       call FractReadApplyPreCrackCleavagePlanes()!a(k03),a(k04),a(k02))
+!!!!!!      call FractReadApplyPreCrackCleavagePlanes(y,z,ix)
 ! #####################################################
 
       return
