@@ -26,7 +26,7 @@
      1   hgstress1his(40000),hgstress2his(40000)
 	 
 	  common/meshnum/ numnpo, numelto  
-	  common /stressflag/ strflag1(nume),ctr_flag(nume)
+	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
 	  common /overlapping/ intersec(4, nume), area_coeff(nume),
      > update_flag
 	  common /stroverlap/ sflg
@@ -55,7 +55,7 @@
 	  integer numelt, numnp, strflag1, ele, update_flag,fractFlag
 	  integer sflg, nnn2, crackop, overlapele
 	  integer lprint, nprint, nstep, numelto
-	  integer elecrack, ovs, ctr_flag, planeflag
+	  integer elecrack, ovs, ElemDecayCount, planeflag
 	  real intersec, ym, area_coeff, sigfrac, decfrac
 	  integer ncrack, nelefail, tipelenum 
 	  integer ic, nlast, itn, nfile
@@ -67,7 +67,7 @@
       
 	  update_flag=0
 	  do ele=1, numelto
-	      if (((strflag1(ele)==1) .AND. (ctr_flag(ele)==1))
+	      if (((strflag1(ele)==1) .AND. (ElemDecayCount(ele)==1))
      >        .or. (nstep==0 .and. strflag1(ele)==2)) then
 
 c             set crackline based on cleavage plane

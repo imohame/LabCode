@@ -2,7 +2,7 @@
 c     generate pre-exist crack
 
 	  parameter(nume = 40000)
-	  common /stressflag/ strflag1(nume),ctr_flag(nume)
+	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
 	  common /crackopen/ crackop(nume), overlapele(2,nume)
 	  common /crackline/ ncleave(3,nume), elecrack(4,nume),
      1       nodeflag(4,nume)

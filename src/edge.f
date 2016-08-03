@@ -14,7 +14,7 @@
       common/wblock12/ Y_modulus(nume),possion_ratio(nume),tau_y(nume)
 	  common/wblock2/  g_source, g_immob, g_minter, g_recov, b_v,
      1                             b_vvec(87),nmo,nim
-	  common /stressflag/ strflag1(nume),ctr_flag(nume)
+	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
 	  
 	integer gbflag, i, j, nssmat, ctr, matp
 	real gbvec, normgb, abc, aijbcc, aijfcc, aijhcp, aijhcpt, g, bv,

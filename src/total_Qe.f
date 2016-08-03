@@ -2,7 +2,7 @@
 	  integer, parameter :: nume       = 40000
 	  common/bk08/kprint,nstep,ite,ilimit,newstf
 	  common/wblock8/  abc(573,nume,4), his(573,nume,4) 
-	  common /stressflag/ strflag1(nume),ctr_flag(nume)
+	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
 	  common/meshnum/ numnpo, numelto
 	  common /t_Qe/ totqe, totqe_last, ele_area
 	  

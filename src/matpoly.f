@@ -136,7 +136,7 @@
      >                aijhcpt(24,86)
 	  common /intgr/ rgen(24), rrecov(87), rintr(87), rintr_n(87),
      >               rintr_p(87)
-	  common /stressflag/ strflag1(nume),ctr_flag(nume)
+	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
 	  common /gbblock/ gbvec(nume,3), gbflag(nume,3)
 !!!!!!!!!!!!!!!	  common /propag/ sigalt(4,40000)
       common/effmod/effmod(nelemg)
@@ -156,7 +156,7 @@
 !!!!!!	  common/couplinganalysis/ TDflag
 !!c	  common /gbtranr/ gbtr(14)
       real :: intener, ystart1(67), yprime1(67),  cleave        !!!!!!sigalt,
-	  integer :: strflag1, ctr_flag, crackop, overlapele, ele, oele
+	  integer :: strflag1, ElemDecayCount,crackop,overlapele,ele,oele
 	  integer ovs, ecount, n_decay, nelec, ncsj, fractFlag !!!!TDflag,
 	  real gbvec, tempgb,ngb,taurgb,taugb, gdotgb, den_im2gb
 	  real den_imgb, den_mgb, slip_ngb, slip_sgb, thermal_factorgb
@@ -881,7 +881,7 @@
 			   if(abs(qp)<1.0e-10) then             ! brittle fracture
 			       qp=1.0e-10
 			   end if
-!c				   ctr_flag(ink)=n_decay
+!c				   ElemDecayCount(ink)=n_decay
 			   if(abs(qe/qp)<0.02) then       ! much plastic work
 			       qe=0.02*qp
 			   else if(abs(qe/qp)>0.1) then        ! much elastic work
@@ -894,12 +894,12 @@
 		   end if
 !c		   else
 !c		       if(qe/inie(ink)<f_decay) then
-!c			       ctr_flag(ink)=n_decay
+!c			       ElemDecayCount(ink)=n_decay
 !c				   write(*,*) 'end decay by energy'
 !c			   end if
 !c		   end if
 !c		   write(*,*) ink, qe, qp, qe/qp, exp(-qe/(qp*100.0))
-           doptimizedConst=(inie(ink)**(ctr_flag(ink)**f_decay))
+           doptimizedConst=(inie(ink)**(ElemDecayCount(ink)**f_decay))
 		   sign1(i) = sig(1,i)*doptimizedConst
            sign2(i) = sig(2,i)*doptimizedConst
            sign3(i) = sig(3,i)*doptimizedConst

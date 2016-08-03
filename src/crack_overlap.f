@@ -3,7 +3,7 @@
 	  parameter (nume=40000)
 	  parameter (nume2=20000)
 	  common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
-	  common /stressflag/ strflag1(nume),ctr_flag(nume)
+	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
 	  common /pcracktip/ connect(4,nume2), node(2,nume2), 
      >	     penta(nume2),ndflag(2,nume2), numnpt, numeltu, ndc
 	  

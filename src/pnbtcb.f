@@ -1,12 +1,12 @@
       subroutine pnbtcb (s,d)
-c     implicit double precision (a-h,o-z)                                    dp
+!c     implicit double precision (a-h,o-z)                                    dp
        use mod_parameters
       common/range/mft,mlt,lft,llt,nftm1
-	  common /stressflag/ strflag1(nume),ctr_flag(nume)
-c	  common /overlapping/ intersec(4, nume), area_coeff(nume), update_flag
-c	  real area_coeff
+	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
+!c	  common /overlapping/ intersec(4, nume), area_coeff(nume), update_flag
+!c	  real area_coeff
 	  integer strflag1
-c      integer update_flag
+!c      integer update_flag
       common/vect4/
      1 py1(nelemg),py2(nelemg),py3(nelemg),py4(nelemg),
      2 pz1(nelemg),pz2(nelemg),pz3(nelemg),pz4(nelemg),

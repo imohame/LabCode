@@ -4,7 +4,7 @@
 	  parameter (nume2=20000)
 	  common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
 	  common/bk17/dn1,dn2,nwebuf,ntime,numnp,neq,ibar,mthsol
-	  common /stressflag/ strflag1(nume),ctr_flag(nume)
+	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
 	  common /crackline/ ncleave(3,nume), elecrack(4,nume), 
      1       nodeflag(4,nume)
 	  common /pcracktip/ connect(4,nume2),node(2,nume2),penta(nume2),

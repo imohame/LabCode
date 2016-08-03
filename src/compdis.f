@@ -5,7 +5,7 @@ c     with preset distance
 
       parameter (nume=40000)
 	  common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
-	  common /stressflag/ strflag1(nume),ctr_flag(nume)
+	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
 	  common/meshnum/ numnpo, numelto 
 	  common/cracktip/ tipele(2,nume), ntp
 	  
@@ -33,19 +33,19 @@ c     with preset distance
 		  end if
 	  end do
 	  
-c	  do i=1, ntp
-c	      if(ele/=tipele(2,i)) then   !element not at the crack tip
-c		      ntel=tipele(1,i)
-c		      yt=(y(ix(1,ntel))+u(id(1,ix(1,ntel)))
-c     >            +y(ix(3,ntel))+u(id(1,ix(3,ntel))))/2.0
-c	          zt=(z(ix(1,ntel))+u(id(2,ix(1,ntel)))
-c     >            +z(ix(3,ntel))+u(id(2,ix(3,ntel))))/2.0
-c	          ds=sqrt((ye-yt)**2+(ze-zt)**2)
-c			  if(ds<ds0) then
-c			      cflag=0
-c			  end if
-c		  end if
-c	  end do
+!c	  do i=1, ntp
+!c	      if(ele/=tipele(2,i)) then   !element not at the crack tip
+!c		      ntel=tipele(1,i)
+!c		      yt=(y(ix(1,ntel))+u(id(1,ix(1,ntel)))
+!c     >            +y(ix(3,ntel))+u(id(1,ix(3,ntel))))/2.0
+!c	          zt=(z(ix(1,ntel))+u(id(2,ix(1,ntel)))
+!c     >            +z(ix(3,ntel))+u(id(2,ix(3,ntel))))/2.0
+!c	          ds=sqrt((ye-yt)**2+(ze-zt)**2)
+!c			  if(ds<ds0) then
+!c			      cflag=0
+!c			  end if
+!c		  end if
+!c	  end do
 	  
 	  do i=1,numelt
 	      if (strflag1(i) > 0) then

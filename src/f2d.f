@@ -71,7 +71,7 @@
       common/hgstress/hgstress1store(40000),hgstress2store(40000),
      1   hgstress1his(40000),hgstress2his(40000)
 	  common /overlapping/ intersec(4, nume), area_coeff(nume), update_flag
-	  common /stressflag/ strflag1(nume),ctr_flag(nume)
+	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
 	  common /sigfrac/ sigmacrit0, sigmacrit1, sigmacrit2,sigmacrit3,
      1   n_decay, f_decay, penalty,fractFlag
       
@@ -87,7 +87,7 @@
 !c	 1     rp6(128), rp7(128), rp8(128)
       real rp(8,nelemg), area_coeff
 	  real xo, xp, yo, yp, dx, dy, penalty
-	  integer strflag1, ctr_flag, n_decay, q,fractFlag
+	  integer strflag1, ElemDecayCount, n_decay, q,fractFlag
 	  real sigmacrit0, sigmacrit1, sigmacrit2, sigmacrit3
 !c
 !c      equivalence (lpar(2),numel)

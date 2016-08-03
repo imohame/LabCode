@@ -21,7 +21,7 @@
      >          aijhcpt(24,86)
 	  common /intgr/ rgen(24), rrecov(87), rintr(87), rintr_n(87),
      >               rintr_p(87)
-	  common /stressflag/ strflag1(nume),ctr_flag(nume)
+	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
       common /energbox/ nelec, qepower, qppower, ncsj, gbco
 	  common /gbtranr/ gbtr(14)
 !!!!!!	  common/hydrodiffusion/ hycon(nume,1)

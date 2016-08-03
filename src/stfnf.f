@@ -123,7 +123,7 @@
      > inertia(nelemg)
       common/intener/intener(nelemg)
       common/hourglassstress/hgstress1c(nelemg),hgstress2c(nelemg)
-	  common /stressflag/ strflag1(nume),ctr_flag(nume)
+	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
 	  common /overlapping/ intersec(4, nume), area_coeff(nume),
      > update_flag
 	  common /strvect/ stra(nelemg,4)

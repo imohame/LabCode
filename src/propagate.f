@@ -5,7 +5,7 @@
 !!!!!!!!!!	  integer, parameter :: nume       = 40000
 !!!!!!!!!!	  parameter (n_dim = 3, nss = 24, no_mat = 1000 )
 	  
-	  common /stressflag/ strflag1(nume),ctr_flag(nume)
+	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
 	  common/wblock8/  abc(573,nume,4), his(573,nume,4)
 	  common /wblock10/ng,grain_mo(1000,3),bv(no_mat,87),nssmat(1000)  !added WML 91109  
      1            ,nssimmat(1000)
@@ -25,12 +25,12 @@
 !!!!!!!!!	  common/couplinganalysis/ TDflag
 	  common/hydroembrittle/critfrac(1000), sigfrac0(nume), 
      >       sigfrac(nume),decfrac(nume)
-	  common/hydroembrittle110/critfrac110(1000), sigfrac0110(nume)
+	  common/hydroembrittle110/critfrac110(1000),sigfrac0110(nume)
 	  common/slipplane110/ nsp110(6)
 	  common /cracktipcircle/ ndcircle
 	  common /fractureplane/ planeflag(nume), planeflag0(nume)
 	  
-	  integer strflag1, ctr_flag, ele, numelt, gbflag, lst,nstep
+	  integer strflag1,ElemDecayCount,ele,numelt,gbflag,lst,nstep
 	  real sig1, abc, stress, sig, sigmafrac1, 
      > sigmafrac100, sigmafrac110       !!!!!!!!,sigalt
 	  real cleave, dum, sigmacrit, ncleave, hycon
@@ -94,19 +94,19 @@
 	  
 	  do 20 ele = 1, numelto
 	  
-	      if(strflag1(ele)==1 .and. ctr_flag(ele) .lt. n_decay) then
-	          ctr_flag(ele) = ctr_flag(ele) + 1
-	          write(989,*) ele,strflag1(ele),ctr_flag(ele),nstep,'**'
+      if(strflag1(ele)==1 .and. ElemDecayCount(ele) .lt.n_decay)then
+        ElemDecayCount(ele) = ElemDecayCount(ele) + 1
+        write(989,*) ele,strflag1(ele),ElemDecayCount(ele),nstep,'**'
 			  go to 20
-          else if (strflag1(ele)==1 .and. ctr_flag(ele)==n_decay) then
+      else if(strflag1(ele)==1 .and. ElemDecayCount(ele)==n_decay)then
 	          strflag1(ele)=2
 		      crackop(ele)=1
 			  planeflag(ele)=planeflag0(ele)		      
 		      write(*,*) 'element ', ele, 'overlapping'
 			  go to 20
-	      else if(strflag1(ele)==2) then
+	  else if(strflag1(ele)==2) then
 		      go to 20
-		  end if	  
+      end if	  
 
 !!!c    change critical fracture stress between fcc and bcc  
 !!!c		  if(nssmat(matp(ele))==12 .and. nssimmat(matp(ele))==18) then
@@ -166,18 +166,18 @@
      >		    .and. (sigmafrac110 .gt. sigmacrit110) 
      >          .and. (gbflag(ele,1) == 0)) then
 	              strflag1(ele) = 1
-	              ctr_flag(ele) = 1
+	              ElemDecayCount(ele) = 1
 				  planeflag0(ele) = 2
-	              write(989,*) ele,strflag1(ele),ctr_flag(ele),
+	              write(989,*) ele,strflag1(ele),ElemDecayCount(ele),
      >			               nstep,'str', '110'
 			      go to 20
               else if ((strflag1(ele)==0)
      >			.and. (sigmafrac110 .gt. sigmacrit110)  
      >	        .and. (gbflag(ele,1) .ne. 0)) then
 	              strflag1(ele) = 1
-	              ctr_flag(ele) = 1
+	              ElemDecayCount(ele) = 1
 				  planeflag0(ele) = 2
-	              write(989,*) ele,strflag1(ele),ctr_flag(ele),
+	              write(989,*) ele,strflag1(ele),ElemDecayCount(ele),
      >			               nstep,'gb', '110'
 	              go to 20
 		      end if
@@ -216,17 +216,17 @@
 	      if((strflag1(ele)==0).and.(sigmafrac100 .gt. sigmacrit100) 
      >          .and. (gbflag(ele,1) == 0)) then
 	          strflag1(ele) = 1
-	          ctr_flag(ele) = 1
+	          ElemDecayCount(ele) = 1
 			  planeflag0(ele) = -2
-	          write(989,*) ele,strflag1(ele),ctr_flag(ele),nstep,
+	          write(989,*) ele,strflag1(ele),ElemDecayCount(ele),nstep,
      >                     'str', '100'
           else if ((strflag1(ele)==0) 
      >        .and. (sigmafrac100 .gt. sigmacrit100)  
      >	      .and. (gbflag(ele,1) .ne. 0)) then
 	          strflag1(ele) = 1
-	          ctr_flag(ele) = 1
+	          ElemDecayCount(ele) = 1
 			  planeflag0(ele) = -2
-	          write(989,*) ele,strflag1(ele),ctr_flag(ele),nstep,
+	          write(989,*) ele,strflag1(ele),ElemDecayCount(ele),nstep,
      >                     'gb', '100'
 	      end if
 		
