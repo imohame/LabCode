@@ -36,7 +36,7 @@
 	  common /cleavage_plane/ cleave_n(1000,3,3)
 	  common /cleavage_plane0/ cleave_n0(3,3)
 	  common /sigfrac/ sigmacrit0, sigmacrit1,sigmacrit2, sigmacrit3,
-     >      n_decay, f_decay, penalty,fractFlag
+     >      DecayCount, f_decay, penalty,fractFlag
 	  common /precrack/ npc, elepc(100)
       common /elas_energ/ inie(nume), ecount(nume)
 	  common /energbox/ nelec, qepower, qppower, ncsj, gbco
@@ -47,7 +47,7 @@
       character *80 txt
 	  real dum, gbvec, b_v, inie, qepower, qppower, gbco
 	  integer ElemFractCode, ElemDecayCount, gbflag
-	  integer var_no(1000), ngbctr, n_decay ,fractFlag
+	  integer var_no(1000), ngbctr, DecayCount ,fractFlag
 	  real slip_s00(4,24,3), slip_n00(4,24,3)
 	  real cleave_n, cleave_n0, sigmacrit0, sigmacrit1, sigmacrit2,
      > 	  sigmacrit3, f_decay, penalty
@@ -265,7 +265,7 @@
       read (60,*) sigmacrit2
 	  read (60,*) sigmacrit3
 	  read (60,*) fractFlag
-	  read (60,*) n_decay
+	  read (60,*) DecayCount
 	  read (60,*) f_decay
 	  read (60,*) ndcircle
 	  read (60,*) iplot

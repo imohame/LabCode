@@ -28,18 +28,19 @@ c
       common/slar3/nsl,nsntl,nmntl,nslnmx,sltol,slhrd
       common/fissn0/maxneq,mwspac,ntpe0,ntpe1,nfissl(3)
       common/fissn1/melemt,nnns,ntpe2,n2g,llls
-      common/fissn2/nwpblk,numblk,mwsusd,mxnepb,maxch,matpr,mench,ifa(2)
+      common/fissn2/nwpblk,numblk,mwsusd,mxnepb,maxch,
+     > matpr,mench,ifa(2)
       common/colht/icolht,iopta
       logical rezone
       common/rezone/rezone,nrzn,nctr,irzcnt,nrezon
       common/xcom0/imeth,interq,imess,istart,igraf
       common/cn3/ibbari,intgi,nmbfi,ithopi,ithcri,ithini,iengri,
-     1           ijinti
+     >           ijinti
       common/double/iprec,ncpw,unit
       common/main_block/ a(1)
 	  common/mbsize/numelt2, numnp2, neq2
-	  common /sigfrac/ sigmacrit0, sigmacrit1,  sigmacrit2, sigmacrit3,
-     1    n_decay, f_decay, penalty,fractFlag
+	  common /sigfrac/ sigmacrit0, sigmacrit1,sigmacrit2,sigmacrit3,
+     >    DecayCount, f_decay, penalty,fractFlag
 	  
       dimension matp(*),fail(*)
       logical icolht

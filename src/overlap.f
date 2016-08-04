@@ -44,7 +44,7 @@
 	  common/hydroembrittle/critfrac(1000), sigfrac0(nume), 
      >       sigfrac(nume),decfrac(nume)
 	  common /sigfrac/ sigmacrit0, sigmacrit1, sigmacrit2, 
-     >       sigmacrit3,n_decay, f_decay, penalty,fractFlag
+     >       sigmacrit3,DecayCount, f_decay, penalty,fractFlag
 	  common /fractureplane/ planeflag(nume), planeflag0(nume)
 	  common /tipvelocity/ ncrack, nelefail(1000), 
      > tipelenum(1000,nume)

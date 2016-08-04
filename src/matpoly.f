@@ -148,7 +148,7 @@
 	  common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
 	  common /crackopen/ crackop(nume), overlapele(2,nume)
 	  common /sigfrac/ sigmacrit0, sigmacrit1, sigmacrit2, 
-     > sigmacrit3, n_decay, f_decay, penalty,fractFlag
+     > sigmacrit3, DecayCount, f_decay, penalty,fractFlag
 	  common /ovsum/ ovs
 	  common /strvect/ stra(nelemg,4)
 	  common /elas_energ/ inie(nume), ecount(nume)
@@ -158,7 +158,7 @@
       real :: intener, ystart1(67), yprime1(67),  cleave        !!!!!!sigalt,
 	  integer :: ElemFractCode, ElemDecayCount,
      >  crackop,overlapele,ele,oele
-	  integer ovs, ecount, n_decay, nelec, ncsj, fractFlag !!!!TDflag,
+	  integer ovs, ecount, DecayCount, nelec, ncsj, fractFlag !!!!TDflag,
 	  real gbvec, tempgb,ngb,taurgb,taugb, gdotgb, den_im2gb
 	  real den_imgb, den_mgb, slip_ngb, slip_sgb, thermal_factorgb
 	  real bres, cb, sb, cnu, snu, psgb, ugb1, ugb, beff, magvec1
@@ -844,11 +844,11 @@
      >              2.00*ssdev4*(Dij_dev(4)-D12_p) +	
      >                ssdev3*(Dij_dev(3)-D33_p)                       
 	 
-           effmod(i)=1./3.*((twomu/3.0*dt+alamdt)/dt*3.+2.*((Dij_dev(1)*
-     >     twomu*(Dij_dev(1)-D11_p)+Dij_dev(2)*twomu*(Dij_dev(2)-D22_p)
+         effmod(i)=1./3.*((twomu/3.0*dt+alamdt)/dt*3.+2.*((Dij_dev(1)*
+     >   twomu*(Dij_dev(1)-D11_p)+Dij_dev(2)*twomu*(Dij_dev(2)-D22_p)
      >     +Dij_dev(3)*twomu*(Dij_dev(3)-D33_p)+2.*Dij_dev(4)*
-     >     twomu*(Dij_dev(4)-D12_p))/(Dij_dev(1)*Dij_dev(1)+Dij_dev(2)*
-     >     Dij_dev(2)+Dij_dev(3)*Dij_dev(3)+2.*Dij_dev(4)*Dij_dev(4))))
+     >   twomu*(Dij_dev(4)-D12_p))/(Dij_dev(1)*Dij_dev(1)+Dij_dev(2)*
+     >   Dij_dev(2)+Dij_dev(3)*Dij_dev(3)+2.*Dij_dev(4)*Dij_dev(4))))
 
 
            press    = press  + (twomu/3.0*dt+alamdt)*traced         
@@ -882,7 +882,7 @@
 			   if(abs(qp)<1.0e-10) then             ! brittle fracture
 			       qp=1.0e-10
 			   end if
-!c				   ElemDecayCount(ink)=n_decay
+!c				   ElemDecayCount(ink)=DecayCount
 			   if(abs(qe/qp)<0.02) then       ! much plastic work
 			       qe=0.02*qp
 			   else if(abs(qe/qp)>0.1) then        ! much elastic work
@@ -895,7 +895,7 @@
 		   end if
 !c		   else
 !c		       if(qe/inie(ink)<f_decay) then
-!c			       ElemDecayCount(ink)=n_decay
+!c			       ElemDecayCount(ink)=DecayCount
 !c				   write(*,*) 'end decay by energy'
 !c			   end if
 !c		   end if

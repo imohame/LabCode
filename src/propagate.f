@@ -16,7 +16,7 @@
 !!!!!!!!!!!!!	  common /propag/ sigalt(4,nume)
       common/main_block/  a(1)
 	  common /sigfrac/ sigmacrit0, sigmacrit1, sigmacrit2, 
-     1       sigmacrit3,n_decay, f_decay, penalty,fractFlag
+     1       sigmacrit3,DecayCount, f_decay, penalty,fractFlag
 	  common /crackopen/ crackop(nume), overlapele(2,nume)
       common /crackline/ ncleave(3,nume), elecrack(4,nume), 
      1       nodeflag(4,nume)
@@ -34,7 +34,7 @@
 	  real sig1, abc, stress, sig, sigmafrac1, 
      > sigmafrac100, sigmafrac110       !!!!!!!!,sigalt
 	  real cleave, dum, sigmacrit, ncleave, hycon
-	  integer n_decay, crackop, crackele, oele, cflag, 
+	  integer DecayCount, crackop, crackele, oele, cflag, 
      > numelto,fractFlag
 	  real sigmacrit0, sigmacrit1, sigmacrit2, sigmacrit3
 	  integer nssmat, nssimmat,  thermalflag, ndcircle  !!TDflag,
@@ -95,13 +95,13 @@
 	  do 20 ele = 1, numelto
 	  
       if(ElemFractCode(ele)==1 .and. 
-     > ElemDecayCount(ele) .lt.n_decay)then !-- just in the decay process
+     > ElemDecayCount(ele) .lt.DecayCount)then !-- just in the decay process
         ElemDecayCount(ele) = ElemDecayCount(ele) + 1 !-- increment the decay
         write(989,*) ele,ElemFractCode(ele),
      >   ElemDecayCount(ele),nstep,'**'
 			  go to 20
       else if(ElemFractCode(ele)==1 .and. 
-     >     ElemDecayCount(ele)==n_decay)then !-- finished the decay
+     >     ElemDecayCount(ele)==DecayCount)then !-- finished the decay
 	          ElemFractCode(ele)=2   !-- finished the decay
 		      crackop(ele)=1
 			  planeflag(ele)=planeflag0(ele)		      

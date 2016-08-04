@@ -65,17 +65,17 @@
      2khg24h(40000),khg33h(40000),khg34h(40000),khg44h(40000)
       common/hgenergy/hgenerstore(40000),hgenerhis(40000)
       common/totalenergy/totenerstore(40000),totenerhis(40000),
-     1 inertener(40000)
+     > inertener(40000)
       common/hgenergypass/hgener(nelemg),
      > totener(nelemg),inertia(nelemg)
       common/hourglassstress/hgstress1c(nelemg),hgstress2c(nelemg)
       common/hgstress/hgstress1store(40000),hgstress2store(40000),
-     1   hgstress1his(40000),hgstress2his(40000)
+     >   hgstress1his(40000),hgstress2his(40000)
 	  common /overlapping/ intersec(4, nume), area_coeff(nume), 
      > update_flag
 	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
 	  common /sigfrac/ sigmacrit0, sigmacrit1, sigmacrit2,sigmacrit3,
-     1   n_decay, f_decay, penalty,fractFlag
+     >   DecayCount, f_decay, penalty,fractFlag
       
       
   
@@ -89,7 +89,7 @@
 !c	 1     rp6(128), rp7(128), rp8(128)
       real rp(8,nelemg), area_coeff
 	  real xo, xp, yo, yp, dx, dy, penalty
-	  integer ElemFractCode, ElemDecayCount, n_decay, q,fractFlag
+	  integer ElemFractCode, ElemDecayCount, DecayCount, q,fractFlag
 	  real sigmacrit0, sigmacrit1, sigmacrit2, sigmacrit3
 !c
 !c      equivalence (lpar(2),numel)
@@ -294,8 +294,8 @@
 !c	              yo = z(ix(k,4+1)) + d(id(2,ix(k,4+1)))
 !c				  dx = xp - xo
 !c	              dy = yp - yo
-!c		          rp(2*k-1,i)=-penalty*dx*(0.40000**(ctr_flag(ink)-n_decay))
-!c				  rp(2*k,i)=-penalty*dy*(0.40000**(ctr_flag(ink)-n_decay))
+!c		          rp(2*k-1,i)=-penalty*dx*(0.40000**(ctr_flag(ink)-DecayCount))
+!c				  rp(2*k,i)=-penalty*dy*(0.40000**(ctr_flag(ink)-DecayCount))
 !c				  else if(k==3) then
 !c		          xo = y(ix(k,ink)) + d(id(1,ix(k,ink)))
 !c	              xp = y(ix(k,4+1)) + d(id(1,ix(k,4+1)))
@@ -303,8 +303,8 @@
 !c	              yp = z(ix(k,4+1)) + d(id(2,ix(k,4+1)))
 !c	              dx = xp - xo
 !c	              dy = yp - yo
-!c		          rp(2*k-1,i)=penalty*dx*(0.40000**(ctr_flag(ink)-n_decay))
-!c				  rp(2*k,i)=penalty*dy*(0.40000**(ctr_flag(ink)-n_decay))
+!c		          rp(2*k-1,i)=penalty*dx*(0.40000**(ctr_flag(ink)-DecayCount))
+!c				  rp(2*k,i)=penalty*dy*(0.40000**(ctr_flag(ink)-DecayCount))
 !c				  end if
 !c				  end do
 !c				  do q=1,8
@@ -321,8 +321,8 @@
 !c	              yo = z(ix(k,4+2)) + d(id(2,ix(k,4+2)))
 !c				  dx = xp - xo
 !c	              dy = yp - yo
-!c		          rp(2*k-1,i)=-penalty*dx*(0.40000**(ctr_flag(ink)-n_decay))
-!c				  rp(2*k,i)=-penalty*dy*(0.40000**(ctr_flag(ink)-n_decay))
+!c		          rp(2*k-1,i)=-penalty*dx*(0.40000**(ctr_flag(ink)-DecayCount))
+!c				  rp(2*k,i)=-penalty*dy*(0.40000**(ctr_flag(ink)-DecayCount))
 !c				  else 
 !c		          xo = y(ix(k,ink)) + d(id(1,ix(k,ink)))
 !c	              xp = y(ix(k,4+2)) + d(id(1,ix(k,4+2)))
@@ -330,8 +330,8 @@
 !c	              yp = z(ix(k,4+2)) + d(id(2,ix(k,4+2)))
 !c	              dx = xp - xo
 !c	              dy = yp - yo
-!c		          rp(2*k-1,i)=penalty*dx*(0.40000**(ctr_flag(ink)-n_decay))
-!c				  rp(2*k,i)=penalty*dy*(0.40000**(ctr_flag(ink)-n_decay))
+!c		          rp(2*k-1,i)=penalty*dx*(0.40000**(ctr_flag(ink)-DecayCount))
+!c				  rp(2*k,i)=penalty*dy*(0.40000**(ctr_flag(ink)-DecayCount))
 !c				  end if
 !c				  end do
 !c				  do q=1,8
