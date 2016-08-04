@@ -245,8 +245,8 @@
       call CPU_TIME(time1)
       call updat (a(k18),a(k55),a(k56),a(k19))
 !!!!!      updat (u     ,udt   ,udtt  ,ui)
-	  call edge(a(k03),a(k04),a(k08))
-!!!!!      edge(y     ,z     ,matp)
+!!!	  call edge(a(k03),a(k04),a(k08))
+!!!!!!!!      edge(y     ,z     ,matp)
       
       call propagate(a(k03),a(k04),a(k02),a(k57),a(k18), a(k08),numelt,nstep)
 !!!!!      propagate(y     , z    , ix   , id   , u    , matp  ,numelt,nstep)
