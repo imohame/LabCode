@@ -2,7 +2,7 @@
 c     generate pre-exist crack
 
 	  parameter(nume = 40000)
-	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
+	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
 	  common /crackopen/ crackop(nume), overlapele(2,nume)
 	  common /crackline/ ncleave(3,nume), elecrack(4,nume),
      1       nodeflag(4,nume)
@@ -11,7 +11,7 @@ c     generate pre-exist crack
 	  common /tipvelocity/ncrack,nelefail(1000),tipelenum(1000,nume)
 	  common /precrack2/ rlflag
 
-	  integer strflag1, crackop, npc, elepc, nstep
+	  integer ElemFractCode, crackop, npc, elepc, nstep
 	  integer ncrack, nelefail, tipelenum, rlflag
 
 	  integer excf, ele, i, j, dum
@@ -27,7 +27,7 @@ c     generate pre-exist crack
 	      do i=1, npc
 		      ele=elepc(i)
 !!!          write(*, *) 'Pre-exist crack, element', elepc(i)
-			  strflag1(ele)=2
+			  ElemFractCode(ele)=2
 			  crackop(ele)=1
 !!!!			  ncleave(2,ele)=0.0
 !!!!			  ncleave(3,ele)=1.0

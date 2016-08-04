@@ -11,23 +11,23 @@
      1                                 ,nssimmat(1000)
 	  common /aij/ aijhcp(24,87), aijfcc(12,18), aijbcc(24,43),
 	1         aijhcpt(24,86)
-      common/wblock12/ Y_modulus(nume),possion_ratio(nume),tau_y(nume)
+      common/wblock12/Y_modulus(nume),possion_ratio(nume),tau_y(nume)
 	  common/wblock2/  g_source, g_immob, g_minter, g_recov, b_v,
      1                             b_vvec(87),nmo,nim
-	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
+	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
 	  
 	integer gbflag, i, j, nssmat, ctr, matp
 	real gbvec, normgb, abc, aijbcc, aijfcc, aijhcp, aijhcpt, g, bv,
 	1         temp, tau_y
 	real possion_ratio,thermal_factor,den_im(87),tau(24),taur(24)
-	integer nintg, strflag1
+	integer nintg, ElemFractCode
 	
 	dimension y(*), z(*), matp(*)
 	
 	nintg=1
 	
 	do i = 1, nume
-	  if(strflag1(i)==0) then     ! only for non-cracked elements
+	  if(ElemFractCode(i)==0) then     ! only for non-cracked elements
 	    if (gbflag(i,1) .ne. 0) then
 	        gbvec(i,1) = -(z(gbflag(i,2))-z(gbflag(i,3)))
 	        gbvec(i,2) = (y(gbflag(i,2))-y(gbflag(i,3)))

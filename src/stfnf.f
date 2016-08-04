@@ -123,7 +123,7 @@
      > inertia(nelemg)
       common/intener/intener(nelemg)
       common/hourglassstress/hgstress1c(nelemg),hgstress2c(nelemg)
-	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
+	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
 	  common /overlapping/ intersec(4, nume), area_coeff(nume),
      > update_flag
 	  common /strvect/ stra(nelemg,4)
@@ -138,7 +138,7 @@
      1 cg13c(nelemg),cg23c(nelemg),cg14c(nelemg),cg24c(nelemg)
       equivalence (lpar(1),model),(lpar(5),ityp2d)
       real intener, area_coeff, stra
-	  integer strflag1, update_flag
+	  integer ElemFractCode, update_flag
 !c.....Parameter for hourglass control type
 !c     3=stiffness hourglass control
 !c     2=viscous hourglass control
@@ -1018,7 +1018,7 @@ c     Is this incremental??
 !c     update element internal force and stiffness for cracked element
       do i=lft,llt
         ink=i+nftm1
-		if(strflag1(ink)==2) then
+		if(ElemFractCode(ink)==2) then !-- already decayed
 		  r1(i)=area_coeff(ink)*r1(i)
 		  r2(i)=area_coeff(ink)*r2(i)
 		  r3(i)=area_coeff(ink)*r3(i)

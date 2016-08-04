@@ -2,10 +2,10 @@
 !c     implicit double precision (a-h,o-z)                                    dp
        use mod_parameters
       common/range/mft,mlt,lft,llt,nftm1
-	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
+	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
 !c	  common /overlapping/ intersec(4, nume), area_coeff(nume), update_flag
 !c	  real area_coeff
-	  integer strflag1
+	  integer ElemFractCode
 !c      integer update_flag
       common/vect4/
      1 py1(nelemg),py2(nelemg),py3(nelemg),py4(nelemg),
@@ -102,7 +102,7 @@
 !c     update stiffness for cracked element
 !c      do i=lft,llt
 !c        ink=i+nftm1
-!c		if(strflag1(ink)==1) then
+!c		if(ElemFractCode(ink)==1) then
 !c		  do j=1,36
 !c		    s(j,i)=area_coeff(ink)*s(j,i)
 !c	      end do
@@ -113,7 +113,7 @@
 !c      do i=lft,llt
 !c	 
 !c	    ink=i+nftm1
-!c	    if(strflag1(ink)==2) then
+!c	    if(ElemFractCode(ink)==2) then
 !c	    open (unit = 11, file='stiff.dat', status = 'old')
 !c	    do j=1,36
 !c         read (11,*) s(j,i)

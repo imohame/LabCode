@@ -21,7 +21,7 @@
      >          aijhcpt(24,86)
 	  common /intgr/ rgen(24), rrecov(87), rintr(87), rintr_n(87),
      >               rintr_p(87)
-	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
+	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
       common /energbox/ nelec, qepower, qppower, ncsj, gbco
 	  common /gbtranr/ gbtr(14)
 !!!!!!	  common/hydrodiffusion/ hycon(nume,1)
@@ -41,7 +41,7 @@
 
 	  real ll, srm, sgdot, gd(24), dm(24), dim1(24), dim2(87)
 	  real yintr(87), yrecov(87), ygen(24),fphi,rhomotot
-	  integer n, n1, n2, nssim, nssm, ctr, strflag1, planeflag
+	  integer n, n1, n2, nssim, nssm, ctr, ElemFractCode, planeflag
       integer    ::  s_s_a(nss),nass, nelec
 	  real rhointn, rhointp, rhomi, rhoimi, gbtr
 	  real rintr_ntot, rintr_ptot, etae, rho_gnd
@@ -58,7 +58,7 @@
 		  do j = 1, 18
 			  rrecov(j) = abc(460+j,ink,nintg)
 			  if (j .le. 12) then
-				  rintr_n(j) = -1.0*(abc(57+j,ink,nintg)-rhomi - rgen(j))
+			  rintr_n(j) = -1.0*(abc(57+j,ink,nintg)-rhomi - rgen(j))
 				  rintr_p(j)=abc(81+j,ink,nintg)-rhoimi + rrecov(j)
 				  rintr(j)=rintr_p(j)-rintr_n(j)
 			  else
@@ -77,7 +77,7 @@
 		  do j = 1, 43
 			  rrecov(j) = abc(460+j,ink,nintg)
 			  if (j .le. 24) then
-				  rintr_n(j) = -1.0*(abc(57+j,ink,nintg)-rhomi - rgen(j))
+			  rintr_n(j) = -1.0*(abc(57+j,ink,nintg)-rhomi - rgen(j))
 				  rintr_p(j)=abc(81+j,ink,nintg)-rhoimi + rrecov(j)
 				  rintr(j)=rintr_p(j)-rintr_n(j)
 			  else
@@ -95,7 +95,7 @@
 		  do j = 1, 86
 			  rrecov(j) = abc(460+j,ink,nintg)
 			  if (j .le. 24) then
-				  rintr_n(j) = -1.0*(abc(57+j,ink,nintg)-rhomi - rgen(j))
+			  rintr_n(j) = -1.0*(abc(57+j,ink,nintg)-rhomi - rgen(j))
 				  rintr_p(j)=abc(81+j,ink,nintg)-rhoimi + rrecov(j)
 				  rintr(j)=rintr_p(j)-rintr_n(j)
 			  else
@@ -113,7 +113,7 @@
 		  do j = 1, 87
 			  rrecov(j) = abc(460+j,ink,nintg)
 			  if (j .le. 24) then
-				  rintr_n(j) = -1.0*(abc(57+j,ink,nintg)-rhomi - rgen(j))
+			   rintr_n(j) = -1.0*(abc(57+j,ink,nintg)-rhomi - rgen(j))
 				  rintr_p(j)=abc(81+j,ink,nintg)-rhoimi + rrecov(j)
 				  rintr(j)=rintr_p(j)-rintr_n(j)
 			  else
@@ -129,7 +129,7 @@
 !!!ccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 		 
-		 write(993,*) strflag1(ink)
+		 write(993,*) ElemFractCode(ink)
 		 write(938,*) planeflag(ink)
 !!!!!!!!!!!!!!!!!!		 write(2101,*) hycon(ink,1)         !hydrogen_con.out
 !!!!!!!!!!!c        print out pressure gradient

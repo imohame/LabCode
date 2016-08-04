@@ -5,7 +5,7 @@ c     with preset distance
 
       parameter (nume=40000)
 	  common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
-	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
+	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
 	  common/meshnum/ numnpo, numelto 
 	  common/cracktip/ tipele(2,nume), ntp
 	  
@@ -14,7 +14,7 @@ c     with preset distance
 	  integer tipele, ntp, ele, nd, cflag
 	  real y3, z3, y1, z1, ds0, ds
 	  real ye, ze, yt, zt
-	  integer ntel, strflag1, numelt, numelto
+	  integer ntel, ElemFractCode, numelt, numelto
 	  
 	  cflag=1
 	  
@@ -48,12 +48,12 @@ c     with preset distance
 !c	  end do
 	  
 	  do i=1,numelt
-	      if (strflag1(i) > 0) then
+	      if (ElemFractCode(i) > 0) then
 		      ntel=i
 			  yt=(y(ix(1,ntel))+y(ix(3,ntel)))/2.0
 	          zt=(z(ix(1,ntel))+z(ix(3,ntel)))/2.0
 	          ds=sqrt((ye-yt)**2+(ze-zt)**2)
-			  if(ds<ds0) then
+			  if(ds<ds0) then   !- if this elem i 
 			      cflag=0
 				  go to 30
 			  end if

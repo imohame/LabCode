@@ -26,7 +26,7 @@
      1   hgstress1his(40000),hgstress2his(40000)
 	 
 	  common/meshnum/ numnpo, numelto  
-	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
+	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
 	  common /overlapping/ intersec(4, nume), area_coeff(nume),
      > update_flag
 	  common /stroverlap/ sflg
@@ -52,7 +52,7 @@
 	  dimension y(*), z(*), ix(4,*), matp(*), id(2,*), u(*), usi(*),
      >   freep(5,*), ym(4,*)
 	  
-	  integer numelt, numnp, strflag1, ele, update_flag,fractFlag
+	  integer numelt, numnp, ElemFractCode, ele,update_flag,fractFlag
 	  integer sflg, nnn2, crackop, overlapele
 	  integer lprint, nprint, nstep, numelto
 	  integer elecrack, ovs, ElemDecayCount, planeflag
@@ -67,8 +67,8 @@
       
 	  update_flag=0
 	  do ele=1, numelto
-	      if (((strflag1(ele)==1) .AND. (ElemDecayCount(ele)==1))
-     >        .or. (nstep==0 .and. strflag1(ele)==2)) then
+	      if (((ElemFractCode(ele)==1) .AND.(ElemDecayCount(ele)==1))
+     >        .or. (nstep==0 .and. ElemFractCode(ele)==2)) then
 
 c             set crackline based on cleavage plane
 		      if(elecrack(2,ele)==0 .and. elecrack(4,ele)==0) then
@@ -81,17 +81,17 @@ c	          based on integration point
 				      nelefail(2*ncrack-1)=1
 				      nelefail(2*ncrack)=1
 				  end if
-              else if(elecrack(2,ele)==2 .and. elecrack(4,ele)==0) then
+            else if(elecrack(2,ele)==2 .and. elecrack(4,ele)==0) then
 c             based on crack tip
                   call crackline_tip(ele, y, z, ix, id, u) 
-			  else if(elecrack(2,ele)==2 .and. elecrack(4,ele)==2) then
+			else if(elecrack(2,ele)==2 .and. elecrack(4,ele)==2) then
 c             based on two crack tips
 			      call crackline_2tips(ele, ix)
               end if  
 			  
           end if
 		  
-          if ((strflag1(ele)==2) .AND. (crackop(ele)==1)) then		  
+          if ((ElemFractCode(ele)==2) .AND. (crackop(ele)==1)) then		  
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !c
@@ -170,7 +170,7 @@ c    lumped mass matrix
              Y_modulus(numelt+1)=Y_modulus(ele)
              possion_ratio(numelt+1) = possion_ratio(ele)
              tau_y(numelt+1) = tau_y(ele)
-			 strflag1(numelt+1)=strflag1(ele)
+			 ElemFractCode(numelt+1)=ElemFractCode(ele)
 			 planeflag(numelt+1)=planeflag(ele)
 			 
 			 nnn2(numelt+1,1)=nnn2(ele,1)

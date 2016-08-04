@@ -2,13 +2,13 @@
 	  integer, parameter :: nume       = 40000
 	  common/bk08/kprint,nstep,ite,ilimit,newstf
 	  common/wblock8/  abc(573,nume,4), his(573,nume,4) 
-	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
+	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
 	  common/meshnum/ numnpo, numelto
 	  common /t_Qe/ totqe, totqe_last, ele_area
 	  
 	  dimension y(*), z(*), ix(4,*)
 	  
-	  integer numelto, strflag1, nstep, ele
+	  integer numelto, ElemFractCode, nstep, ele
 	  real totqe, totqe_last, ele_area
 	  real y3, z3, y1, z1, ds0
 	  
@@ -24,7 +24,7 @@
 	  totqe_last=totqe
 	  totqe=0.0
 	  do ele=1,numelto
-	      if(strflag1(ele)<2) then
+	      if(ElemFractCode(ele)<2) then
 		      totqe=totqe+abc(3,ele,1)*ele_area
 		  end if
       end do

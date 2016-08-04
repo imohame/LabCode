@@ -136,7 +136,7 @@
      >                aijhcpt(24,86)
 	  common /intgr/ rgen(24), rrecov(87), rintr(87), rintr_n(87),
      >               rintr_p(87)
-	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
+	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
 	  common /gbblock/ gbvec(nume,3), gbflag(nume,3)
 !!!!!!!!!!!!!!!	  common /propag/ sigalt(4,40000)
       common/effmod/effmod(nelemg)
@@ -156,7 +156,8 @@
 !!!!!!	  common/couplinganalysis/ TDflag
 !!c	  common /gbtranr/ gbtr(14)
       real :: intener, ystart1(67), yprime1(67),  cleave        !!!!!!sigalt,
-	  integer :: strflag1, ElemDecayCount,crackop,overlapele,ele,oele
+	  integer :: ElemFractCode, ElemDecayCount,
+     >  crackop,overlapele,ele,oele
 	  integer ovs, ecount, n_decay, nelec, ncsj, fractFlag !!!!TDflag,
 	  real gbvec, tempgb,ngb,taurgb,taugb, gdotgb, den_im2gb
 	  real den_imgb, den_mgb, slip_ngb, slip_sgb, thermal_factorgb
@@ -626,113 +627,113 @@
 !!!!	         end do
 !!!!	     end do
 	  
-	     if(strflag1(ink) == 0) then
-	       if (gbflag(ink,1) .ne. 0) then
-	         if (nstep .gt. 1) then
-	  
-	           inkgb = gbflag(ink,1)
-	           ngb(1) = gbvec(ink,1)
-	           ngb(2) = gbvec(ink,2)
-			   
-			   gsh2    =  Y_modulus(inkgb)/(2.0*(1.0 +possion_ratio(inkgb)))
-			   if(gsh2 > gsh) then
-			       gsh = gsh2
-			   end if
-	  
-	           do j = 1, nssmat(matp(inkgb))   
-			       j1= 9 + j
-			       taugb(j)      = abc(j1,inkgb,nintg)
-	               j5= 105 + j 
-	               slip_ngb(j,1) = abc(j5,inkgb,nintg)
-	               j6= 129 + j 
-	               slip_ngb(j,2) = abc(j6,inkgb,nintg)
-	               j7= 153 + j
-	               slip_ngb(j,3) = abc(j7,inkgb,nintg)
-	               j8= 177 + j 
-	               slip_sgb(j,1) = abc(j8,inkgb,nintg) 
-	               j9= 201 + j 
-	               slip_sgb(j,2) = abc(j9,inkgb,nintg) 
-	               j10= 225 + j 
-	               slip_sgb(j,3) = abc(j10,inkgb,nintg)
-	               j12 = 337 + j
-	               den_ggb(j) = abc(j12,inkgb,nintg)
-	           end do
-	  
-	           do j = 1, nssmat(matp(ink))
-	               ugb(j) = 1e20
-				   
-	               do k = 1, nssmat(matp(inkgb))
-	                   bres(j,k) = 0.0
-	                   bresdot = slip_s(j,1)*slip_sgb(k,1)
-     >				            +slip_s(j,2)*slip_sgb(k,2)
-     >                          +slip_s(j,3)*slip_sgb(k,3)
-	                   if (bresdot .ge. 0.0) then
-	                      do l = 1,3
-	                        bres(j,k) = bres(j,k) + 
-     >						 (slip_s(j,l)-slip_sgb(k,l))**2.0
-	                      end do
-	                   else
-	                      do l = 1,3
-	                        bres(j,k) = bres(j,k) + 
-     >					     (slip_s(j,l)+slip_sgb(k,l))**2.0
-	                      end do
-	                   end if
-	                   cb(j,k) = (bres(j,k)/(2.0))         ! cos(B)
-	                   sb(j,k) = sqrt(1.0-cb(j,k)**2.0)    ! sin(B)
-	                   magvec1 = ((ngb(2)*slip_ngb(k,2)    ! normal of intersection vector L2
-     >				           -ngb(1)*slip_ngb(k,3))**2.0
-     >						   +(slip_ngb(k,1)*ngb(2))**2.0
-     >						   +(ngb(1)*slip_ngb(k,1))**2.0)**0.5
-	                   magvec2 = ((ngb(2)*slip_n(j,2)
-     >				           -ngb(1)*slip_n(j,3))**2.0
-     >				           +(ngb(2)*slip_n(j,1))**2.0
-     >				           +(ngb(1)*slip_n(j,1))**2.0)**0.5
-	                   cnu(j,k) = abs((ngb(2)*slip_ngb(k,2)  ! cos(v)
-     >				        -ngb(1)*slip_ngb(k,3))*
-     >                     (ngb(2)*slip_n(j,2)-ngb(1)*slip_n(j,3)) + 
-     >                     (ngb(2)*slip_n(j,1)*slip_ngb(k,1)*ngb(2)) +
-     >                     (ngb(1)*ngb(1)*slip_n(j,1)*slip_ngb(k,1)))/
-     >                     (magvec2*magvec1)
-	                   snu(j,k) = sqrt(1.0-cnu(j,k)**2.0)    ! sin(v)
-	                   psgb(j,k) = cnu(j,k)-snu(j,k)*cb(j,k)/sb(j,k)   ! angle_Psi
-	                   beff(j,k)=(1.0+sqrt(psgb(j,k)**2
-     >				       -2.0*psgb(j,k)*cnu(j,k)+1.0))*bres(j,k)  ! square of effective deltaB/b
-	                   ugb1(j,k) = 1e20
-					   
-	                   if (psgb(j,k) .ge. 0.0) then
-!c	                       ugb1(j,k) = (1.0+0.9*(1.0-psgb(j,k))
-!c     >					      +0.9*psgb(j,k)*beff(j,k)-0.5*den_gb(j)
-!c     >						  -0.5*den_ggb(k))
-                           ugb1(j,k) =abs(beff(j,k)/taugb(k))
-	                   end if
-
-	                   if (ugb1(j,k) .lt. 0.0) then
-	                       ugb1(j,k) = 0.0
-	                   end if
-	                   if (ugb1(j,k) .lt. ugb(j)) then 
-	                       ugb(j) = ugb1(j,k)
-	                       slipgb(j) = k
-	                   end if
-					   
-!c                      monitor specific slip system of one eleemnt to show LRB criteria,					   
-!c					   if(nstep>4000 .and. ink==nelec .and. j==ncsj) then
-!c					       write(992,*) nstep, ink, j, k, cnu(j,k), cb(j,k), psgb(j,k),						    
-!c     >					   sqrt(bres(j,k)), taugb(k), ugb1(j,k), ugb(j), slipgb(j)
-!c					   end if
-	               end do
-!	  if(ink==nelec) then
-!	  write(991,*) nstep,ink,j,ugb(j)
-!	  end if
-!c	  write(999,*) slipgb(j), den_gb(j)
-	           end do 
-			   
-	         end if
-	       end if
-		 end if
+!!!!	     if(ElemFractCode(ink) == 0) then
+!!!!	       if (gbflag(ink,1) .ne. 0) then
+!!!!	         if (nstep .gt. 1) then
+!!!!	  
+!!!!	           inkgb = gbflag(ink,1)
+!!!!	           ngb(1) = gbvec(ink,1)
+!!!!	           ngb(2) = gbvec(ink,2)
+!!!!			   
+!!!!			   gsh2    =  Y_modulus(inkgb)/(2.0*(1.0 +possion_ratio(inkgb)))
+!!!!			   if(gsh2 > gsh) then
+!!!!			       gsh = gsh2
+!!!!			   end if
+!!!!	  
+!!!!	           do j = 1, nssmat(matp(inkgb))   
+!!!!			       j1= 9 + j
+!!!!			       taugb(j)      = abc(j1,inkgb,nintg)
+!!!!	               j5= 105 + j 
+!!!!	               slip_ngb(j,1) = abc(j5,inkgb,nintg)
+!!!!	               j6= 129 + j 
+!!!!	               slip_ngb(j,2) = abc(j6,inkgb,nintg)
+!!!!	               j7= 153 + j
+!!!!	               slip_ngb(j,3) = abc(j7,inkgb,nintg)
+!!!!	               j8= 177 + j 
+!!!!	               slip_sgb(j,1) = abc(j8,inkgb,nintg) 
+!!!!	               j9= 201 + j 
+!!!!	               slip_sgb(j,2) = abc(j9,inkgb,nintg) 
+!!!!	               j10= 225 + j 
+!!!!	               slip_sgb(j,3) = abc(j10,inkgb,nintg)
+!!!!	               j12 = 337 + j
+!!!!	               den_ggb(j) = abc(j12,inkgb,nintg)
+!!!!	           end do
+!!!!	  
+!!!!	           do j = 1, nssmat(matp(ink))
+!!!!	               ugb(j) = 1e20
+!!!!				   
+!!!!	               do k = 1, nssmat(matp(inkgb))
+!!!!	                   bres(j,k) = 0.0
+!!!!	                   bresdot = slip_s(j,1)*slip_sgb(k,1)
+!!!!     >				            +slip_s(j,2)*slip_sgb(k,2)
+!!!!     >                          +slip_s(j,3)*slip_sgb(k,3)
+!!!!	                   if (bresdot .ge. 0.0) then
+!!!!	                      do l = 1,3
+!!!!	                        bres(j,k) = bres(j,k) + 
+!!!!     >						 (slip_s(j,l)-slip_sgb(k,l))**2.0
+!!!!	                      end do
+!!!!	                   else
+!!!!	                      do l = 1,3
+!!!!	                        bres(j,k) = bres(j,k) + 
+!!!!     >					     (slip_s(j,l)+slip_sgb(k,l))**2.0
+!!!!	                      end do
+!!!!	                   end if
+!!!!	                   cb(j,k) = (bres(j,k)/(2.0))         ! cos(B)
+!!!!	                   sb(j,k) = sqrt(1.0-cb(j,k)**2.0)    ! sin(B)
+!!!!	                   magvec1 = ((ngb(2)*slip_ngb(k,2)    ! normal of intersection vector L2
+!!!!     >				           -ngb(1)*slip_ngb(k,3))**2.0
+!!!!     >						   +(slip_ngb(k,1)*ngb(2))**2.0
+!!!!     >						   +(ngb(1)*slip_ngb(k,1))**2.0)**0.5
+!!!!	                   magvec2 = ((ngb(2)*slip_n(j,2)
+!!!!     >				           -ngb(1)*slip_n(j,3))**2.0
+!!!!     >				           +(ngb(2)*slip_n(j,1))**2.0
+!!!!     >				           +(ngb(1)*slip_n(j,1))**2.0)**0.5
+!!!!	                   cnu(j,k) = abs((ngb(2)*slip_ngb(k,2)  ! cos(v)
+!!!!     >				        -ngb(1)*slip_ngb(k,3))*
+!!!!     >                     (ngb(2)*slip_n(j,2)-ngb(1)*slip_n(j,3)) + 
+!!!!     >                     (ngb(2)*slip_n(j,1)*slip_ngb(k,1)*ngb(2)) +
+!!!!     >                     (ngb(1)*ngb(1)*slip_n(j,1)*slip_ngb(k,1)))/
+!!!!     >                     (magvec2*magvec1)
+!!!!	                   snu(j,k) = sqrt(1.0-cnu(j,k)**2.0)    ! sin(v)
+!!!!	                   psgb(j,k) = cnu(j,k)-snu(j,k)*cb(j,k)/sb(j,k)   ! angle_Psi
+!!!!	                   beff(j,k)=(1.0+sqrt(psgb(j,k)**2
+!!!!     >				       -2.0*psgb(j,k)*cnu(j,k)+1.0))*bres(j,k)  ! square of effective deltaB/b
+!!!!	                   ugb1(j,k) = 1e20
+!!!!					   
+!!!!	                   if (psgb(j,k) .ge. 0.0) then
+!!!!!c	                       ugb1(j,k) = (1.0+0.9*(1.0-psgb(j,k))
+!!!!!c     >					      +0.9*psgb(j,k)*beff(j,k)-0.5*den_gb(j)
+!!!!!c     >						  -0.5*den_ggb(k))
+!!!!                           ugb1(j,k) =abs(beff(j,k)/taugb(k))
+!!!!	                   end if
+!!!!
+!!!!	                   if (ugb1(j,k) .lt. 0.0) then
+!!!!	                       ugb1(j,k) = 0.0
+!!!!	                   end if
+!!!!	                   if (ugb1(j,k) .lt. ugb(j)) then 
+!!!!	                       ugb(j) = ugb1(j,k)
+!!!!	                       slipgb(j) = k
+!!!!	                   end if
+!!!!					   
+!!!!!c                      monitor specific slip system of one eleemnt to show LRB criteria,					   
+!!!!!c					   if(nstep>4000 .and. ink==nelec .and. j==ncsj) then
+!!!!!c					       write(992,*) nstep, ink, j, k, cnu(j,k), cb(j,k), psgb(j,k),						    
+!!!!!c     >					   sqrt(bres(j,k)), taugb(k), ugb1(j,k), ugb(j), slipgb(j)
+!!!!!c					   end if
+!!!!	               end do
+!!!!!	  if(ink==nelec) then
+!!!!!	  write(991,*) nstep,ink,j,ugb(j)
+!!!!!	  end if
+!!!!!c	  write(999,*) slipgb(j), den_gb(j)
+!!!!	           end do 
+!!!!			   
+!!!!	         end if
+!!!!	       end if
+!!!!		 end if
 	   
 	     gbtr_tot=0.0
 !c         call dsolve(dt,timexx,nssm)   ! line for updating using rk5, implicit algorithm
-         if (strflag1(ink)==0) then
+         if (ElemFractCode(ink)==0) then
              call dsolve(dt,timexx,nssm)   ! line for updating using rk5, implicit algorithm
 		 end if
 		 do j = 1, nssm
@@ -748,19 +749,19 @@
      >         (abs(tau(j)/taur(j))**(xmhigh(j)-1.))*(tau(j)/taur(j))*								!This Line: strain rate(alpha), Zikry & Nasser, 1990 pg 217
      >         exp(-gbco*0.5*gsh**2*b_v**3*ugb(j)/(1.38E-23*temp))
 	 
-	         if (strflag1(ink) == 0) then			 
-			     if (gbflag(ink,1) .ne. 0) then
-			         if (slipgb(j) .ne. 0) then
-	                   den_gbtot = den_gbtot + dt
-     >				   *sqrt(bres(j,slipgb(j))/den_m(j))*
-     >                  abs(gdot(j))/b_v
-	                 end if
-					 
-!c                    save grain boundary transmission factor
-					 gbtr(j)=exp(-gbco*0.5*gsh**2*b_v**3*
-     >                ugb(j)/(1.38E-23*temp))
-			         gbtr_tot=gbtr_tot+gbtr(j)
-	             end if 
+	         if (ElemFractCode(ink) == 0) then			 
+!!			     if (gbflag(ink,1) .ne. 0) then
+!!			         if (slipgb(j) .ne. 0) then
+!!	                   den_gbtot = den_gbtot + dt
+!!     >				   *sqrt(bres(j,slipgb(j))/den_m(j))*
+!!     >                  abs(gdot(j))/b_v
+!!	                 end if
+!!					 
+!!!c                    save grain boundary transmission factor
+!!					 gbtr(j)=exp(-gbco*0.5*gsh**2*b_v**3*
+!!     >                ugb(j)/(1.38E-23*temp))
+!!			         gbtr_tot=gbtr_tot+gbtr(j)
+!!	             end if 
 				 shearslip(j)=shearslip(j)+dt*abs(gdot(j))
 			 end if	
 			 
@@ -795,7 +796,7 @@
 		 spin_e21= spin_21 + spin_p12                  !Elastic Spin
 		 spin_e12= -spin_e21       
 		           
-		 if (strflag1(ink)==0) then
+		 if (ElemFractCode(ink)==0) then
 !!!!!!!!!!$OMP PARALLEL DO       
 		     do j = 1 , nssm
 		         n_dot1=spin_e21*slip_n(j,2)		           !rate of change of slip normals				!These 4 Lines: n_dot and s_dot, Zikry & Nasser, 1990 pg 217
@@ -833,7 +834,7 @@
          ssdev2 = sdev2+twomu*dt*(Dij_dev(2)-D22_p) + o22      !22 deviatoric cauchy stress
          ssdev3 = sdev3+twomu*dt*(Dij_dev(3)-D33_p)            !33 deviatoric cauchy stress
 
-         if (strflag1(ink)==0) then
+         if (ElemFractCode(ink)==0) then
 		   DijSij = ssdev1*D11_p + ssdev2*D22_p     +		       !This Line: StressPower, Zikry: 1992-1993, pg 275
      >              2.00*ssdev4*D12_p	
      >              +ssdev3*D33_p                       !REMOVED ABS Values WML 9/19/08
@@ -874,7 +875,7 @@
            sign2(i) = ssdev2 + press 
            sign3(i) = ssdev3 + press
            sign4(i) = ssdev4
-		 else if(strflag1(ink)==1) then
+		 else if(ElemFractCode(ink)==1) then
 		   if(ecount(ink)==0) then
 		       qp=plastic_work
 			   qe=elas_energy
@@ -904,7 +905,7 @@
            sign2(i) = sig(2,i)*doptimizedConst
            sign3(i) = sig(3,i)*doptimizedConst
            sign4(i) = sig(4,i)*doptimizedConst
-         else if(strflag1(ink)==2) then
+         else if(ElemFractCode(ink)==2) then
 		   sign1(i) = 0.0
            sign2(i) = 0.0
            sign3(i) = 0.0
@@ -927,7 +928,7 @@
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !c                Update Temperature and Plastic Work
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-		 if (strflag1(ink)==0) then
+		 if (ElemFractCode(ink)==0) then
 !!!!		         if (thermalflag==0 .or. 
 !!!!     >			     (thermalflag==1 .and. TDflag==1)) then     !if diffusion
 		         if (thermalflag==0 .or. thermalflag==2) then !if no thermal or diffusion only
@@ -963,7 +964,7 @@
 		 nnne = ink													!This Line: Pass apposite element number
   
 
-		 if (strflag1(ink)==0) then
+		 if (ElemFractCode(ink)==0) then
 		    call dsolve1 (dt,timexx,nmo+nim)									!This Line: Call Rho_mobile & Rho_immobile Updating subroutine
 		
 !!!!!!$OMP PARALLEL DO       
@@ -1033,7 +1034,7 @@
 		 his(362,ink,nintg) = den_gbtot
 		 his(396,ink,nintg) = gbtr_tot
 		 
-		 if (strflag1(ink)==0) then
+		 if (ElemFractCode(ink)==0) then
 		     angle_Psi              = angle_Psi + spin_e21*dt										
 		     his(1,ink,nintg) = angle_Psi*(180.0/pi)								!This Line: Angle through which Slip Planes & Directions have rotated,
 		     dgamma=0.666666667*dt*sqrt(D11_p**2+D22_p**2+2*D12_p**2)

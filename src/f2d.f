@@ -66,12 +66,14 @@
       common/hgenergy/hgenerstore(40000),hgenerhis(40000)
       common/totalenergy/totenerstore(40000),totenerhis(40000),
      1 inertener(40000)
-      common/hgenergypass/hgener(nelemg),totener(nelemg),inertia(nelemg)
+      common/hgenergypass/hgener(nelemg),
+     > totener(nelemg),inertia(nelemg)
       common/hourglassstress/hgstress1c(nelemg),hgstress2c(nelemg)
       common/hgstress/hgstress1store(40000),hgstress2store(40000),
      1   hgstress1his(40000),hgstress2his(40000)
-	  common /overlapping/ intersec(4, nume), area_coeff(nume), update_flag
-	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
+	  common /overlapping/ intersec(4, nume), area_coeff(nume), 
+     > update_flag
+	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
 	  common /sigfrac/ sigmacrit0, sigmacrit1, sigmacrit2,sigmacrit3,
      1   n_decay, f_decay, penalty,fractFlag
       
@@ -87,7 +89,7 @@
 !c	 1     rp6(128), rp7(128), rp8(128)
       real rp(8,nelemg), area_coeff
 	  real xo, xp, yo, yp, dx, dy, penalty
-	  integer strflag1, ElemDecayCount, n_decay, q,fractFlag
+	  integer ElemFractCode, ElemDecayCount, n_decay, q,fractFlag
 	  real sigmacrit0, sigmacrit1, sigmacrit2, sigmacrit3
 !c
 !c      equivalence (lpar(2),numel)
@@ -283,7 +285,7 @@
 !c
 !c		  ink = nftm1+i
 !c		  if(ink == 2) then
-!c		      if(strflag1(ink)==2) then
+!c		      if(ElemFractCode(ink)==2) then
 !c			      do k=1,4
 !c				  if (k == 2) then
 !c				  xp = y(ix(k,ink)) + d(id(1,ix(k,ink)))
@@ -310,7 +312,7 @@
 !c	              end do
 !c			  end if
 !c		  else if(ink==1) then
-!c		      if(strflag1(ink)==2) then
+!c		      if(ElemFractCode(ink)==2) then
 !c			      do k=1,4
 !c				  if (k .le. 2) then
 !c				  xp = y(ix(k,ink)) + d(id(1,ix(k,ink)))

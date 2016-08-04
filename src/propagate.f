@@ -5,7 +5,7 @@
 !!!!!!!!!!	  integer, parameter :: nume       = 40000
 !!!!!!!!!!	  parameter (n_dim = 3, nss = 24, no_mat = 1000 )
 	  
-	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
+	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
 	  common/wblock8/  abc(573,nume,4), his(573,nume,4)
 	  common /wblock10/ng,grain_mo(1000,3),bv(no_mat,87),nssmat(1000)  !added WML 91109  
      1            ,nssimmat(1000)
@@ -30,7 +30,7 @@
 	  common /cracktipcircle/ ndcircle
 	  common /fractureplane/ planeflag(nume), planeflag0(nume)
 	  
-	  integer strflag1,ElemDecayCount,ele,numelt,gbflag,lst,nstep
+	  integer ElemFractCode,ElemDecayCount,ele,numelt,gbflag,lst,nstep
 	  real sig1, abc, stress, sig, sigmafrac1, 
      > sigmafrac100, sigmafrac110       !!!!!!!!,sigalt
 	  real cleave, dum, sigmacrit, ncleave, hycon
@@ -60,14 +60,14 @@
 !!!!      if(thermalflag > 0 .and. TDflag==1) then !! for diff only
       if(thermalflag >= 2) then !! for diff only and both;diff+thermal
 	      do i=1,numelto
-		    if(strflag1(i)==0) then
-            CALL CNmanager_Get_ElemConcentration(i,rElemConcentration)
+		    if(ElemFractCode(i)==0) then
+           CALL CNmanager_Get_ElemConcentration(i,rElemConcentration)
 			      if(rElemConcentration<1.0) then
 				      sigfrac(i)=sigfrac0110(i)
 					  decfrac(i)=0.0
 				  else
                       diffExpo=0.0 !!-0.14
-                      rElemConcentration=rElemConcentration**(diffExpo)
+                    rElemConcentration=rElemConcentration**(diffExpo)
 			          sigfrac(i)=sigfrac0110(i)*rElemConcentration
 				      decfrac(i)=1.0-rElemConcentration
 !!!!!!!!			          sigfrac(i)=sigfrac0110(i)*(hycon(i,1)**(-0.14))
@@ -94,17 +94,20 @@
 	  
 	  do 20 ele = 1, numelto
 	  
-      if(strflag1(ele)==1 .and. ElemDecayCount(ele) .lt.n_decay)then
-        ElemDecayCount(ele) = ElemDecayCount(ele) + 1
-        write(989,*) ele,strflag1(ele),ElemDecayCount(ele),nstep,'**'
+      if(ElemFractCode(ele)==1 .and. 
+     > ElemDecayCount(ele) .lt.n_decay)then !-- just in the decay process
+        ElemDecayCount(ele) = ElemDecayCount(ele) + 1 !-- increment the decay
+        write(989,*) ele,ElemFractCode(ele),
+     >   ElemDecayCount(ele),nstep,'**'
 			  go to 20
-      else if(strflag1(ele)==1 .and. ElemDecayCount(ele)==n_decay)then
-	          strflag1(ele)=2
+      else if(ElemFractCode(ele)==1 .and. 
+     >     ElemDecayCount(ele)==n_decay)then !-- finished the decay
+	          ElemFractCode(ele)=2   !-- finished the decay
 		      crackop(ele)=1
 			  planeflag(ele)=planeflag0(ele)		      
 		      write(*,*) 'element ', ele, 'overlapping'
 			  go to 20
-	  else if(strflag1(ele)==2) then
+      else if(ElemFractCode(ele)==2) then !-- completely cracked
 		      go to 20
       end if	  
 
@@ -162,24 +165,24 @@
 		          end if  
 			  end do
 			  
-              if ((strflag1(ele)==0) 
+              if ((ElemFractCode(ele)==0) 
      >		    .and. (sigmafrac110 .gt. sigmacrit110) 
      >          .and. (gbflag(ele,1) == 0)) then
-	              strflag1(ele) = 1
-	              ElemDecayCount(ele) = 1
+	              ElemFractCode(ele) = 1 !-- just started the decay process
+	              ElemDecayCount(ele) = 1 !-- start the decay increment
 				  planeflag0(ele) = 2
-	              write(989,*) ele,strflag1(ele),ElemDecayCount(ele),
-     >			               nstep,'str', '110'
+	              write(989,*) ele,ElemFractCode(ele),
+     >			      ElemDecayCount(ele),nstep,'str', '110'
 			      go to 20
-              else if ((strflag1(ele)==0)
-     >			.and. (sigmafrac110 .gt. sigmacrit110)  
-     >	        .and. (gbflag(ele,1) .ne. 0)) then
-	              strflag1(ele) = 1
-	              ElemDecayCount(ele) = 1
-				  planeflag0(ele) = 2
-	              write(989,*) ele,strflag1(ele),ElemDecayCount(ele),
-     >			               nstep,'gb', '110'
-	              go to 20
+!!!              else if ((ElemFractCode(ele)==0)
+!!!     >			.and. (sigmafrac110 .gt. sigmacrit110)  
+!!!     >	        .and. (gbflag(ele,1) .ne. 0)) then
+!!!	              ElemFractCode(ele) = 1
+!!!	              ElemDecayCount(ele) = 1
+!!!				  planeflag0(ele) = 2
+!!!	              write(989,*) ele,ElemFractCode(ele),ElemDecayCount(ele),
+!!!     >			               nstep,'gb', '110'
+!!!	              go to 20
 		      end if
 			  
 	      end if			  
@@ -213,21 +216,22 @@
 !!!c          end if
 !!!	 
 !!!c     estimate failure, change element status flag	    
-	      if((strflag1(ele)==0).and.(sigmafrac100 .gt. sigmacrit100) 
+	      if((ElemFractCode(ele)==0).and.
+     >     (sigmafrac100 .gt. sigmacrit100) 
      >          .and. (gbflag(ele,1) == 0)) then
-	          strflag1(ele) = 1
+	          ElemFractCode(ele) = 1
 	          ElemDecayCount(ele) = 1
 			  planeflag0(ele) = -2
-	          write(989,*) ele,strflag1(ele),ElemDecayCount(ele),nstep,
-     >                     'str', '100'
-          else if ((strflag1(ele)==0) 
-     >        .and. (sigmafrac100 .gt. sigmacrit100)  
-     >	      .and. (gbflag(ele,1) .ne. 0)) then
-	          strflag1(ele) = 1
-	          ElemDecayCount(ele) = 1
-			  planeflag0(ele) = -2
-	          write(989,*) ele,strflag1(ele),ElemDecayCount(ele),nstep,
-     >                     'gb', '100'
+	          write(989,*) ele,ElemFractCode(ele),
+     >            ElemDecayCount(ele),nstep,'str', '100'
+!!!!          else if ((ElemFractCode(ele)==0) 
+!!!!     >        .and. (sigmafrac100 .gt. sigmacrit100)  
+!!!!     >	      .and. (gbflag(ele,1) .ne. 0)) then
+!!!!	          ElemFractCode(ele) = 1
+!!!!	          ElemDecayCount(ele) = 1
+!!!!			  planeflag0(ele) = -2
+!!!!	          write(989,*) ele,ElemFractCode(ele),ElemDecayCount(ele),nstep,
+!!!!     >                     'gb', '100'
 	      end if
 		
    20 continue

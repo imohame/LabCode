@@ -4,7 +4,7 @@
 	  parameter (nume2=20000)
 	  common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
 	  common/bk17/dn1,dn2,nwebuf,ntime,numnp,neq,ibar,mthsol
-	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
+	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
 	  common /crackline/ ncleave(3,nume), elecrack(4,nume), 
      1       nodeflag(4,nume)
 	  common /pcracktip/ connect(4,nume2),node(2,nume2),penta(nume2),
@@ -12,7 +12,7 @@
 	  
 	  dimension ix(4,*)
 	  
-	  integer numelt, numnp, strflag1, elecrack
+	  integer numelt, numnp, ElemFractCode, elecrack
 	  integer connect, penta, numnpt, numeltu
 	  integer ele, ne1, ele2, ne2, ndflag
 	  integer bflag, cbflag, est, ntip_edge
@@ -35,18 +35,18 @@
 		  end do
 		  
 c     cracked element		  
-		  if(strflag1(ele)==2) then
+		  if(ElemFractCode(ele)==2) then
 		      call postele3x(ix, ele)
 		  end if
 		  
 c     crack tip element
-          if(strflag1(ele)==1) then
+          if(ElemFractCode(ele)==1) then
 		      cbflag=0
 		      do est=2,4,2
 			      if(elecrack(est,ele)==3) then
 				      ne1=elecrack(est-1,ele)
-				      call edgecontact1(ix, ele, ne1, bflag, ele2, ne2)
-					  if(bflag==1 .and. strflag1(ele2)==2) then
+				   call edgecontact1(ix, ele, ne1, bflag, ele2, ne2)
+					  if(bflag==1 .and. ElemFractCode(ele2)==2) then
 					      cbflag=cbflag+1
 						  if(cbflag==1) ntip_edge=ne1
 					  end if
@@ -61,13 +61,13 @@ c     crack tip element
 			  
 		  end if
 		  
-		  if(strflag1(ele)==0) then
+		  if(ElemFractCode(ele)==0) then
               cbflag=0
 		      do est=2,4,2
 			      if(elecrack(est,ele)==2) then
-				      ne1=elecrack(est-1,ele)
-				      call edgecontact1(ix, ele, ne1, bflag, ele2, ne2)
-					  if(bflag==1 .and. strflag1(ele2)==2) then
+				    ne1=elecrack(est-1,ele)
+				    call edgecontact1(ix, ele, ne1, bflag, ele2, ne2)
+					  if(bflag==1 .and. ElemFractCode(ele2)==2) then
 					      cbflag=cbflag+1
 						  if(cbflag==1) ntip_edge=ne1
 					  end if

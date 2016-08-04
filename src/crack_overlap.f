@@ -3,19 +3,19 @@
 	  parameter (nume=40000)
 	  parameter (nume2=20000)
 	  common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
-	  common /stressflag/ strflag1(nume),ElemDecayCount(nume)
+	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
 	  common /pcracktip/ connect(4,nume2), node(2,nume2), 
      >	     penta(nume2),ndflag(2,nume2), numnpt, numeltu, ndc
 	  
 	  integer numelt, numeltu, ndnum(4), connect, penta
 	  integer crflag, ele, ne, ele_int
 	  integer ele2, ne2, ele_int2
-	  integer strflag1
+	  integer ElemFractCode
 	  
 	  crflag=0
 	  do ele=1,numeltu
-	      if((ele<=numelt .and. strflag1(ele)==2) .or.
-     >       (ele>numelt .and. strflag1(penta(ele-numelt))==2)) then
+	     if((ele<=numelt .and. ElemFractCode(ele)==2) .or.
+     >   (ele>numelt .and. ElemFractCode(penta(ele-numelt))==2)) then
 		      do ne=1,4
 			      if(ne<=3) then
 				      ndnum(1)=connect(ne,ele)
@@ -26,10 +26,10 @@
 				  end if
 				  
 				  do ele2=1, numeltu
-				      if(ele2/=ele) then
-				          if((ele2<=numelt .and. strflag1(ele2)==2)
-     >                        .or. (ele2>numelt .and. 
-     >                        strflag1(penta(ele2-numelt))==2)) then
+				    if(ele2/=ele) then
+				      if((ele2<=numelt .and. ElemFractCode(ele2)==2)
+     >                  .or. (ele2>numelt .and. 
+     >                  ElemFractCode(penta(ele2-numelt))==2)) then
 	 
 	                          do ne2=1,4
 			                      if(ne2<=3) then
