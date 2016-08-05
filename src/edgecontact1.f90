@@ -1,9 +1,7 @@
       subroutine edgecontact1(ix, ele, ne1, bflag, nele, ne2)
-c     find the element which shares the same edge 
-  
-c	  parameter (nume=40000)
-	  common/meshnum/ numnpo, numelto
-	  
+!c     find the element which shares the same edge  
+!c	  parameter (nume=40000)
+	  common/meshnum/ numnpo, numelto	  
 	  dimension ix(4,*)
 	  
 	  integer ele, ne1, bflag, nele, ne2

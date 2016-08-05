@@ -26,7 +26,8 @@
 	  
 	  ye=(y(ix(1,ele))+y(ix(3,ele)))/2.0
 	  ze=(z(ix(1,ele))+z(ix(3,ele)))/2.0
-	  
+      
+	  !-- if it's on the crack tip of another existing crack
 	  do i=1, ntp
 	      if(ele==tipele(2,i)) then 
 		      go to 30
@@ -48,7 +49,7 @@
 !c	  end do
 	  
 	  do i=1,numelt
-	      if (ElemFractCode(i) > 0) then
+	      if (ElemFractCode(i) > 0) then ! if it's decaying or decayed .. it's cracking
 		      ntel=i
 			  yt=(y(ix(1,ntel))+y(ix(3,ntel)))/2.0
 	          zt=(z(ix(1,ntel))+z(ix(3,ntel)))/2.0

@@ -75,12 +75,13 @@
 
 
     do i=1,numelto
-        ElemDecayed(i)=0
+        ElemDecayed(i)=0 ! to list all the decayed elems every step
     end do
 
 	call crackfront(y, ix)
 
     do 20 ele = 1, numelto
+        !-- if the elem is decaying
         if(ElemFractCode(ele)==1 .and. ElemDecayCount(ele) .lt.DecayCount)then !-if the element is decaying
             ElemDecayCount(ele) = ElemDecayCount(ele) + 1 !-- increment the decay
             write(989,*) ele,ElemFractCode(ele),ElemDecayCount(ele),nstep,'**'
@@ -94,7 +95,7 @@
         else if(ElemFractCode(ele)==2) then !-- completely cracked
 		        go to 20
         end if
-!!!c    only check failure criteria at the crack tip element
+        !!- be sure that the elem is not within circle distance of another crack
         call compdis(y, z, ix, id, u, ele, ndcircle, cflag)
         if(cflag==0) then
             go to 20
@@ -142,6 +143,7 @@
 
         end if
 
+!!!c    only check failure criteria at the crack tip element
 !!!c         cleavage fracture on {100} planes
         do j = 1, 3
             cleave(1,j) = abc(362+j,ele,1)

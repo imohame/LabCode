@@ -1,5 +1,5 @@
       subroutine excrack(nstep, y, ix)
-c     generate pre-exist crack
+!c     generate pre-exist crack
 
 	  parameter(nume = 40000)
 	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
