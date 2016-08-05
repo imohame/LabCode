@@ -1,7 +1,7 @@
       subroutine compdis(y, z, ix, id, u, ele, nd, cflag)
 !!!!!            compdis(y, z, ix, id, u, ele, ndcircle, cflag)
-c     compare distance from current element to cracked elment 
-c     with preset distance 
+!!c     compare distance from current element to cracked elment 
+!!c     with preset distance 
 
       parameter (nume=40000)
 	  common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
