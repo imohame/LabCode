@@ -30,7 +30,7 @@
 	  common /overlapping/ intersec(4, nume), area_coeff(nume),
      > update_flag
 	  common /stroverlap/ sflg
-	  common /crackopen/ crackop(nume), overlapele(2,nume)
+	  common /crackopen/ ElemDecayed(nume), overlapele(2,nume)
       common /crackline/ ncleave(3,nume), elecrack(4,nume), 
      1       nodeflag(4,nume)
 	  common /ovsum/ ovs
@@ -53,7 +53,7 @@
      >   freep(5,*), ym(4,*)
 	  
 	  integer numelt, numnp, ElemFractCode, ele,update_flag,fractFlag
-	  integer sflg, nnn2, crackop, overlapele
+	  integer sflg, nnn2, ElemDecayed, overlapele
 	  integer lprint, nprint, nstep, numelto
 	  integer elecrack, ovs, ElemDecayCount, planeflag
 	  real intersec, ym, area_coeff, sigfrac, decfrac
@@ -91,7 +91,7 @@ c             based on two crack tips
 			  
           end if
 		  
-          if ((ElemFractCode(ele)==2) .AND. (crackop(ele)==1)) then		  
+          if ((ElemFractCode(ele)==2) .AND. (ElemDecayed(ele)==1)) then		  
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !c
