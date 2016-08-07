@@ -72,11 +72,8 @@
             end if
         end do
     end if
-
-
-    do i=1,numelto
-        ElemDecayed(i)=0 ! to list all the decayed elems every step
-    end do
+!------------- to list all the decayed elems every step
+    ElemDecayed(1:numelto)=0 
 
 	call crackfront(y, ix)
 

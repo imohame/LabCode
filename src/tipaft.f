@@ -14,7 +14,7 @@ c     element crack status from 31 to 33
 	  
 	  if(elecrack(2,ele)==3) then
 	      nced=elecrack(1,ele)
-	      call edgecontact1(ix, ele, nced, bflag, nele, ne2)
+	      call FindElemEdgeNeighbor(ix, ele, nced, bflag, nele, ne2)
 	      if (bflag==1) then
 	        if(elecrack(1,nele)==ne2 .and. elecrack(2,nele)==1) then
 		          elecrack(2,nele)=3 
@@ -26,7 +26,7 @@ c     element crack status from 31 to 33
 	  
       if(elecrack(4,ele)==3) then
 	      nced=elecrack(3,ele)
-	      call edgecontact1(ix, ele, nced, bflag, nele, ne2)
+	      call FindElemEdgeNeighbor(ix, ele, nced, bflag, nele, ne2)
 	      if (bflag==1) then
 	        if(elecrack(1,nele)==ne2 .and. elecrack(2,nele)==1) then
 		          elecrack(2,nele)=3 

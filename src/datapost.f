@@ -45,7 +45,7 @@ c     crack tip element
 		      do est=2,4,2
 			      if(elecrack(est,ele)==3) then
 				      ne1=elecrack(est-1,ele)
-				   call edgecontact1(ix, ele, ne1, bflag, ele2, ne2)
+				   call FindElemEdgeNeighbor(ix, ele, ne1, bflag, ele2, ne2)
 					  if(bflag==1 .and. ElemFractCode(ele2)==2) then
 					      cbflag=cbflag+1
 						  if(cbflag==1) ntip_edge=ne1
@@ -66,7 +66,7 @@ c     crack tip element
 		      do est=2,4,2
 			      if(elecrack(est,ele)==2) then
 				    ne1=elecrack(est-1,ele)
-				    call edgecontact1(ix, ele, ne1, bflag, ele2, ne2)
+				    call FindElemEdgeNeighbor(ix, ele, ne1, bflag, ele2, ne2)
 					  if(bflag==1 .and. ElemFractCode(ele2)==2) then
 					      cbflag=cbflag+1
 						  if(cbflag==1) ntip_edge=ne1

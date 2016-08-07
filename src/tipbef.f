@@ -14,7 +14,7 @@ c     element crack status from 00 to 20, or from 20 to 22
 	  real intersec
       integer nele, ne2
 	  
-	  call edgecontact1(ix, ele, nced, bflag, nele, ne2)
+	  call FindElemEdgeNeighbor(ix, ele, nced, bflag, nele, ne2)
 	  
 	  if (bflag==0) then 
 	      elecrack(p+2,ele)=3

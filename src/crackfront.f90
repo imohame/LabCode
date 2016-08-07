@@ -27,7 +27,7 @@
     do ele=1,numelto	  
         if(elecrack(2,ele)==1) then
             ne1=elecrack(1,ele)
-            call edgecontact1(ix, ele, ne1, bflag, ele2, ne2)
+            call FindElemEdgeNeighbor(ix, ele, ne1, bflag, ele2, ne2)
             if(bflag==1) then 
                 if((elecrack(1,ele2)==ne2 .and. elecrack(2,ele2)==2).or.(elecrack(3,ele2)==ne2 .and. elecrack(4,ele2)==2))then
                     ntp=ntp+1
@@ -39,7 +39,7 @@
 			
         if(elecrack(4,ele)==1) then
             ne1=elecrack(3,ele)
-            call edgecontact1(ix, ele, ne1, bflag, ele2, ne2)
+            call FindElemEdgeNeighbor(ix, ele, ne1, bflag, ele2, ne2)
             if(bflag==1) then 
                 if((elecrack(1,ele2)==ne2 .and. elecrack(2,ele2)==2).or.(elecrack(3,ele2)==ne2 .and. elecrack(4,ele2)==2))then
                     ntp=ntp+1
