@@ -93,7 +93,7 @@
 		        go to 20
         end if
         !!- be sure that the elem is not within circle distance of another crack
-        call compdis(y, z, ix, id, u, ele, ndcircle, cflag)
+        call FracCheckElemNearestCrack(y, z, ix, id, u, ele, ndcircle, cflag)
         if(cflag==0) then
             go to 20
         end if

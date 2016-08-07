@@ -1,5 +1,5 @@
-      subroutine compdis(y, z, ix, id, u, ele, nd, cflag)
-!!!!!            compdis(y, z, ix, id, u, ele, ndcircle, cflag)
+      subroutine FracCheckElemNearestCrack(y, z, ix, id, u, ele, nd, cflag)
+!!!!!            FracCheckElemNearestCrack(y, z, ix, id, u, ele, ndcircle, cflag)
 !!c     compare distance from current element to cracked elment 
 !!c     with preset distance 
 
