@@ -9,6 +9,7 @@
 	  common/meshnum/ numnpo, numelto
 	  
 	  dimension ix(4,*)
+      integer ix
 	  
 	  integer numelt, numelto, elecrack
 	  integer connect, numeltu, penta

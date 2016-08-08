@@ -1,9 +1,10 @@
-      subroutine FindElemEdgeNeighbor(ElemConnectivity, ElemId1, ElemEdge1, bflag, ElemId2, ElemEdge2)
+subroutine FindElemEdgeNeighbor(ElemConnectivity, ElemId1, ElemEdge1, bflag, ElemId2, ElemEdge2)
 !c     find the element which shares the same edge  neighbor element on this edge
 !c	  parameter (nume=40000)
 	  common/meshnum/ numnpo, numelto	  
 	  dimension ElemConnectivity(4,*)
-	  
+	  integer numnpo, numelto,ElemConnectivity,j
+      
 	  integer ElemId1, ElemEdge1, bflag, ElemId2, ElemEdge2
 	  integer EdgeNode1, EdgeNode2
 	  
@@ -25,19 +26,23 @@
         end if
 	  
         do j=1, numelto
-            if(ElemConnectivity(EdgeNode1,ElemId1)==ElemConnectivity(2,j) .and. ElemConnectivity(EdgeNode2,ElemId1)==ElemConnectivity(1,j)) then
+            if(ElemConnectivity(EdgeNode1,ElemId1)==ElemConnectivity(2,j) .and. &
+               ElemConnectivity(EdgeNode2,ElemId1)==ElemConnectivity(1,j)) then
                 bflag=1
                 ElemId2=j
                 ElemEdge2=1
-            else if(ElemConnectivity(EdgeNode1,ElemId1)==ElemConnectivity(3,j) .and. ElemConnectivity(EdgeNode2,ElemId1)==ElemConnectivity(2,j)) then
+            else if(ElemConnectivity(EdgeNode1,ElemId1)==ElemConnectivity(3,j) .and. &
+                    ElemConnectivity(EdgeNode2,ElemId1)==ElemConnectivity(2,j)) then
                 bflag=1
                 ElemId2=j
                 ElemEdge2=2
-            else if(ElemConnectivity(EdgeNode1,ElemId1)==ElemConnectivity(4,j) .and.  ElemConnectivity(EdgeNode2,ElemId1)==ElemConnectivity(3,j)) then
+            else if(ElemConnectivity(EdgeNode1,ElemId1)==ElemConnectivity(4,j) .and.  &
+                    ElemConnectivity(EdgeNode2,ElemId1)==ElemConnectivity(3,j)) then
                 bflag=1
                 ElemId2=j
                 ElemEdge2=3
-            else if(ElemConnectivity(EdgeNode1,ElemId1)==ElemConnectivity(1,j) .and. ElemConnectivity(EdgeNode2,ele)==ElemConnectivity(4,j)) then
+            else if(ElemConnectivity(EdgeNode1,ElemId1)==ElemConnectivity(1,j) .and. &
+                    ElemConnectivity(EdgeNode2,ElemId1)==ElemConnectivity(4,j)) then
                 bflag=1
                 ElemId2=j
                 ElemEdge2=4

@@ -1,14 +1,15 @@
       subroutine FracUpdateTipBeforeCrack(ix, ele)
-c     update crack tip variable for element behind crack tip	
-c     element crack status from 31 to 33
+!!c     update crack tip variable for element behind crack tip	
+!!c     element crack status from 31 to 33
   
 	  parameter (nume=40000)
 	  common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
-	  common /crackline/ ncleave(3,nume), elecrack(4,nume), 
-     >       nodeflag(4,nume)
+	  common /crackline/ ncleave(3,nume), elecrack(4,nume), nodeflag(4,nume)
 	  
 	  dimension ix(4,*)
-	  
+      integer nprnt,mprint,itmpop,jprint,idump,locstr,ix
+      
+      
 	  integer elecrack, numelt, bflag, ele, ElemEdge1
 	  integer ElemId2, ElemEdge2
 	  

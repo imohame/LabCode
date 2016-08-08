@@ -3,7 +3,6 @@
 	  parameter (nume=40000)
 	  common /crackline/ ncleave(3,nume), elecrack(4,nume),nodeflag(4,nume)
 	  common /overlapping/ intersec(4, nume), area_coeff(nume), update_flag
-	  common/meshnum/ numnpo, numelto
 	  
 	  dimension y(*), z(*), ix(4,*), id(2,*), u(*)
 	  

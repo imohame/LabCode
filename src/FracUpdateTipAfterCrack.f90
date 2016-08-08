@@ -3,15 +3,16 @@
 !!!!!c     element crack status from 00 to 20, or from 20 to 22
   
 	  parameter (nume=40000)
-	  common /crackline/ ncleave(3,nume), elecrack(4,nume), 
-     >       nodeflag(4,nume)
+	  common /crackline/ ncleave(3,nume), elecrack(4,nume),nodeflag(4,nume)
 	  common /overlapping/ intersec(4, nume), area_coeff(nume), update_flag
 	  common/meshnum/ numnpo, numelto
 	  
 	  dimension ix(4,*)
+      integer ix,numnpo, numelto,elecrack
+      real intersec
 	  
-	  integer elecrack, numelto, bflag, ele, ElemEdge1, p
-	  real intersec
+	  integer bflag, ele, ElemEdge1, p
+	  
       integer ElemId2, ElemEdge2
 	  
 	  call FindElemEdgeNeighbor(ix, ele,ElemEdge1, bflag, ElemId2, ElemEdge2)

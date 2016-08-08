@@ -6,15 +6,16 @@
       parameter (nume=40000)
 	  common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
 	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
-	  common/meshnum/ numnpo, numelto 
 	  common/cracktip/ tipele(2,nume), ntp
 	  
       dimension y(*), z(*), ix(4,*), id(2,*), u(*)
+      real y,z,u
+      integer ix,id
 	 
 	  integer tipele, ntp, ele, nd, cflag
 	  real y3, z3, y1, z1, ds0, ds
 	  real ye, ze, yt, zt
-	  integer ntel, ElemFractCode, numelt, numelto
+	  integer ntel, ElemFractCode, numelt
 	  
 	  cflag=1
 	  

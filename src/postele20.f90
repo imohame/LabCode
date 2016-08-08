@@ -3,13 +3,13 @@
 	  parameter (nume=40000)
 	  parameter (nume2=20000)
 	  common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
-	  common /crackline/ ncleave(3,nume), elecrack(4,nume), nodeflag(4,nume)
 	  common /pcracktip/ connect(4,nume2), node(2,nume2), &
      	       penta(nume2),ndflag(2,nume2), numnpt, numeltu, ndc
 	  
 	  dimension ix(4,*)
+      integer ix
 	  
-	  integer numelt, elecrack
+	  integer numelt
 	  integer connect, numeltu, penta
 	  integer ele, ntip_edge, ndc
 	  

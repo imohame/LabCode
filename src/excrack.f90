@@ -18,6 +18,8 @@
 	  real ncleave, ycoord(1000)
 
 	  dimension y(*), ix(4,*)
+      integer ix
+      real y
 
 	  if(nstep==0 .and. excf==1) then
         write(*, *) '-->>>>>>>>excrack --start'

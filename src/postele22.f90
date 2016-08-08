@@ -8,6 +8,7 @@
      	     penta(nume2),ndflag(2,nume2), numnpt, numeltu, ndc
 	  
 	  dimension ix(4,*)
+      integer ix
 	  
 	  integer numelt, elecrack
 	  integer connect, numeltu, penta
