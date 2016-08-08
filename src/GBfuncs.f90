@@ -24,8 +24,8 @@ subroutine GBReadNormals()
     GBAreaCount=0
     write(*, *) 'beginning of ReadGBNormals ... reading GBnormal.in'
 
-    open(60, file = 'GBnormal.in', status = 'unknown',IOSTAT=IERR, ERR=90)
-    open(6011, file = 'GBnormal2.in', status = 'unknown')
+    open(60, file = 'GBnormal.in', status = 'old',IOSTAT=IERR, ERR=90)
+    open(6011, file = 'GBnormal2.out', status = 'unknown')
     ierr=setvbuf3f_local(6011,1,100)
 
     read (60, *) GBAreaCount
@@ -72,7 +72,7 @@ subroutine GBReadElemMap()
     write(*, *) 'beginning of ReadGBNormals ... reading GBelemGrainMap.in'
 
     open(60, file = 'GBelemGrainMap.in', status = 'old',IOSTAT=IERR, ERR=90)
-    open(6011, file = 'GBelemGrainMap2.in', status = 'unknown')
+    open(6011, file = 'GBelemGrainMap2.out', status = 'unknown')
     ierr=setvbuf3f_local(6011,1,100)
 
     read (60, *) GBElemCount
