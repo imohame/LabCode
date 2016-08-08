@@ -29,7 +29,7 @@
         neq=neq+8		  
     end if
 	  
-    call areacoeff(ele)	  		  
+    call FracElemAreaRatio(ele)	  		  
 		    
 end		  
 		      

@@ -1,8 +1,7 @@
       subroutine crackline_int(ele, y, z, ix, id, u)
 	  
 	  parameter (nume=40000)
-	  common /crackline/ ncleave(3,nume), elecrack(4,nume), 
-     1       nodeflag(4,nume)
+	  common /crackline/ ncleave(3,nume), elecrack(4,nume),nodeflag(4,nume)
 	  common /overlapping/ intersec(4, nume), area_coeff(nume), update_flag
 	  common/meshnum/ numnpo, numelto
 	  
@@ -19,10 +18,8 @@
 	  nz=ncleave(3,ele)
     
 !!!c     coordinates of integration points
-	  yi=(y(ix(1,ele))+u(id(1,ix(1,ele)))
-     1    +y(ix(3,ele))+u(id(1,ix(3,ele))))/2.0
-	  zi=(z(ix(1,ele))+u(id(2,ix(1,ele)))
-     1    +z(ix(3,ele))+u(id(2,ix(3,ele))))/2.0
+	  yi=(y(ix(1,ele))+u(id(1,ix(1,ele)))+y(ix(3,ele))+u(id(1,ix(3,ele))))/2.0
+	  zi=(z(ix(1,ele))+u(id(2,ix(1,ele)))+z(ix(3,ele))+u(id(2,ix(3,ele))))/2.0
 	 
 	  if (nz==0) then
 !!!c   crack go through edge 1 and 3 perpendicularly
@@ -84,8 +81,8 @@
 !!!c            update intersec and elecrack variable
 !!!c
 !!!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-	          if (yc>=min(y1,y2) .and. yc<=max(y1,y2) .and. 
-     1            zc>=min(z1,z2) .and. zc<=max(z1,z2)) then
+	          if (yc>=min(y1,y2) .and. yc<=max(y1,y2) .and. & 
+                  zc>=min(z1,z2) .and. zc<=max(z1,z2)) then
 	              if(y1==y2) then
 				      intersec(p+1, ele)=0.0
 				  else

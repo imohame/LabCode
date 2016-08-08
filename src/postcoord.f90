@@ -2,8 +2,8 @@
 	  
 	  parameter (nume2=20000)
 	  common/meshnum/ numnpo, numelto
-	  common /pcracktip/ connect(4,nume2), node(2,nume2), 
-     >	     penta(nume2),ndflag(2,nume2), numnpt, numeltu, ndc
+	  common /pcracktip/ connect(4,nume2), node(2,nume2), &
+     	     penta(nume2),ndflag(2,nume2), numnpt, numeltu, ndc
 	  
 	  integer n1, n2, ndflag, ndc, numnpt
 	  real yc, zc, node

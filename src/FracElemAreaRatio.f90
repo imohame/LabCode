@@ -1,10 +1,9 @@
-      subroutine areacoeff(ele)
+      subroutine FracElemAreaRatio(ele)
 	  
 	  parameter (nume=40000)	  
 	  common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
 	  common /overlapping/ intersec(4, nume), area_coeff(nume), update_flag
-	  common /crackline/ ncleave(3,nume), elecrack(4,nume), 
-     1       nodeflag(4,nume)
+	  common /crackline/ ncleave(3,nume), elecrack(4,nume),nodeflag(4,nume)
 	  
 	  real intersec, area_coeff
 	  integer elecrack, ele, nd, md
@@ -12,7 +11,7 @@
 	  nd=elecrack(1,ele)
 	  md=elecrack(3,ele)
 	  if(abs(nd-md)==2) then
-c     two quadrilaterial
+!!!c     two quadrilaterial
           
 		  if(nd==1) then
 		      area_coeff(ele)=(intersec(1,ele)+1-intersec(3,ele))/2.0
@@ -25,7 +24,7 @@ c     two quadrilaterial
 		  end if
       
 	  else
-c     one pentagon and triangle
+!!!c     one pentagon and triangle
           
 		  if(nd==1 .and. md==2) then
 		      area_coeff(ele)=1-(1-intersec(1,ele))*intersec(4,ele)/2.0

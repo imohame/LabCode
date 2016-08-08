@@ -25,7 +25,8 @@
 				  
                 do ele2=1, numeltu
                     if(ele2/=ele) then
-         if((ele2<=numelt .and. ElemFractCode(ele2)==2).or. (ele2>numelt .and.ElemFractCode(penta(ele2-numelt))==2)) then	 
+                        if((ele2<=numelt .and. ElemFractCode(ele2)==2).or. &
+                           (ele2>numelt  .and. ElemFractCode(penta(ele2-numelt))==2)) then	 
                             do ne2=1,4
                                 if(ne2<=3) then
                                     ndnum(3)=connect(ne2,ele2)
@@ -50,8 +51,7 @@
                                         ele_int2=ele2
                                     end if
 
-                                    write(*,*) 'contact element:'
-                                    write(*,*) ele_int, ele_int2
+                                    write(*,*) 'contact element:',ele_int, ele_int2
                                     stop
 
                                 end if
