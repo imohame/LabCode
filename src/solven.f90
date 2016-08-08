@@ -323,15 +323,16 @@
 !--------------------------------------------------- timing info
       call CPU_TIME(timesteps)     
       elpt1=timesteps-time0    
-      write(7016,*)'---- time of a step =',elpt1
+      write(iFU_times_out,*)'---- time of a step =',elpt1
       elpt1=timesteps-timebase
-      write(7016,*)'---- time of a step sum=',elpt1
+      write(iFU_times_out,*)'---- time of a step sum=',elpt1
 !--------------------------------------------------- timing info
       
 !!!!!! ---this is always the case mthsol=1=bfgs
-      write(7016,*)'---- nstep,ntime,time,termtm',nstep,ntime,time,termtm
-      rewind(7015)
-      write(7015,*)nstep,iprint
+      write(iFU_times_out,*)'---- nstep,ntime,time,termtm',nstep,ntime,time,termtm
+      rewind(iFU_solsteps_out)
+      write(iFU_solsteps_out,*)nstep,iprint
+      flush(iFU_solsteps_out)
       if (nstep < ntime-1)then ! .or. time < termtm) then
           goto 10
       endif

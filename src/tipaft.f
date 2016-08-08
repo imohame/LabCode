@@ -1,4 +1,4 @@
-      subroutine tipaft(ix, ele)
+      subroutine FracUpdateTipBeforeCrack(ix, ele)
 c     update crack tip variable for element behind crack tip	
 c     element crack status from 31 to 33
   
@@ -9,29 +9,29 @@ c     element crack status from 31 to 33
 	  
 	  dimension ix(4,*)
 	  
-	  integer elecrack, numelt, bflag, ele, nced
-	  integer nele, ne2
+	  integer elecrack, numelt, bflag, ele, ElemEdge1
+	  integer ElemId2, ElemEdge2
 	  
 	  if(elecrack(2,ele)==3) then
-	      nced=elecrack(1,ele)
-	      call FindElemEdgeNeighbor(ix, ele, nced, bflag, nele, ne2)
+	      ElemEdge1=elecrack(1,ele)
+	      call FindElemEdgeNeighbor(ix, ele, ElemEdge1, bflag, ElemId2, ElemEdge2)
 	      if (bflag==1) then
-	        if(elecrack(1,nele)==ne2 .and. elecrack(2,nele)==1) then
-		          elecrack(2,nele)=3 
-		    elseif(elecrack(3,nele)==ne2.and.elecrack(4,nele)==1)then
-		          elecrack(4,nele)=3  
+	        if(elecrack(1,ElemId2)==ElemEdge2 .and. elecrack(2,ElemId2)==1) then
+		          elecrack(2,ElemId2)=3 
+		    elseif(elecrack(3,ElemId2)==ElemEdge2.and.elecrack(4,ElemId2)==1)then
+		          elecrack(4,ElemId2)=3  
 		    end if
           end if
       end if
 	  
       if(elecrack(4,ele)==3) then
-	      nced=elecrack(3,ele)
-	      call FindElemEdgeNeighbor(ix, ele, nced, bflag, nele, ne2)
+	      ElemEdge1=elecrack(3,ele)
+	      call FindElemEdgeNeighbor(ix, ele, ElemEdge1, bflag, ElemId2, ElemEdge2)
 	      if (bflag==1) then
-	        if(elecrack(1,nele)==ne2 .and. elecrack(2,nele)==1) then
-		          elecrack(2,nele)=3 
-		    elseif(elecrack(3,nele)==ne2.and.elecrack(4,nele)==1)then
-		          elecrack(4,nele)=3  
+	        if(elecrack(1,ElemId2)==ElemEdge2 .and. elecrack(2,ElemId2)==1) then
+		          elecrack(2,ElemId2)=3 
+		    elseif(elecrack(3,ElemId2)==ElemEdge2.and.elecrack(4,ElemId2)==1)then
+		          elecrack(4,ElemId2)=3  
 		    end if
           end if
       end if

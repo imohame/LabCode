@@ -105,6 +105,7 @@ c             based on two crack tips
         write(979,*) 'y_coeffi:', intersec(1,ele), intersec(3,ele)
         write(979,*) 'z_coeffi:', intersec(2,ele), intersec(4,ele)
         write(979,*) '    '
+        flush(979)
 
 
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -135,7 +136,7 @@ c             based on two crack tips
 			  end do
 					  
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-			  call tipaft(ix, ele)
+			  call FracUpdateTipBeforeCrack(ix, ele)
 			  
 			  do i=1, 4
 			      elecrack(i, numelt+1)= elecrack(i, ele)

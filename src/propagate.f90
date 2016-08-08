@@ -27,7 +27,7 @@
     common /fractureplane/ planeflag(nume), planeflag0(nume)
 
     integer ElemFractCode,ElemDecayCount,ele,numelt,gbflag,lst,nstep
-    real sig1, abc, stress, sig, sigmafrac1, sigmafrac100, sigmafrac110       !!!!!!!!,sigalt
+    real sig1, abc, stress, sig, sigmafrac1, sigmafrac110       !!!!!!!!,sigalt
     real cleave, dum, sigmacrit, ncleave, hycon
     integer DecayCount, ElemDecayed, crackele, oele, cflag,numelto,fractFlag
     real sigmacrit0, sigmacrit1, sigmacrit2, sigmacrit3
@@ -35,6 +35,7 @@
     real sigfrac0, sigfrac, decfrac, sigfrac0110
     real sigmacrit100, sigmacrit110, cleave110(6,3)
     integer nsp110, iHE, jHE, planeflag, planeflag0
+    real*8 MaxStress100,StressComp
 
 
     dimension y(*), z(*), ix(4,*), id(2,*), u(*), matp(*)
@@ -149,17 +150,17 @@
         end do
 
 !!!c    obtain maximum normal component of the traction on cleavage planes and corresponding normal vector
-        sigmafrac100 = 0.0
+        MaxStress100 = -100.0
         do j = 1, 3
             vy=cleave(j,2)
             vz=cleave(j,3)
             s11=sig(1,ele)
             s22=sig(2,ele)
             s44=sig(4,ele)
-            dum = s11*vy*vy+s22*vz*vz+s44*vy*vz*2.0
+            StressComp = s11*vy*vy+s22*vz*vz+s44*vy*vz*2.0
             !!!dum = sig(1,ele)*cleave(j,2)**2.0+sig(2,ele)*cleave(j,3)**2.0+sig(4,ele)*cleave(j,2)*cleave(j,3)*2.0
-            if (abs(dum)>sigmafrac100) then
-                sigmafrac100=abs(dum)
+            if (abs(StressComp)>MaxStress100) then
+                MaxStress100=abs(StressComp)
                 ncleave(2,ele)=cleave(j,2)
                 ncleave(3,ele)=cleave(j,3)
 
@@ -172,7 +173,7 @@
 !!!c          end if
 !!!
 !!!c     estimate failure, change element status flag
-        if((ElemFractCode(ele)==0).and.(sigmafrac100 .gt. sigmacrit100)) then !.and. (gbflag(ele,1) == 0)) then
+        if((ElemFractCode(ele)==0).and.(MaxStress100 .gt. sigmacrit100)) then !.and. (gbflag(ele,1) == 0)) then
             ElemFractCode(ele) = 1
             ElemDecayCount(ele) = 1
             planeflag0(ele) = -2

@@ -17,32 +17,32 @@
 
 	  ny=ncleave(2,ele)
 	  nz=ncleave(3,ele)
-c    
-c     coordinates of integration points
+    
+!!!c     coordinates of integration points
 	  yi=(y(ix(1,ele))+u(id(1,ix(1,ele)))
      1    +y(ix(3,ele))+u(id(1,ix(3,ele))))/2.0
 	  zi=(z(ix(1,ele))+u(id(2,ix(1,ele)))
      1    +z(ix(3,ele))+u(id(2,ix(3,ele))))/2.0
 	 
 	  if (nz==0) then
-c   crack go through edge 1 and 3 perpendicularly
-c	      intersec(1, ele)=0.5
-c		  intersec(2, ele)=0.5
-c		  intersec(3, ele)=0.5
-c		  intersec(4, ele)=0.5
-c	      elecrack(1, ele)=1
-c		  elecrack(2, ele)=1
-c		  elecrack(3, ele)=3
-c		  elecrack(4, ele)=1
-c		  call tipbef(ix, ele, 1, 0)
-c		  call tipbef(ix, ele, 3, 2)
+!!!c   crack go through edge 1 and 3 perpendicularly
+!!!c	      intersec(1, ele)=0.5
+!!!c		  intersec(2, ele)=0.5
+!!!c		  intersec(3, ele)=0.5
+!!!c		  intersec(4, ele)=0.5
+!!!c	      elecrack(1, ele)=1
+!!!c		  elecrack(2, ele)=1
+!!!c		  elecrack(3, ele)=3
+!!!c		  elecrack(4, ele)=1
+!!!c		  call FracUpdateTipAfterCrack(ix, ele, 1, 0)
+!!!c		  call FracUpdateTipAfterCrack(ix, ele, 3, 2)
 	  else
 	      k1=-ny/nz
 		  b1=zi-k1*yi
 	      
 	      do i=1,4
 
-c intersection points with 4 edges	      
+!!!c intersection points with 4 edges	      
 	          if (i==1) then
 	              y1=y(ix(1,ele))+u(id(1,ix(1,ele)))
 		          z1=z(ix(1,ele))+u(id(2,ix(1,ele)))
@@ -65,7 +65,7 @@ c intersection points with 4 edges
 		          z2=z(ix(1,ele))+u(id(2,ix(1,ele)))
 	          end if
 
-c  yc, zc: the coordinates of intersection points			  
+!!!c  yc, zc: the coordinates of intersection points			  
 			  if(y1==y2) then
 			      yc=y1
 				  zc=k1*yc+b1
@@ -78,12 +78,12 @@ c  yc, zc: the coordinates of intersection points
 	              end if
 			  end if
 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c			  
-c            estimate how crack intersect with element edge
-c            update intersec and elecrack variable
-c
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!!!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!!!c			  
+!!!c            estimate how crack intersect with element edge
+!!!c            update intersec and elecrack variable
+!!!c
+!!!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	          if (yc>=min(y1,y2) .and. yc<=max(y1,y2) .and. 
      1            zc>=min(z1,z2) .and. zc<=max(z1,z2)) then
 	              if(y1==y2) then
@@ -99,8 +99,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 	              elecrack(p+1, ele)=i
 		          elecrack(p+2, ele)=1
 
-c   update element crack variable for element ahead of crack front				  
-                  call tipbef(ix, ele, i, p)
+!!c   update element crack variable for element ahead of crack front				  
+                  call FracUpdateTipAfterCrack(ix, ele, i, p)
 				  
 				  p=p+2
 				  

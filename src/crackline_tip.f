@@ -17,7 +17,7 @@
 	  
 	  ny=ncleave(2,ele)
 	  nz=ncleave(3,ele)
-c    
+
       yi=intersec(1,ele)
 	  zi=intersec(2,ele)
 	  if(elecrack(1,ele)==1) then
@@ -43,24 +43,24 @@ c
 	  end if
 	  
       if(nz==0) then
-c   crack go through edge 1 and 3 perpendicularly
-c	      if(elecrack(1,ele)==1) then
-c              elecrack(3,ele)=3
-c			  elecrack(4,ele)=1
-c			  elecrack(2,ele)=3   ! edge status from 2 to 3(cracked)
-c			  call tipaft(ix, ele, 1)
-c			  call tipbef(ix, ele, 3, 2)
-c			  intersec(3,ele)=1.0-intersec(1,ele)
-c			  intersec(4,ele)=1.0-intersec(2,ele)	  
-c          else if(elecrack(1,ele)==3) then
-c              elecrack(3,ele)=1
-c			  elecrack(4,ele)=1
-c			  elecrack(2,ele)=3   ! edge status from 2 to 3(cracked)
-c			  call tipaft(ix, ele, 3)
-c			  call tipbef(ix, ele, 1, 2)
-c			  intersec(3,ele)=1.0-intersec(1,ele)
-c			  intersec(4,ele)=1.0-intersec(2,ele)
-c          end if
+!!!c   crack go through edge 1 and 3 perpendicularly
+!!!c	      if(elecrack(1,ele)==1) then
+!!!c              elecrack(3,ele)=3
+!!!c			  elecrack(4,ele)=1
+!!!c			  elecrack(2,ele)=3   ! edge status from 2 to 3(cracked)
+!!!c			  call tipaft(ix, ele, 1)
+!!!c			  call FracUpdateTipAfterCrack(ix, ele, 3, 2)
+!!!c			  intersec(3,ele)=1.0-intersec(1,ele)
+!!!c			  intersec(4,ele)=1.0-intersec(2,ele)	  
+!!!c          else if(elecrack(1,ele)==3) then
+!!!c              elecrack(3,ele)=1
+!!!c			  elecrack(4,ele)=1
+!!!c			  elecrack(2,ele)=3   ! edge status from 2 to 3(cracked)
+!!!c			  call tipaft(ix, ele, 3)
+!!!c			  call FracUpdateTipAfterCrack(ix, ele, 1, 2)
+!!!c			  intersec(3,ele)=1.0-intersec(1,ele)
+!!!c			  intersec(4,ele)=1.0-intersec(2,ele)
+!!!c          end if
           
 	  
       else	  
@@ -70,7 +70,7 @@ c          end if
 	      k1=-ny/nz
 	      b1=zi-k1*yi
 	      
-c          call tipaft(ix, ele, elecrack(1,ele))		  
+!!c          call tipaft(ix, ele, elecrack(1,ele))		  
 	      do i=1,4
 		  
 	          if(i/=elecrack(1,ele)) then
@@ -108,11 +108,11 @@ c          call tipaft(ix, ele, elecrack(1,ele))
 	                 end if
                   end if
 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c			  
-c            estimate how crack intersect with element edge
-c
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc			  
+!!!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!!!c			  
+!!!c            estimate how crack intersect with element edge
+!!!c
+!!!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc			  
 	             if (yc>=min(y1,y2) .and. yc<=max(y1,y2) .and. 
      1               zc>=min(z1,z2) .and. zc<=max(z1,z2)) then
 	                 if(y1==y2) then
@@ -129,8 +129,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 		             elecrack(p+2, ele)=1
 					 elecrack(2,ele)=3   ! edge status from 2 to 3(cracked)
 
-c   update element crack variable for element ahead of crack front				  
-                     call tipbef(ix, ele, i, p)
+!!!c   update element crack variable for element ahead of crack front				  
+                     call FracUpdateTipAfterCrack(ix, ele, i, p)
 					 
 	             end if
 			 

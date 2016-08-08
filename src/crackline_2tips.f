@@ -9,9 +9,9 @@
 	  integer elecrack, ele
 	  
 	  elecrack(2,ele)=3
-c	  call tipaft(ix, ele, elecrack(1,ele))
+!!!c	  call FracUpdateTipBeforeCrack(ix, ele, elecrack(1,ele))
 	  elecrack(4,ele)=3
-c	  call tipaft(ix, ele, elecrack(3,ele))
+!!!c	  call FracUpdateTipBeforeCrack(ix, ele, elecrack(3,ele))
 	  
 	  end
 	  
