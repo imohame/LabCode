@@ -20,9 +20,9 @@
 	  if (bflag==0) then !-- if not found then set it to opened/free
 	      elecrack(p+2,ele)=3
       else if(bflag==1) then !-- if found
-	      if(elecrack(1,ElemId2)==0) then !-- if this location empty
-	          elecrack(1,ElemId2)=ElemEdge2  !-- set the edge id
-			  elecrack(2,ElemId2)=2    !-- the code is cracked
+	      if(elecrack(1,ElemId2)==0) then   !-- if this location empty
+	          elecrack(1,ElemId2)=ElemEdge2 !-- set the edge id
+			  elecrack(2,ElemId2)=2         !-- the code is cracked
 			  intersec(1,ElemId2)=1.0-intersec(p+1,ele)
 			  intersec(2,ElemId2)=1.0-intersec(p+2,ele)
 		  else if(elecrack(3,ElemId2)==0) then

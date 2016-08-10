@@ -14,6 +14,7 @@ subroutine FractReadApplyPreCrackCleavagePlanes()!y,z,ix)
     integer*4 setvbuf3f_local
     integer i,j,elemId,IERR
     real*8 Vcx,Vcy
+    real abc,his
 
     write(*, *) '-->>>>>>>>FractReadApplyPreCrackCleavagePlanes'
     IERR=0

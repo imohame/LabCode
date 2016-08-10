@@ -4,7 +4,9 @@
 	  common/bk17/dn1,dn2,nwebuf,ntime,numnp,neq,ibar,mthsol
       common /crackline/ ncleave(3,nume), elecrack(4,nume), nodeflag(4,nume)	  
 	  dimension y(*), z(*), ix(4,*), id(2,*), u(*), usi(*)	  
-	  integer ele, numnp, neq, elecrack
+	  integer ele, numnp, neq, elecrack,id
+      
+      
 
 !!     two crack tip for the element, update area_coeff, but do not add phantom nodes.		  
     if(elecrack(2,ele)==1 .and. elecrack(4,ele)==1) then

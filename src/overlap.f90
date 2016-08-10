@@ -62,11 +62,12 @@
     do ele=1, numelto
         if(((ElemFractCode(ele)==1) .AND.(ElemDecayCount(ele)==1))  &
            .or. (nstep==0 .and. ElemFractCode(ele)==2)) then
-    !!!c             set crackline based on cleavage plane
+            !!!---- set crackline based on cleavage plane
             if(elecrack(2,ele)==0 .and. elecrack(4,ele)==0) then
-            !!!c	          based on integration point
+            !!----- based on integration point
                 call crackline_int(ele, y, z, ix, id, u)
-                if(nstep>0) then     ! new crack nucleated, pre-existed crack updated in excrack.f
+                !--- new crack nucleated, pre-existed crack updated in excrack.f
+                if(nstep>0) then     
                     ncrack=ncrack+1           
                     tipelenum(2*ncrack-1,1)=ele
                     tipelenum(2*ncrack,1)=ele
@@ -74,18 +75,16 @@
                     nelefail(2*ncrack)=1
                 end if
             else if(elecrack(2,ele)==2 .and. elecrack(4,ele)==0) then
-            !!c             based on crack tip
+            !!---based on crack tip
                 call crackline_tip(ele, y, z, ix, id, u) 
             else if(elecrack(2,ele)==2 .and. elecrack(4,ele)==2) then
-            !!c             based on two crack tips
+            !!---based on two crack tips
                 call crackline_2tips(ele, ix)
             end if  
-        end if
-		  
-!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!c                  crack.out output
-!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc			  
-        if ((ElemFractCode(ele)==2) .AND. (ElemDecayed(ele)==1)) then		  
+        end if		  
+        !-- if edge is decayed .. cracked and opened
+        if ((ElemFractCode(ele)==2) .AND. (ElemDecayed(ele)==1)) then	
+            !-------  crack.out output  
             write(979,*) 'ele:', ele, 'step:', nstep
             write(979,*) 'ix: ', ix(1,ele), ix(2,ele),ix(3,ele),ix(4,ele)
             write(979,*) 'edge:', elecrack(1,ele), elecrack(3,ele)
@@ -94,25 +93,22 @@
             write(979,*) 'z_coeffi:', intersec(2,ele), intersec(4,ele)
             write(979,*) '    '
             flush(979)
-!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!c                 print information to calculate crack velocity
-!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
+            !---- print information to calculate crack velocity
             do ic=1,2*ncrack
                 nlast=nelefail(ic)
                 do itn=1,nlast
                     if(ele==tipelenum(ic,itn)) then
                         yt=(y(ix(1,ele))+u(id(1,ix(1,ele)))+y(ix(2,ele))+u(id(1,ix(2,ele))) &
-                                   +y(ix(3,ele))+u(id(1,ix(3,ele)))+y(ix(4,ele))+u(id(1,ix(4,ele))))/4.0
+                           +y(ix(3,ele))+u(id(1,ix(3,ele)))+y(ix(4,ele))+u(id(1,ix(4,ele))))/4.0
                         zt=(z(ix(1,ele))+u(id(2,ix(1,ele)))+z(ix(2,ele))+u(id(2,ix(2,ele))) &
-                                   +z(ix(3,ele))+u(id(2,ix(3,ele)))+z(ix(4,ele))+u(id(2,ix(4,ele))))/4.0
+                           +z(ix(3,ele))+u(id(2,ix(3,ele)))+z(ix(4,ele))+u(id(2,ix(4,ele))))/4.0
                         nfile=5000+ic
-!!!!!write(nfile,*) ele, nstep, nstep*dt, yt, zt
-                        write(5001,*) ele, nstep, nstep*dt, yt, zt
+!                       !!!!---write(nfile,*) ele, nstep, nstep*dt, yt, zt
+                        write(5001,*) 'ele, nstep, nstep*dt, yt, zt ',ele, nstep, nstep*dt, yt, zt
                     end if
                 end do
             end do					  
-!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!           !!!------ update elem ridge neighbor edges from 1 to 3
             call FracUpdateTipBeforeCrack(ix, ele)
 
             do i=1, 4
@@ -121,20 +117,14 @@
             end do
 
             call update_mesh(ele, y, z, ix, id, u, usi)
-			  
-!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!c
-!c    copy material parameters and status variables to the new element
-!c
-!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc		     			  
-				  
+			!!--- copy material parameters and status variables to the new element
             matp(numelt+1)=matp(ele)
 
             do j=1,5
-              freep(j,numelt+1)=freep(j,ele)
+                freep(j,numelt+1)=freep(j,ele)
             end do
 
-!!!c    lumped mass matrix			 
+            !!--- lumped mass matrix			 
             do j=1,4
                 ym(j,numelt+1)=ym(j,ele)*area_coeff(numelt+1)
                 ym(j,ele)=ym(j,ele)*area_coeff(ele)
