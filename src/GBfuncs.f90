@@ -25,10 +25,15 @@ subroutine GBReadNormals()
     write(*, *) 'beginning of ReadGBNormals ... reading GBnormal.in'
 
     open(60, file = 'GBnormal.in', status = 'old',IOSTAT=IERR, ERR=90)
-    open(6011, file = 'GBnormal2.out', status = 'unknown')
-    ierr=setvbuf3f_local(6011,1,100)
 
     read (60, *) GBAreaCount
+   if (GBAreaCount == 0) then
+        close(60)
+        return
+    endif
+
+    open(6011, file = 'GBnormal2.out', status = 'unknown')
+    ierr=setvbuf3f_local(6011,1,100)
     write (6011, *) GBAreaCount
     if (GBAreaCount == 0 ) then
       goto 90
@@ -72,14 +77,16 @@ subroutine GBReadElemMap()
     write(*, *) 'beginning of ReadGBNormals ... reading GBelemGrainMap.in'
 
     open(60, file = 'GBelemGrainMap.in', status = 'old',IOSTAT=IERR, ERR=90)
-    open(6011, file = 'GBelemGrainMap2.out', status = 'unknown')
-    ierr=setvbuf3f_local(6011,1,100)
 
     read (60, *) GBElemCount
+    if (GBElemCount == 0) then
+         close(60)
+         return
+     endif
+     
+    open(6011, file = 'GBelemGrainMap2.out', status = 'unknown')
+    ierr=setvbuf3f_local(6011,1,100)
     write (6011, *) GBElemCount
-    if (GBElemCount == 0 ) then
-      goto 90
-    endif
 
     allocate(GBElemAreaMap(GBElemCount,2))
     do i = 1, GBElemCount
