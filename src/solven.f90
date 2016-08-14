@@ -115,6 +115,8 @@
 	  ncrack=0
 	  excf=1
 	  update_flag=0
+      
+      !-- this for writing the forplot disp/stress every 100 step
       iaa = 0
       ibb = 100
 !c----------------------

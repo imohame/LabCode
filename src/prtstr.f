@@ -23,7 +23,7 @@ c
       common/poutt/ nst(print_intv)
       common/main_block/  a(1)
 
-      common /wblock1/ iplot, x_area, yield_stress
+      common /wblock1/ iplotDirxy, x_area, yield_stress
 
 
       dimension ipst(*),matp(*),matype(*),

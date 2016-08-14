@@ -2,7 +2,7 @@
 *
       parameter (n_dim = 3, nss = 24, no_mat = 1000 ) !added WML 91109
       integer, parameter :: nume   = 40000
-	  common /wblock1/ iplot, x_area, yield_stress
+	  common /wblock1/ iplotDirxy, x_area, yield_stress !iplotDirxy=1 for x, 2=y
       common/wblock2/  g_source, g_immob, g_minter, g_recov, b_v,
      1                             b_vvec(87),nmo,nim
       common/wblock3/  density_ms, density_ims,thermalEnthalpy(1000)
@@ -39,19 +39,19 @@
      >      DecayCount, f_decay, penalty,fractFlag
 	  common /precrack/ npc, elepc(100)
       common /elas_energ/ inie(nume), ecount(nume)
-	  common /energbox/ nelec, qepower, qppower, ncsj, gbco
+	  common /energbox/ gbco
 	  common /cracktipcircle/ ndcircle
 	  common /fractureplane/ planeflag(nume), planeflag0(nume)
 	  common /precrack2/ rlflag
 
       character *80 txt
-	  real dum, b_v, inie, qepower, qppower, gbco!!, gbvec
+	  real dum, b_v, inie,  gbco!!, gbvec
 	  integer ElemFractCode, ElemDecayCount !!, gbflag
 	  integer var_no(1000), ngbctr, DecayCount ,fractFlag
 	  real slip_s00(4,24,3), slip_n00(4,24,3)
 	  real cleave_n, cleave_n0, sigmacrit0, sigmacrit1, sigmacrit2,
      > 	  sigmacrit3, f_decay, penalty
-	  integer npc, elepc, ecount, nelec, ncsj, ndcircle, planeflag
+	  integer npc, elepc, ecount, ndcircle, planeflag
 	  integer planeflag0, rlflag
 
 
@@ -188,7 +188,7 @@
 !!!	  gbflag(j2,3)=j4
 !!!	  end do
 
-	  call edge(a(k03),a(k04),a(k08))
+!!!!!	  call edge(a(k03),a(k04),a(k08))
 
 	  do i = 1, 43
 	  do j = 1, 43
@@ -260,15 +260,15 @@
 
 
 
-      read (60,*) sigmacrit0
-	  read (60,*) sigmacrit1
-      read (60,*) sigmacrit2
-	  read (60,*) sigmacrit3
+!!!!      read (60,*) sigmacrit0
+!!!!	  read (60,*) sigmacrit1
+!!!!      read (60,*) sigmacrit2
+!!!!	  read (60,*) sigmacrit3
 	  read (60,*) fractFlag
 	  read (60,*) DecayCount
 	  read (60,*) f_decay
 	  read (60,*) ndcircle
-	  read (60,*) iplot
+	  read (60,*) iplotDirxy
       read (60,*) x_area
       read (60,*) yield_stress
       read (60,*) b_v
@@ -286,8 +286,6 @@
 	      read(60,*) elepc(i)
 	  end do
 	  read(60,*) rlflag     ! pre-existing crack at left or right edge, 0 left, 1 right
-	  read(60,*) nelec
-	  read(60,*) ncsj
 	  read(60,*) gbco
 
 

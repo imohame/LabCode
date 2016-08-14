@@ -152,20 +152,20 @@
 	  common /ovsum/ ovs
 	  common /strvect/ stra(nelemg,4)
 	  common /elas_energ/ inie(nume), ecount(nume)
-	  common /energbox/ nelec, qepower, qppower, ncsj, gbco
+	  common /energbox/ gbco
 !!!!!!	  common/couplinganalysis/ TDflag
 !!c	  common /gbtranr/ gbtr(14)
       real :: intener, ystart1(67), yprime1(67),  cleave        !!!!!!sigalt,
 	  integer :: ElemFractCode, ElemDecayCount,
      >  ElemDecayed,overlapele,ele,oele
-	  integer ovs, ecount, DecayCount, nelec, ncsj, fractFlag !!!!TDflag,
+	  integer ovs, ecount, DecayCount, fractFlag !!!!TDflag,
 	  real  tempgb,ngb,taurgb,taugb, gdotgb, den_im2gb !gbvec,
 	  real den_imgb, den_mgb, slip_ngb, slip_sgb, thermal_factorgb
 	  real bres, cb, sb, cnu, snu, psgb, ugb1, ugb, beff, magvec1
 	  real magvec2,bresdot,den_gb(24),den_gbtot,den_ggb(24),dumabc
 	  real intersec, area_coeff, f_decay, stra, qe, qp, 
      > inie, elas_energy
-	  real deltarm, deltarim, qepower, qppower
+	  real deltarm, deltarim
 	  real gbtr(24), gbtr_tot, gbco, gsh, gsh2, shearslip(24)
 	  real sigmacrit0, sigmacrit1, sigmacrit2, sigmacrit3
 	  integer  inkgb, slipgb(24), update_flag, sflg, numelt!gbflag,
@@ -1099,10 +1099,11 @@
 !!!!!!		 if (thermalflag.eq.2) then										!isothermal
 !!!!!!		     Tele(ink,1)=temp
 !!!!!!		 end if
-		 if(ink==nelec) then
-		     qepower=DijSij_e
-			 qppower=DijSij
-	     end if
+         !-- for debugging
+!!!		 if(ink==nelec) then
+!!!		     qepower=DijSij_e
+!!!			 qppower=DijSij
+!!!	     end if
   10  continue
 !c----------------------------------------------------------------------  
 !c----------------------------------------------------------------------  

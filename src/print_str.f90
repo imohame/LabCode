@@ -2,7 +2,7 @@ subroutine print_str(iele, ink, matp)
 
     use mod_parameters
     common/custr/ sign1(nelemg), sign2(nelemg), sign3(nelemg), sign4(nelemg)
-    common /wblock1/ iplot, x_area, yield_stress
+    common /wblock1/ iplotDirxy, x_area, yield_stress
     common/wblock8/ abc(573, nume, 4), his(573, nume, 4)
     common /wblock10/ng, grain_mo(1000,3),bv(no_mat, 87), nssmat(1000), nssimmat(1000) !changed to accomodate multiple bv lengths WML
     common/slipplane110/ nsp110(6)

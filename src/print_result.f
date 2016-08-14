@@ -22,7 +22,7 @@
 	  common /intgr/ rgen(24), rrecov(87), rintr(87), rintr_n(87),
      >               rintr_p(87)
 	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
-      common /energbox/ nelec, qepower, qppower, ncsj, gbco
+      common /energbox/ gbco
 	  common /gbtranr/ gbtr(14)
 !!!!!!	  common/hydrodiffusion/ hycon(nume,1)
 !!!!!!!!!	  common /grad_pressure/ gradpdata(3,40000)

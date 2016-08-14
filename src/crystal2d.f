@@ -157,7 +157,7 @@
 !     version number and compile date
 !
 *****************
-      common /wblock1/  iplot, x_area, yield_stress
+      common /wblock1/  iplotDirxy, x_area, yield_stress
       common/wblock2/  g_source, g_immob, g_minter, g_recov, b_v,
      1                             b_vvec(87),nmo,nim
 !!!      common /wblock3/  density_ms, density_ims,etain(1000),ecin(1000)
