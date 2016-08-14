@@ -11,7 +11,7 @@
 
 	  common/WMLthermal/thermalflag!!!!!,thermalconstraint(nume),Tinit(nume),Rqold(nume)
 
-	  common /gbblock/ gbvec(nume,3), gbflag(nume,3)
+!!!	  common /gbblock/ gbvec(nume,3), gbflag(nume,3)
 !!!!!!!!!!!!!	  common /propag/ sigalt(4,nume)
     common/main_block/  a(1)
     common /sigfrac/ sigmacrit0, sigmacrit1, sigmacrit2,sigmacrit3,DecayCount, f_decay, penalty,fractFlag
@@ -26,7 +26,7 @@
     common /cracktipcircle/ ndcircle
     common /fractureplane/ planeflag(nume), planeflag0(nume)
 
-    integer ElemFractCode,ElemDecayCount,ele,numelt,gbflag,lst,nstep
+    integer ElemFractCode,ElemDecayCount,ele,numelt,lst,nstep!!,gbflag
     real sig1, abc, stress, sig, sigmafrac1, sigmafrac110       !!!!!!!!,sigalt
     real cleave, dum, sigmacrit, ncleave, hycon
     integer DecayCount, ElemDecayed, crackele, oele, cflag,numelto,fractFlag
@@ -177,7 +177,8 @@
             ElemFractCode(ele) = 1
             ElemDecayCount(ele) = 1
             planeflag0(ele) = -2
-            write(989,*) ele,ElemFractCode(ele), ElemDecayCount(ele),nstep,'str', '100'
+            !-- write to crackprog.out
+            write(989,*) ele,ElemFractCode(ele), ElemDecayCount(ele),nstep,MaxStress100,ncleave(2,ele),ncleave(3,ele)
         end if
 
     20 continue

@@ -137,7 +137,7 @@
 	  common /intgr/ rgen(24), rrecov(87), rintr(87), rintr_n(87),
      >               rintr_p(87)
 	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
-	  common /gbblock/ gbvec(nume,3), gbflag(nume,3)
+!!!	  common /gbblock/ gbvec(nume,3), gbflag(nume,3)
 !!!!!!!!!!!!!!!	  common /propag/ sigalt(4,40000)
       common/effmod/effmod(nelemg)
 	  common /cleavage_plane0/ cleave_n0(3,3)
@@ -159,7 +159,7 @@
 	  integer :: ElemFractCode, ElemDecayCount,
      >  ElemDecayed,overlapele,ele,oele
 	  integer ovs, ecount, DecayCount, nelec, ncsj, fractFlag !!!!TDflag,
-	  real gbvec, tempgb,ngb,taurgb,taugb, gdotgb, den_im2gb
+	  real  tempgb,ngb,taurgb,taugb, gdotgb, den_im2gb !gbvec,
 	  real den_imgb, den_mgb, slip_ngb, slip_sgb, thermal_factorgb
 	  real bres, cb, sb, cnu, snu, psgb, ugb1, ugb, beff, magvec1
 	  real magvec2,bresdot,den_gb(24),den_gbtot,den_ggb(24),dumabc
@@ -168,7 +168,7 @@
 	  real deltarm, deltarim, qepower, qppower
 	  real gbtr(24), gbtr_tot, gbco, gsh, gsh2, shearslip(24)
 	  real sigmacrit0, sigmacrit1, sigmacrit2, sigmacrit3
-	  integer gbflag, inkgb, slipgb(24), update_flag, sflg, numelt
+	  integer  inkgb, slipgb(24), update_flag, sflg, numelt!gbflag,
 	  dimension ngb(2), taurgb(24), taugb(24),gdotgb(24),
      > den_im2gb(87)
 	  dimension den_imgb(24),den_mgb(24),slip_ngb(24,3),

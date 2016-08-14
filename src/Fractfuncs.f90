@@ -8,6 +8,7 @@ subroutine FractReadApplyPreCrackCleavagePlanes()!y,z,ix)
     use  mod_parameters
     common /wblock8/ abc(573,nume,4),his(573,nume,4)
     common /precrack/ npc, elepc(100)
+    common /crackline/ ncleave(3,nume), elecrack(4,nume),nodeflag(4,nume)
     ! dimension y(*), z(*), ix(4,*)
 
     integer npc, elepc
@@ -15,6 +16,7 @@ subroutine FractReadApplyPreCrackCleavagePlanes()!y,z,ix)
     integer i,j,elemId,IERR
     real*8 Vcx,Vcy
     real abc,his
+    real ncleave
 
     write(*, *) '-->>>>>>>>FractReadApplyPreCrackCleavagePlanes'
     IERR=0
@@ -44,15 +46,19 @@ subroutine FractReadApplyPreCrackCleavagePlanes()!y,z,ix)
     npc=FractLinesCount
 
     do i = 1, FractLinesCount
-      read(60, *) elemId
-      elepc(i)=elemId
-      write(6011, *) elemId
-      write(*, *) 'Pre-exist crack, element', elemId, 'cracks.in'
-      do j = 1, 3
-        abc(362+j,elemId,1) = 0.0
-        abc(365+j,elemId,1) = Vcx
-        abc(368+j,elemId,1) = Vcy
-      end do
+        read(60, *) elemId
+        elepc(i)=elemId
+        write(6011, *) elemId
+        write(*, *) 'Pre-exist crack, element', elemId, 'cracks.in'
+        do j = 1, 3
+          abc(362+j,elemId,1) = 0.0
+          abc(365+j,elemId,1) = Vcx
+          abc(368+j,elemId,1) = Vcy
+        end do
+        !!--- this important b/c if the ElemFractCode(ele)=2, then it does not execute propagate for this element
+        !!--- but it will execute overlap for intersection, so it needs the correct direction
+        ncleave(2,elemId)=Vcx
+        ncleave(3,elemId)=Vcy
     end do
 
     close(60)
