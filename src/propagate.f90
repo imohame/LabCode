@@ -2,6 +2,7 @@
 !!!!!!!          propagate(a(k03),a(k04),a(k02),a(k57),a(k18), a(k08),numelt,nstep)
 
     use CN_Objects_manager
+    use mod_file_units
 !!!!!!!!!!	  integer, parameter :: nume       = 40000
 !!!!!!!!!!	  parameter (n_dim = 3, nss = 24, no_mat = 1000 )
 
@@ -82,7 +83,7 @@
         !-- if the elem is decaying
         if(ElemFractCode(ele)==1 .and. ElemDecayCount(ele) .lt.DecayCount)then !-if the element is decaying
             ElemDecayCount(ele) = ElemDecayCount(ele) + 1 !-- increment the decay
-            write(989,*) ele,ElemFractCode(ele),ElemDecayCount(ele),nstep,'**'
+            write(iFU_crackprog_out,*) ele,ElemFractCode(ele),ElemDecayCount(ele),nstep,'**'
             go to 20
         else if(ElemFractCode(ele)==1 .and. ElemDecayCount(ele)==DecayCount)then !-if the element decayed
             ElemFractCode(ele)=2   !-- decayed
@@ -135,7 +136,7 @@
                 ElemFractCode(ele) = 1 !-- just started the decay process
                 ElemDecayCount(ele) = 1 !-- start the decay increment
                 planeflag0(ele) = 2
-                write(989,*) ele,ElemFractCode(ele),ElemDecayCount(ele),nstep,'str', '110'
+                write(iFU_crackprog_out,*) ele,ElemFractCode(ele),ElemDecayCount(ele),nstep,'str', '110'
                 go to 20
             end if
 
@@ -180,7 +181,7 @@
             ElemDecayCount(ele) = 1
             planeflag0(ele) = -2
             !-- write to crackprog.out
-            write(989,*) ele,ElemFractCode(ele), ElemDecayCount(ele),nstep,MaxStress100,ncleave(2,ele),ncleave(3,ele)
+            write(iFU_crackprog_out,*) ele,ElemFractCode(ele), ElemDecayCount(ele),nstep,MaxStress100,sigmacrit100,ncleave(2,ele),ncleave(3,ele)
         end if
 
     20 continue

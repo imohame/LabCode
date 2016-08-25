@@ -97,8 +97,14 @@ module mod_file_units
     integer :: iFU_DiffNodes_out            =7025
     integer :: iFU_DiffElem_out             =7026
     integer :: iFU_DiffCoeff_out            =7027
-    integer :: iFU_temperElemID_out            =55555
-    integer :: iFU_temperNodeID_out           =66666
+    integer :: iFU_temperElemID_out         =55555
+    integer :: iFU_temperNodeID_out         =66666
+    !--- fracture files
+    integer :: iFU_crackprog_out            =989
+    integer :: iFU_crack_out                =979
+    integer :: iFU_cracktip_out             =5001
+    !--- input checking files
+    integer :: iFU_check_transform_out      =66
     save
 end module mod_file_units
 !!!!!!!#####################################################

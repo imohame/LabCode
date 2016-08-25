@@ -9,6 +9,8 @@
 	  real yc, zc, node
 	  integer npd, numnpo
 	  real ync, znc, ds
+      real distTol
+      distTol= 1.0E-05
 	  
 	  ync=(node(1,n2)-node(1,n1))*yc+node(1,n1)
 	  znc=(node(2,n2)-node(2,n1))*zc+node(2,n1)
@@ -17,7 +19,7 @@
 	      if(ndflag(i,n2)/=0) then
 		      npd=ndflag(i,n2)
 		      ds=sqrt((ync-node(1,npd))**2+(znc-node(2,npd))**2)
-	          if(ds<1.0E-02) then
+	          if(ds<distTol) then
 	              ndc=npd
 				  go to 20
 			  end if
@@ -29,7 +31,7 @@
 	          if(ndflag(i,n1)/=0) then
 		          npd=ndflag(i,n1)
 		          ds=sqrt((ync-node(1,npd))**2+(znc-node(2,npd))**2)
-	              if(ds<1.0E-02) then
+	              if(ds<distTol) then
 	                  ndc=npd
 				      go to 20
 			      end if

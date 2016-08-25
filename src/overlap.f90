@@ -2,6 +2,7 @@
 	  
       use mod_parameters
       use CN_Objects_manager
+      use mod_file_units
       
 	  common/wblock8/  abc(573,nume,4), his(573,nume,4) 
 	  common /wblock12/ Y_modulus(nume),possion_ratio(nume),tau_y(nume)
@@ -86,7 +87,7 @@
         if ((ElemFractCode(ele)==2) .AND. (ElemDecayed(ele)==1)) then	
 !           !!!------ update elem ridge neighbor edges from 1 to 3
             call FracUpdateTipBeforeCrack(ix, ele)
-            write(*,*)'numelt',numelt
+            !!!!!!!!!!!write(*,*)'numelt',numelt
             do i=1, 4
                 elecrack(i, numelt+1)= elecrack(i, ele)
                 intersec(i, numelt+1)= intersec(i, ele)
@@ -161,14 +162,14 @@
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc	
             numelt=numelt+1
             !-------  crack.out output  
-            write(979,*) 'ele:', ele, 'step:', nstep
-            write(979,*) 'ix: ', ix(1,ele), ix(2,ele),ix(3,ele),ix(4,ele)
-            write(979,*) 'edge:', elecrack(1,ele), elecrack(3,ele)
-            write(979,*) 'status:', elecrack(2,ele), elecrack(4,ele)
-            write(979,*) 'y_coeffi:', intersec(1,ele), intersec(3,ele)
-            write(979,*) 'z_coeffi:', intersec(2,ele), intersec(4,ele)
-            write(979,*) '    '
-            flush(979)
+            write(iFU_crack_out,*) 'ele:', ele, 'step:', nstep
+            write(iFU_crack_out,*) 'ix: ', ix(1,ele), ix(2,ele),ix(3,ele),ix(4,ele)
+            write(iFU_crack_out,*) 'edge:', elecrack(1,ele), elecrack(3,ele)
+            write(iFU_crack_out,*) 'status:', elecrack(2,ele), elecrack(4,ele)
+            write(iFU_crack_out,*) 'y_coeffi:', intersec(1,ele), intersec(3,ele)
+            write(iFU_crack_out,*) 'z_coeffi:', intersec(2,ele), intersec(4,ele)
+            write(iFU_crack_out,*) '    '
+            flush(iFU_crack_out)
             !---- print information to calculate crack velocity
             do ic=1,2*ncrack
                 nlast=nelefail(ic)
@@ -180,7 +181,7 @@
                            +z(ix(3,ele))+u(id(2,ix(3,ele)))+z(ix(4,ele))+u(id(2,ix(4,ele))))/4.0
                         nfile=5000+ic
 !                       !!!!---write(nfile,*) ele, nstep, nstep*dt, yt, zt
-                        write(5001,*) 'ele, nstep, nstep*dt, yt, zt ',ele, nstep, nstep*dt, yt, zt
+                        write(iFU_cracktip_out,*) 'ele, nstep, nstep*dt, yt, zt ',ele, nstep, nstep*dt, yt, zt
                     end if
                 end do
             end do					  
