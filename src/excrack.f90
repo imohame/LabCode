@@ -9,6 +9,8 @@
 	  common /excflag/ excf
 	  common /tipvelocity/ncrack,nelefail(1000),tipelenum(1000,nume)
 	  common /precrack2/ rlflag
+      common /sigfrac/ sigmacrit0, sigmacrit1, sigmacrit2,sigmacrit3,DecayCount, f_decay, penalty,fractFlag
+      common /fractureplane/ planeflag(nume), planeflag0(nume)
 
 	  integer ElemFractCode, ElemDecayed, npc, elepc, nstep
 	  integer ncrack, nelefail, tipelenum, rlflag
@@ -29,10 +31,13 @@
             ele=elepc(i)
 !!!          write(*, *) 'Pre-exist crack, element', elepc(i)
             ElemFractCode(ele)=2
+!!            ElemDecayCount(ele) = DecayCount+1
             ElemDecayed(ele)=1
-!!!!			  ncleave(2,ele)=0.0
-!!!!			  ncleave(3,ele)=1.0
-!!!		      write(*, *) 'Pre-exist crack, element', ele, 'excrack'
+            planeflag(ele)=planeflag0(ele)
+!!			  ncleave(2,ele)=0.0
+!!			  ncleave(3,ele)=1.0
+!!		      write(*, *) 'Pre-crack excrack.f90 with ncleave(2:3,ele)=[0 1] , element', ele, 'excrack'
+		      write(*, *) 'Pre-crack excrack.f90 without ncleave(2:3,ele)=[0 1] , element', ele, 'excrack'
         end do
 
 

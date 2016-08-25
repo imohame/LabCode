@@ -84,33 +84,9 @@
         end if		  
         !-- if edge is decayed .. cracked and opened
         if ((ElemFractCode(ele)==2) .AND. (ElemDecayed(ele)==1)) then	
-            !-------  crack.out output  
-            write(979,*) 'ele:', ele, 'step:', nstep
-            write(979,*) 'ix: ', ix(1,ele), ix(2,ele),ix(3,ele),ix(4,ele)
-            write(979,*) 'edge:', elecrack(1,ele), elecrack(3,ele)
-            write(979,*) 'status:', elecrack(2,ele), elecrack(4,ele)
-            write(979,*) 'y_coeffi:', intersec(1,ele), intersec(3,ele)
-            write(979,*) 'z_coeffi:', intersec(2,ele), intersec(4,ele)
-            write(979,*) '    '
-            flush(979)
-            !---- print information to calculate crack velocity
-            do ic=1,2*ncrack
-                nlast=nelefail(ic)
-                do itn=1,nlast
-                    if(ele==tipelenum(ic,itn)) then
-                        yt=(y(ix(1,ele))+u(id(1,ix(1,ele)))+y(ix(2,ele))+u(id(1,ix(2,ele))) &
-                           +y(ix(3,ele))+u(id(1,ix(3,ele)))+y(ix(4,ele))+u(id(1,ix(4,ele))))/4.0
-                        zt=(z(ix(1,ele))+u(id(2,ix(1,ele)))+z(ix(2,ele))+u(id(2,ix(2,ele))) &
-                           +z(ix(3,ele))+u(id(2,ix(3,ele)))+z(ix(4,ele))+u(id(2,ix(4,ele))))/4.0
-                        nfile=5000+ic
-!                       !!!!---write(nfile,*) ele, nstep, nstep*dt, yt, zt
-                        write(5001,*) 'ele, nstep, nstep*dt, yt, zt ',ele, nstep, nstep*dt, yt, zt
-                    end if
-                end do
-            end do					  
 !           !!!------ update elem ridge neighbor edges from 1 to 3
             call FracUpdateTipBeforeCrack(ix, ele)
-
+            write(*,*)'numelt',numelt
             do i=1, 4
                 elecrack(i, numelt+1)= elecrack(i, ele)
                 intersec(i, numelt+1)= intersec(i, ele)
@@ -184,6 +160,30 @@
             overlapele(2,ovs)=numelt+1	
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc	
             numelt=numelt+1
+            !-------  crack.out output  
+            write(979,*) 'ele:', ele, 'step:', nstep
+            write(979,*) 'ix: ', ix(1,ele), ix(2,ele),ix(3,ele),ix(4,ele)
+            write(979,*) 'edge:', elecrack(1,ele), elecrack(3,ele)
+            write(979,*) 'status:', elecrack(2,ele), elecrack(4,ele)
+            write(979,*) 'y_coeffi:', intersec(1,ele), intersec(3,ele)
+            write(979,*) 'z_coeffi:', intersec(2,ele), intersec(4,ele)
+            write(979,*) '    '
+            flush(979)
+            !---- print information to calculate crack velocity
+            do ic=1,2*ncrack
+                nlast=nelefail(ic)
+                do itn=1,nlast
+                    if(ele==tipelenum(ic,itn)) then
+                        yt=(y(ix(1,ele))+u(id(1,ix(1,ele)))+y(ix(2,ele))+u(id(1,ix(2,ele))) &
+                           +y(ix(3,ele))+u(id(1,ix(3,ele)))+y(ix(4,ele))+u(id(1,ix(4,ele))))/4.0
+                        zt=(z(ix(1,ele))+u(id(2,ix(1,ele)))+z(ix(2,ele))+u(id(2,ix(2,ele))) &
+                           +z(ix(3,ele))+u(id(2,ix(3,ele)))+z(ix(4,ele))+u(id(2,ix(4,ele))))/4.0
+                        nfile=5000+ic
+!                       !!!!---write(nfile,*) ele, nstep, nstep*dt, yt, zt
+                        write(5001,*) 'ele, nstep, nstep*dt, yt, zt ',ele, nstep, nstep*dt, yt, zt
+                    end if
+                end do
+            end do					  
         end if!!!if ((ElemFractCode(ele)==2) .AND. (ElemDecayed(ele)==1)) then
     end do !!! do ele=1, numelto
 	  

@@ -56,6 +56,7 @@ c
       if(n.eq.0) go to 80                                               vax750
       names(n)=name(1)//name(2)//name(3)//name(4)//name(5)//name(6)     vax750
      1//name(7)//name(8)                                                vax750
+      write(*,*)' in linky.f ',names(n)
    80 i=m                                                               vax750
       go to 20                                                          vax750
 c
@@ -63,6 +64,7 @@ c
      1open(unit=18,file=names(18),status='old',                         vax750
      1               form='formatted')                                  vax750
        ierr=setvbuf3f_local(18,1,100)
+       write(*,*)' in linky.f ',names(18)
 !      This is the result.out file
       open(unit=17,file=names(17),status='unknown',                     vax750
      1               form='formatted')                                  vax750

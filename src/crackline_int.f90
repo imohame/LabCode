@@ -12,7 +12,9 @@
 	  integer p, elecrack, ele, numelto
 	  
 	  p=0
-
+!-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>  debugging
+      write(*,*)'ele, ncleave(1:3,ele)',ele, ncleave(1:3,ele)
+!-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>  debugging
 	  ny=ncleave(2,ele)
 	  nz=ncleave(3,ele)
     

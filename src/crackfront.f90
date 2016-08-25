@@ -52,7 +52,9 @@
             end if
         end if			
     end do
-	  
+!=================================================	  
+!=============== this only for crack velocity ====	  
+!=================================================	  
     do i=1, ncrack   ! save cracked elements information  ! to calculate crack velocity	      
         nlc=2*i-1    ! left crack tip
         llast=nelefail(nlc)

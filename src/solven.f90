@@ -9,7 +9,7 @@
 !c
       use CN_Objects_manager
       use mod_dtimeSpecs
-      
+      use mod_file_units
       real*8 hed                                                        !vax750
 
       common/hourglass/fhg(40000,8),fhghis(40000,8)
@@ -161,7 +161,7 @@
    time =time+dt
 
    nstp1=nstep+1
-      write(7016,*)'---- ------------- new step,time,iPrintOutputFlag',nstep,time,iPrintOutputFlag
+      write(iFU_times_out,*)'- new step,time,iPrintOutputFlag',nstep,time,iPrintOutputFlag
 
       irflas=0
       nsref =nsref+1
@@ -182,7 +182,7 @@
       call elstf (a(k08),a(k08+numelt2))
       call CPU_TIME(time2)     
       elpt1=time2-time1     
-      write(7016,*)'---- time of elstf code=',elpt1
+      write(iFU_times_out,*)'---- time of elstf code=',elpt1
 !!!!!!!!    ----------------------------testing  
 !!!!!!        write(*,*)a(k17:k17+neq)
 !!!!!!!        stop
@@ -212,7 +212,7 @@
         call quasin (a(k19),a(k20),a(k21),a(k22+neq2),a(k18),a(k22),time,ierr)
         call CPU_TIME(time2)     
         elpt1=time2-time1     
-        write(7016,*)'---- time of quasin code=',elpt1
+        write(iFU_times_out,*)'---- time of quasin code=',elpt1
 
         if (ierr.eq.1) then ! if the quasin did not converge then terminate
             call bye(2)
@@ -233,8 +233,8 @@
       mprint=jprint-nprint
       
       
-      write(7016,*)'output-> iprint,jprint,kprint,nstep',iprint,jprint,kprint,nstep
-      write(7016,*)'output-> lprint,mprint,nprint',lprint,mprint,nprint
+      write(iFU_times_out,*)'output-> iprint,jprint,kprint,nstep',iprint,jprint,kprint,nstep
+      write(iFU_times_out,*)'output-> lprint,mprint,nprint',lprint,mprint,nprint
       if (mprint.gt.0) go to 70
       
       call prtout
@@ -263,7 +263,7 @@
 	  call GNDloop(a(k03),a(k04),a(k02),a(k57),a(k18),numelt,numnp)
       call CPU_TIME(time2)     
       elpt1=time2-time1     
-      write(7016,*)'---- time of fracture code=',elpt1
+      write(iFU_times_out,*)'---- time of fracture code=',elpt1
       
 !!!!!!!!!c     this is my thermal FEM code WML 82010
 !!!!    if (thermalflag.eq.1) then
@@ -298,7 +298,7 @@
         
         call CPU_TIME(time2)     
         elpt1=time2-time1     
-        write(7016,*)'---- time of conduction/diffusion code=',elpt1
+        write(iFU_times_out,*)'---- time of conduction/diffusion code=',elpt1
 !    endif
     
     do i = 1, numelt
@@ -335,6 +335,7 @@
       rewind(iFU_solsteps_out)
       write(iFU_solsteps_out,*)nstep,iprint
       flush(iFU_solsteps_out)
+      write(*,*)' step#= ',nstep
       if (nstep < ntime-1)then ! .or. time < termtm) then
           goto 10
       endif
@@ -352,11 +353,11 @@
           
 	   elapsed_time   = REAL(nb_ticks) / nb_ticks_sec
   
-       write(7016,*)'--------------------------------------'
-       write(7016,*)'--------------------------------------'
-       write(7016,*)'--------------------------------------'
-       write(7016,*)'---- time of CPU_TIME',elpt1
-	   write(7016,*)'---- time of SYSTEM_CLOCK=',elapsed_time
+       write(iFU_times_out,*)'--------------------------------------'
+       write(iFU_times_out,*)'--------------------------------------'
+       write(iFU_times_out,*)'--------------------------------------'
+       write(iFU_times_out,*)'---- time of CPU_TIME',elpt1
+	   write(iFU_times_out,*)'---- time of SYSTEM_CLOCK=',elapsed_time
 !--------------------------------------------------- timing info
        
              

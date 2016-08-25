@@ -151,6 +151,7 @@
 
 !!!c    obtain maximum normal component of the traction on cleavage planes and corresponding normal vector
         MaxStress100 = -100.0
+        iPlaneId=-1
         do j = 1, 3
             vy=cleave(j,2)
             vz=cleave(j,3)
@@ -161,9 +162,7 @@
             !!!dum = sig(1,ele)*cleave(j,2)**2.0+sig(2,ele)*cleave(j,3)**2.0+sig(4,ele)*cleave(j,2)*cleave(j,3)*2.0
             if (abs(StressComp)>MaxStress100) then
                 MaxStress100=abs(StressComp)
-                ncleave(2,ele)=cleave(j,2)
-                ncleave(3,ele)=cleave(j,3)
-
+                iPlaneId=j
             end if
         end do
 
@@ -174,6 +173,9 @@
 !!!
 !!!c     estimate failure, change element status flag
         if((ElemFractCode(ele)==0).and.(MaxStress100 .gt. sigmacrit100)) then !.and. (gbflag(ele,1) == 0)) then
+            ncleave(2,ele)=cleave(iPlaneId,2)
+            ncleave(3,ele)=cleave(iPlaneId,3)
+        
             ElemFractCode(ele) = 1
             ElemDecayCount(ele) = 1
             planeflag0(ele) = -2

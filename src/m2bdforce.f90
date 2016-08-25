@@ -15,7 +15,7 @@
     real sf,dispp,ForceX,ForceY,StressX,StressY,StressXNor,StressYNor
     
     real x_area, yield_stress,u,fff
-    integer numdc,ix,nodes,idir,iaa,ibb,iplotDirxy
+    integer numdc,ix,nodes,idir,ibb,iplotDirxy
     
     iaa = iaa + 1
     !-- only go through if iaa == ibb

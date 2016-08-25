@@ -84,6 +84,7 @@ cw      call timin (cpuio,cpuip,is,3)
       iesf=0
       call CPU_TIME(time2)     
       elpt1=time2-time1     
-      write(7016,*)'- time of bsolvr(c,a,iopt,is)',iopt,is,elpt1
+      write(iFU_times_out,*)'-time of bsolvr(c,a,iopt,is)',
+     > iopt,is,elpt1
       return
       end

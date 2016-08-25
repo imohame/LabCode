@@ -193,6 +193,9 @@
       call getnam(lfnt(3),namei)
       call getnam(lfnt(4),nameh)
       call getnam(lfna(1),namef)
+      write(*,*)' in crystal2d.f ',namei
+      write(*,*)' in crystal2d.f ',nameh
+      write(*,*)' in crystal2d.f ',namef
 
       if ((namef.eq.'rstxyz'.and.nameh.eq.'newfle').or.
      &    (namei.eq.'convert'))then

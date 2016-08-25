@@ -14,7 +14,7 @@ subroutine FractReadApplyPreCrackCleavagePlanes()!y,z,ix)
     integer npc, elepc
     integer*4 setvbuf3f_local
     integer i,j,elemId,IERR
-    real*8 Vcx,Vcy
+    real Vcx,Vcy
     real abc,his
     real ncleave
 
