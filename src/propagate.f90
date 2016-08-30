@@ -25,7 +25,7 @@
     common/hydroembrittle110/critfrac110(1000),sigfrac0110(nume)
     common/slipplane110/ nsp110(6)
     common /cracktipcircle/ ndcircle
-    common /fractureplane/ planeflag(nume), planeflag0(nume)
+!!    common /fractureplane/ planeflag(nume), planeflag0(nume)
 
     integer ElemFractCode,ElemDecayCount,ele,numelt,lst,nstep!!,gbflag
     real sig1, abc, stress, sig, sigmafrac1, sigmafrac110       !!!!!!!!,sigalt
@@ -35,7 +35,8 @@
     integer nssmat, nssimmat,  thermalflag, ndcircle  !!TDflag,
     real sigfrac0, sigfrac, decfrac, sigfrac0110
     real sigmacrit100, sigmacrit110, cleave110(6,3)
-    integer nsp110, iHE, jHE, planeflag, planeflag0
+    integer nsp110, iHE, jHE
+!!!    integer planeflag, planeflag0
     real*8 MaxStress100,StressComp
 
 
@@ -83,12 +84,12 @@
         !-- if the elem is decaying
         if(ElemFractCode(ele)==1 .and. ElemDecayCount(ele) .lt.DecayCount)then !-if the element is decaying
             ElemDecayCount(ele) = ElemDecayCount(ele) + 1 !-- increment the decay
-            write(iFU_crackprog_out,*) ele,ElemFractCode(ele),ElemDecayCount(ele),nstep,'**'
+            write(iFU_crackprog_out,*) ele,ElemFractCode(ele),ElemDecayCount(ele),nstep
             go to 20
         else if(ElemFractCode(ele)==1 .and. ElemDecayCount(ele)==DecayCount)then !-if the element decayed
             ElemFractCode(ele)=2   !-- decayed
             ElemDecayed(ele)=1
-            planeflag(ele)=planeflag0(ele)
+!!!            planeflag(ele)=planeflag0(ele)
             write(*,*) 'element ', ele, 'overlapping'
             go to 20
         else if(ElemFractCode(ele)==2) then !-- completely cracked
@@ -135,7 +136,7 @@
             if ((ElemFractCode(ele)==0) .and. (sigmafrac110 .gt. sigmacrit110)) then !!.and. (gbflag(ele,1) == 0)) then
                 ElemFractCode(ele) = 1 !-- just started the decay process
                 ElemDecayCount(ele) = 1 !-- start the decay increment
-                planeflag0(ele) = 2
+!!                planeflag0(ele) = 2
                 write(iFU_crackprog_out,*) ele,ElemFractCode(ele),ElemDecayCount(ele),nstep,'str', '110'
                 go to 20
             end if
@@ -179,7 +180,7 @@
         
             ElemFractCode(ele) = 1
             ElemDecayCount(ele) = 1
-            planeflag0(ele) = -2
+!!            planeflag0(ele) = -2
             !-- write to crackprog.out
             write(iFU_crackprog_out,*) ele,ElemFractCode(ele), ElemDecayCount(ele),nstep,MaxStress100,sigmacrit100,ncleave(2,ele),ncleave(3,ele)
         end if

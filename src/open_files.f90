@@ -33,14 +33,10 @@
       open(25,file = 'plastic_work.out', status = 'unknown')
       open(270,file = 'porosity.out',     status = 'unknown')
 	  open(969,file = 'stresscomp.out',    status = 'unknown')
-	  open(iFU_crack_out,file = 'crack.out',     status = 'unknown')
       open(993,file = 'fail.out',     status = 'unknown')
 	  open(935,file = 'stress001.out',     status = 'unknown')
 	  open(936,file = 'stress110.out',     status = 'unknown')
 	  open(937,file = 'qeqp.out',     status = 'unknown')
-	  open(938,file = 'fracplane.out',     status = 'unknown')
-	  open(2107,file = 'crit_frac.out',     status = 'unknown')
-	  open(2108,file = 'dec_frac.out',     status = 'unknown')
 	  
 !c     output file for only one position
 !	  open(2001,file = 'deltarm.out1',     status = 'unknown')
@@ -79,12 +75,10 @@
 	  ierr=setvbuf3f_local(25,1,100)
 	  ierr=setvbuf3f_local(270,1,100)
 	  ierr=setvbuf3f_local(969,1,100)
-	  ierr=setvbuf3f_local(iFU_crack_out,1,100)
 	  ierr=setvbuf3f_local(993,1,100)
 	  ierr=setvbuf3f_local(935,1,100)
 	  ierr=setvbuf3f_local(936,1,100)
 	  ierr=setvbuf3f_local(937,1,100)	 
-      ierr=setvbuf3f_local(938,1,100)	  	  	   
 	  ierr=setvbuf3f_local(2001,1,100)
 	  ierr=setvbuf3f_local(2002,1,100)
 	  ierr=setvbuf3f_local(2003,1,100)
@@ -111,8 +105,6 @@
 !!c	  ierr=setvbuf3f_local(2024,1,100)
 !!c	  ierr=setvbuf3f_local(2025,1,100)
 !!c	  ierr=setvbuf3f_local(2026,1,100)
-	  ierr=setvbuf3f_local(2107,1,100)
-	  ierr=setvbuf3f_local(2108,1,100)
 	  
 !      open(30,file = 'res_stress1.out', status = 'unknown')
 !      open(31,file = 'res_stress2.out', status = 'unknown')
@@ -1120,12 +1112,10 @@
 	  ierr=setvbuf3f_local(911,1,100)
       open(959,file = 'Qe.out', status = 'unknown')
 	  ierr=setvbuf3f_local(959,1,100)
-      open(999,file = 'gb.out', status = 'unknown')
-	  ierr=setvbuf3f_local(999,1,100)
-      open(iFU_crackprog_out,file = 'crackprog.out', status = 'unknown')
-	  ierr=setvbuf3f_local(iFU_crackprog_out,1,100)
-      open(iFU_cracktip_out,file = 'cracktip.out', status = 'unknown')
-	  ierr=setvbuf3f_local(iFU_cracktip_out,1,100)
+      
+!      open(999,file = 'gb.out', status = 'unknown')
+!	  ierr=setvbuf3f_local(999,1,100)
+      
       
       open(iFU_solsteps_out,file = 'solsteps.out', status = 'unknown')
 	  ierr=setvbuf3f_local(iFU_solsteps_out,1,100)
@@ -1176,6 +1166,20 @@
       open(iFU_temperNodeID_out,file = 'temperNodeID.out', status = 'unknown')
 	  ierr=setvbuf3f_local(iFU_temperNodeID_out,1,100)
 
+!!!--- fracture files
+!!      open(938,file = 'frac_plane.out',     status = 'unknown')
+!!      ierr=setvbuf3f_local(938,1,100)	
+      
+	  open(2107,file = 'frac_crit.out',     status = 'unknown')
+	  ierr=setvbuf3f_local(2107,1,100)
+	  open(2108,file = 'frac_dec.out',     status = 'unknown')
+	  ierr=setvbuf3f_local(2108,1,100)
+	  open(iFU_crack_out,file = 'frac_crack.out',     status = 'unknown')
+	  ierr=setvbuf3f_local(iFU_crack_out,1,100)
+      open(iFU_crackprog_out,file = 'frac_crackprog.out', status = 'unknown')
+	  ierr=setvbuf3f_local(iFU_crackprog_out,1,100)
+      open(iFU_cracktip_out,file = 'frac_cracktip.out', status = 'unknown')
+	  ierr=setvbuf3f_local(iFU_cracktip_out,1,100)
 
       return
       end

@@ -3,20 +3,30 @@
 !!###################################################################
 !###################################################################
 !###################################################################
-subroutine FractReadApplyPreCrackCleavagePlanes()!y,z,ix)
+subroutine FractReadApplyPreCrackCleavagePlanes(y,z,ix)
     use mod_Fract
     use  mod_parameters
     common /wblock8/ abc(573,nume,4),his(573,nume,4)
-    common /precrack/ npc, elepc(100)
+    common /precrack/ npc, elepc(100),npc_count
+    common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
+    common /crackopen/ ElemDecayed(nume), overlapele(2,nume)
     common /crackline/ ncleave(3,nume), elecrack(4,nume),nodeflag(4,nume)
-    ! dimension y(*), z(*), ix(4,*)
-
-    integer npc, elepc
+    common /overlapping/ intersec(4, nume), area_coeff(nume), update_flag
+    
+    dimension y(*), z(*), ix(4,*)
+    integer elecrack,nodeflag
+    real ncleave
+    real intersec,area_coeff
+    real y,z
+    integer ix
+    integer ElemFractCode, ElemDecayed,npc, elepc,npc_count
     integer*4 setvbuf3f_local
     integer i,j,elemId,IERR
     real Vcx,Vcy
     real abc,his
-    real ncleave
+    real vn(3)
+    integer ElemEdge1,ElemEdge2
+    real rxc1,ryc1,r1,rxc2,ryc2,r2
 
     write(*, *) '-->>>>>>>>FractReadApplyPreCrackCleavagePlanes'
     IERR=0
@@ -44,25 +54,53 @@ subroutine FractReadApplyPreCrackCleavagePlanes()!y,z,ix)
     write(6011, *) Vcx,Vcy
 
     npc=FractLinesCount
+    npc_count=npc
 
     do i = 1, FractLinesCount
-        read(60, *) elemId
+        !!!--------- id  ed1     rxc1    ryc1     r1  ed2     rxc2    ryc2     r2
+        read(60, *) elemId,ElemEdge1,rxc1,ryc1,r1,ElemEdge2,rxc2,ryc2,r2
         elepc(i)=elemId
-        write(6011, *) elemId
+        write(6011, *) elemId,ElemEdge1,rxc1,ryc1,r1,ElemEdge2,rxc2,ryc2,r2
         write(*, *) 'Pre-exist crack, element', elemId, 'cracks.in'
+        vn(1)=0.0
+        vn(2)=Vcx
+        vn(3)=Vcy
+        ElemFractCode(elemId)=2
+        ElemDecayed(elemId)=1
+
         do j = 1, 3
-          abc(362+j,elemId,1) = 0.0
-          abc(365+j,elemId,1) = Vcx
-          abc(368+j,elemId,1) = Vcy
+          abc(362+j,elemId,1) = vn(j)
+          abc(365+j,elemId,1) = vn(j)
+          abc(368+j,elemId,1) = vn(j)
         end do
         !!--- this important b/c if the ElemFractCode(ele)=2, then it does not execute propagate for this element
         !!--- but it will execute overlap for intersection, so it needs the correct direction
         ncleave(2,elemId)=Vcx
         ncleave(3,elemId)=Vcy
+        !!---- this to fill all the prop for the cracked elements
+        elecrack(1,elemId)=ElemEdge1
+        elecrack(2,elemId)=3
+        elecrack(3,elemId)=ElemEdge2
+        elecrack(4,elemId)=3
+        
+        intersec(1, elemId)=rxc1
+        intersec(2, elemId)=ryc1
+        intersec(3, elemId)=rxc2
+        intersec(4, elemId)=ryc2
+        if (i < FractLinesCount) then
+        !-- update the neighbor elements
+            call FracUpdateTipBeforeCrack(ix, elemId)
+        else
+            call FracUpdateTipAfterCrack(ix, elemId, ElemEdge2, 2)
+        endif
+        
     end do
 
     close(60)
     close(6011)
+    !--- no need for the excrack to do anything, so set these to zero
+    npc_count=0
+    npc=0
     write(*, *) '-->>>>>>>>FractReadApplyPreCrackCleavagePlanes'
     return
 !    -------------------------------------------

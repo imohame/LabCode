@@ -41,8 +41,8 @@
       common /elas_energ/ inie(nume), ecount(nume)
 	  common /energbox/ gbco
 	  common /cracktipcircle/ ndcircle
-	  common /fractureplane/ planeflag(nume), planeflag0(nume)
-	  common /precrack2/ rlflag
+!!!!	  common /fractureplane/ planeflag(nume), planeflag0(nume)
+!!	  common /precrack2/ rlflag
 
       character *80 txt
 	  real dum, b_v, inie,  gbco!!, gbvec
@@ -51,8 +51,9 @@
 	  real slip_s00(4,24,3), slip_n00(4,24,3)
 	  real cleave_n, cleave_n0, sigmacrit0, sigmacrit1, sigmacrit2,
      > 	  sigmacrit3, f_decay, penalty
-	  integer npc, elepc, ecount, ndcircle, planeflag
-	  integer planeflag0, rlflag
+	  integer npc, elepc, ecount, ndcircle
+!!!      integer  planeflag,planeflag0
+	  integer  rlflag
 
 
       data (((slip_n00(i,j,k), k = 1, 3), j = 1, 24), i = 1, 4)
@@ -161,8 +162,8 @@
 
 
 	  do i = 1, nume
-	  planeflag(i)=0
-	  planeflag0(i)=0
+!!!!	  planeflag(i)=0
+!!!!	  planeflag0(i)=0
 	  ElemFractCode(i) = 0
 	  ElemDecayCount(i) = 1
 !!!!	  gbvec(i,1) = 0.0
@@ -285,6 +286,7 @@
 	  do i=1, npc
 	      read(60,*) elepc(i)
 	  end do
+      !-- the following two numbers are not used any more
 	  read(60,*) rlflag     ! pre-existing crack at left or right edge, 0 left, 1 right
 	  read(60,*) gbco
 

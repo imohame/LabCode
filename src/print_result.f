@@ -33,7 +33,7 @@
       
 	  common/hydroembrittle/critfrac(1000), sigfrac0(40000), 
      >       sigfrac(40000),decfrac(40000)
-	  common /fractureplane/ planeflag(nume), planeflag0(nume)
+!!	  common /fractureplane/ planeflag(nume), planeflag0(nume)
 	  common /GND_loop/ gradslip(2,24,40000), rho_gnd(2,24,40000)
 	  
       dimension slip_n(nss,3), slip_s(nss,3)
@@ -41,7 +41,8 @@
 
 	  real ll, srm, sgdot, gd(24), dm(24), dim1(24), dim2(87)
 	  real yintr(87), yrecov(87), ygen(24),fphi,rhomotot
-	  integer n, n1, n2, nssim, nssm, ctr, ElemFractCode, planeflag
+	  integer n, n1, n2, nssim, nssm, ctr, ElemFractCode
+!      integer planeflag
       integer    ::  s_s_a(nss),nass, nelec
 	  real rhointn, rhointp, rhomi, rhoimi, gbtr
 	  real rintr_ntot, rintr_ptot, etae, rho_gnd
@@ -130,7 +131,7 @@
 
 		 
 		 write(993,*) ElemFractCode(ink)
-		 write(938,*) planeflag(ink)
+!!!!!		 write(938,*) planeflag(ink)
 !!!!!!!!!!!!!!!!!!		 write(2101,*) hycon(ink,1)         !hydrogen_con.out
 !!!!!!!!!!!c        print out pressure gradient
 !!!!!!!!!!         write(2102,*) gradpdata(1,ink)
@@ -244,25 +245,25 @@
          write(179,1001) abc(103,ink,nintg)
          write(180,1001) abc(104,ink,nintg)
          write(181,1001) abc(105,ink,nintg)
-		 write(550,999) abc(398,ink,nintg)
-		 write(551,999) abc(399,ink,nintg)
-		 write(552,999) abc(400,ink,nintg)
-		 write(553,999) abc(401,ink,nintg)
-		 write(554,999) abc(402,ink,nintg)
-		 write(555,999) abc(403,ink,nintg)
-		 write(556,999) abc(404,ink,nintg)
-		 write(557,999) abc(405,ink,nintg)
-		 write(558,999) abc(406,ink,nintg)
-		 write(559,999) abc(407,ink,nintg)
-		 write(560,999) abc(408,ink,nintg)
-		 write(561,999) abc(409,ink,nintg)
-		 write(562,999) abc(410,ink,nintg)
-		 write(563,999) abc(411,ink,nintg)
-		 write(564,999) abc(412,ink,nintg)
-		 write(565,999) abc(413,ink,nintg)
-		 write(566,999) abc(414,ink,nintg)
-		 write(567,999) abc(415,ink,nintg)
-		 write(568,999) abc(416,ink,nintg)
+!		 write(550,999) abc(398,ink,nintg)
+!		 write(551,999) abc(399,ink,nintg)
+!		 write(552,999) abc(400,ink,nintg)
+!		 write(553,999) abc(401,ink,nintg)
+!		 write(554,999) abc(402,ink,nintg)
+!		 write(555,999) abc(403,ink,nintg)
+!		 write(556,999) abc(404,ink,nintg)
+!		 write(557,999) abc(405,ink,nintg)
+!		 write(558,999) abc(406,ink,nintg)
+!		 write(559,999) abc(407,ink,nintg)
+!		 write(560,999) abc(408,ink,nintg)
+!		 write(561,999) abc(409,ink,nintg)
+!		 write(562,999) abc(410,ink,nintg)
+!		 write(563,999) abc(411,ink,nintg)
+!		 write(564,999) abc(412,ink,nintg)
+!		 write(565,999) abc(413,ink,nintg)
+!		 write(566,999) abc(414,ink,nintg)
+!		 write(567,999) abc(415,ink,nintg)
+!		 write(568,999) abc(416,ink,nintg)
 !		 write(569,999) abc(417,ink,nintg)
 !		 write(570,999) abc(418,ink,nintg)
 !		 write(571,999) abc(419,ink,nintg)

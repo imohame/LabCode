@@ -3,6 +3,8 @@ c     implicit double precision (a-h,o-z)                                    dp
 c
 c.... interface routine to call fissln equation solver
 c
+      use mod_file_units
+          
       common/bk02/ioofc,iphase,imass,lpar(9)
       common/bk14/lfna(15),lfnt(6)
       common/bk15/cpuio(3,12),cpuip(3,12)

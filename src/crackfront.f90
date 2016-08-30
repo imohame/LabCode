@@ -5,7 +5,7 @@
 	  common /crackline/ ncleave(3,nume), elecrack(4,nume), nodeflag(4,nume)
 	  common/meshnum/ numnpo, numelto 
 	  common/cracktip/ tipele(2,nume), ntp
-	  common /tipvelocity/ ncrack,nelefail(1000),tipelenum(1000,nume)
+!!!!	  common /tipvelocity/ ncrack,nelefail(1000),tipelenum(1000,nume)
 	  
 	  dimension Xcoord(*), ix(4,*)
 	  
@@ -13,7 +13,7 @@
 	  integer ElemEdge1, bflag, ElemId2, ElemEdge2
 	  integer tipele, ntp
 	  integer i, j, ele
-	  integer ncrack, nelefail, tipelenum 
+!!!!	  integer ncrack, nelefail, tipelenum 
 	  integer nlc, llast, ElemId1, ElemIdtip, nrc, rlast
 	  real ElemId1X, ElemIdtipX
 	  
@@ -52,59 +52,59 @@
             end if
         end if			
     end do
-!=================================================	  
-!=============== this only for crack velocity ====	  
-!=================================================	  
-    do i=1, ncrack   ! save cracked elements information  ! to calculate crack velocity	      
-        nlc=2*i-1    ! left crack tip
-        llast=nelefail(nlc)
-        if(llast==1) then
-            do j=1,ntp
-                if(tipelenum(nlc, llast)==tipele(1,j)) then
-                    ElemId1=tipele(1,j)
-                    ElemIdtip=tipele(2,j)
-                    ElemId1X=(Xcoord(ix(1,ElemId1))+Xcoord(ix(2,ElemId1))+Xcoord(ix(3,ElemId1))+Xcoord(ix(4,ElemId1)))/4.0
-                    ElemIdtipX=(Xcoord(ix(1,ElemIdtip))+Xcoord(ix(2,ElemIdtip))+Xcoord(ix(3,ElemIdtip))+Xcoord(ix(4,ElemIdtip)))/4.0
-                    if(ElemIdtipX<ElemId1X) then	  ! left crack tip
-                        nelefail(nlc)=nelefail(nlc)+1
-                        tipelenum(nlc,llast+1)=tipele(2,j)
-                    end if
-                end if
-            end do
-        else
-            do j=1,ntp
-                if(tipelenum(nlc, llast)==tipele(1,j)) then
-                    nelefail(nlc)=nelefail(nlc)+1
-                    tipelenum(nlc,llast+1)=tipele(2,j)
-                end if 
-            end do
-        end if
-		  
-        nrc=2*i    ! right crack tip
-        rlast=nelefail(nrc)
-        if(rlast==1) then
-            do j=1,ntp
-                if(tipelenum(nrc, rlast)==tipele(1,j)) then
-                    ElemId1=tipele(1,j)
-                    ElemIdtip=tipele(2,j)
-                    ElemId1X=(Xcoord(ix(1,ElemId1))+Xcoord(ix(2,ElemId1))+Xcoord(ix(3,ElemId1))+Xcoord(ix(4,ElemId1)))/4.0
-                    ElemIdtipX=(Xcoord(ix(1,ElemIdtip))+Xcoord(ix(2,ElemIdtip))+Xcoord(ix(3,ElemIdtip))+Xcoord(ix(4,ElemIdtip)))/4.0
-                    if(ElemIdtipX>ElemId1X) then	  ! right crack tip
-                        nelefail(nrc)=nelefail(nrc)+1
-                        tipelenum(nrc,rlast+1)=tipele(2,j)
-                    end if
-                end if
-            end do
-        else
-            do j=1,ntp
-                if(tipelenum(nrc, rlast)==tipele(1,j)) then
-                    nelefail(nrc)=nelefail(nrc)+1
-                    tipelenum(nrc,rlast+1)=tipele(2,j)
-                end if 
-            end do
-        end if
-		  
-    end do	  
-	  
+!!!!!!=================================================	  
+!!!!!!=============== this only for crack velocity ====	  
+!!!!!!=================================================	  
+!!!!!    do i=1, ncrack   ! save cracked elements information  ! to calculate crack velocity	      
+!!!!!        nlc=2*i-1    ! left crack tip
+!!!!!        llast=nelefail(nlc)
+!!!!!        if(llast==1) then
+!!!!!            do j=1,ntp
+!!!!!                if(tipelenum(nlc, llast)==tipele(1,j)) then
+!!!!!                    ElemId1=tipele(1,j)
+!!!!!                    ElemIdtip=tipele(2,j)
+!!!!!                    ElemId1X=(Xcoord(ix(1,ElemId1))+Xcoord(ix(2,ElemId1))+Xcoord(ix(3,ElemId1))+Xcoord(ix(4,ElemId1)))/4.0
+!!!!!                    ElemIdtipX=(Xcoord(ix(1,ElemIdtip))+Xcoord(ix(2,ElemIdtip))+Xcoord(ix(3,ElemIdtip))+Xcoord(ix(4,ElemIdtip)))/4.0
+!!!!!                    if(ElemIdtipX<ElemId1X) then	  ! left crack tip
+!!!!!                        nelefail(nlc)=nelefail(nlc)+1
+!!!!!                        tipelenum(nlc,llast+1)=tipele(2,j)
+!!!!!                    end if
+!!!!!                end if
+!!!!!            end do
+!!!!!        else
+!!!!!            do j=1,ntp
+!!!!!                if(tipelenum(nlc, llast)==tipele(1,j)) then
+!!!!!                    nelefail(nlc)=nelefail(nlc)+1
+!!!!!                    tipelenum(nlc,llast+1)=tipele(2,j)
+!!!!!                end if 
+!!!!!            end do
+!!!!!        end if
+!!!!!		  
+!!!!!        nrc=2*i    ! right crack tip
+!!!!!        rlast=nelefail(nrc)
+!!!!!        if(rlast==1) then
+!!!!!            do j=1,ntp
+!!!!!                if(tipelenum(nrc, rlast)==tipele(1,j)) then
+!!!!!                    ElemId1=tipele(1,j)
+!!!!!                    ElemIdtip=tipele(2,j)
+!!!!!                    ElemId1X=(Xcoord(ix(1,ElemId1))+Xcoord(ix(2,ElemId1))+Xcoord(ix(3,ElemId1))+Xcoord(ix(4,ElemId1)))/4.0
+!!!!!                    ElemIdtipX=(Xcoord(ix(1,ElemIdtip))+Xcoord(ix(2,ElemIdtip))+Xcoord(ix(3,ElemIdtip))+Xcoord(ix(4,ElemIdtip)))/4.0
+!!!!!                    if(ElemIdtipX>ElemId1X) then	  ! right crack tip
+!!!!!                        nelefail(nrc)=nelefail(nrc)+1
+!!!!!                        tipelenum(nrc,rlast+1)=tipele(2,j)
+!!!!!                    end if
+!!!!!                end if
+!!!!!            end do
+!!!!!        else
+!!!!!            do j=1,ntp
+!!!!!                if(tipelenum(nrc, rlast)==tipele(1,j)) then
+!!!!!                    nelefail(nrc)=nelefail(nrc)+1
+!!!!!                    tipelenum(nrc,rlast+1)=tipele(2,j)
+!!!!!                end if 
+!!!!!            end do
+!!!!!        end if
+!!!!!		  
+!!!!!    end do	  
+!!!!!	  
 
 end

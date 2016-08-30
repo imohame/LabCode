@@ -16,23 +16,28 @@
 	  integer connect, penta, numnpt, numeltu
 	  integer ele, ne1, ele2, ne2, ndflag
 	  integer bflag, cbflag, est, ntip_edge
+      integer jj,NonzeroNodeId
 	  
 	  numnpt=numnp
 	  numeltu=numelt
 	  
-	  do i=1, nume2
-	      do j=1,4
-		      connect(j,i)=0
-		  end do
-		  penta(i)=0
-		  ndflag(1,i)=0
-		  ndflag(2,i)=0
-	  end do
+!!!	  do i=1, nume2
+!!!	      do j=1,4
+!!!		      connect(j,i)=0
+!!!		  end do
+!!!		  penta(i)=0
+!!!		  ndflag(1,i)=0
+!!!		  ndflag(2,i)=0
+!!!	  end do
+      connect=0
+      penta=0
+      ndflag=0
 	  
 	  do ele=1, numelt
-	      do j=1, 4
-		      connect(j,ele)=ix(j,ele)
-		  end do
+!!	      do j=1, 4
+!!		      connect(j,ele)=ix(j,ele)
+!!		  end do
+          connect(1:4,ele)=ix(1:4,ele)
 		  
 c     cracked element		  
 		  if(ElemFractCode(ele)==2) then
@@ -81,7 +86,24 @@ c     crack tip element
 			  end if
 			  
 		  end if
-		  
+		!---------------------- add this check to prevent connect of having zeros for tec-plot
+          NonzeroNodeId=0
+          do jj=1,4
+            if (connect(jj,ele) >0) then
+                NonzeroNodeId=connect(jj,ele)
+                exit !--- break the loop
+             endif
+          enddo
+        !---- set any zero node to that non-zero node
+          do jj=1,4
+            if (connect(jj,ele) >0) then
+                NonzeroNodeId=connect(jj,ele)
+            else
+                connect(jj,ele)=NonzeroNodeId
+            endif
+          enddo
+        !-----------------------
+          
       end do
 	  
 	  end

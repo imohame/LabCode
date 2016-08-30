@@ -14,8 +14,8 @@
 !!!!c      Tarek :: check for the transformation 
 	open(iFU_check_transform_out,file = 'check_transform.out', status = 'unknown')
 
-       data (((M_mo1(i,j,k), k = 1, 3), j = 1, 3), i = 1, 63)
-                 / 1.0 , 0.0 , 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0, 
+       data (((M_mo1(i,j,k), k = 1, 3), j = 1, 3), i = 1, 63) &
+                 / 1.0 , 0.0 , 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0, &
             .7416, .6498, .1667,-.6667, .7416, .0749,-.0749,-.1667, .9832, &
             .0749,-.1667, .9832, .6667, .7416, .0749,-.7416, .6498, .1667, &
            -.6667, .7416, .0749,-.0749,-.1667, .9832, .7416, .6498, .1667, &
@@ -134,7 +134,7 @@
         
         write(iFU_check_transform_out,*) '---- cleave_n0 cleavage planes    '
         do i = 1, 3
-            write(iFU_check_transform_out,*)cleave_n0(ig,i,1),cleave_n0(ig,i,2),cleave_n0(ig,i,3)
+            write(iFU_check_transform_out,*)cleave_n0(i,1),cleave_n0(i,2),cleave_n0(i,3)
         end do
 
         write(iFU_check_transform_out,*) '---- cleave_n cleavage planes    '
@@ -165,8 +165,8 @@
 
 
 
-          write(iFU_check_transform_out,*) slip_s0_t(ig,i,1),slip_s0_t(ig,i,2),slip_s0_t(ig,i,3)
-          write(iFU_check_transform_out,*) slip_n0_t(ig,i,1),slip_n0_t(ig,i,2),slip_n0_t(ig,i,3)
+!!          write(iFU_check_transform_out,*) slip_s0_t(ig,i,1),slip_s0_t(ig,i,2),slip_s0_t(ig,i,3)
+!!          write(iFU_check_transform_out,*) slip_n0_t(ig,i,1),slip_n0_t(ig,i,2),slip_n0_t(ig,i,3)
 
 
 

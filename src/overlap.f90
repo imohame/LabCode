@@ -41,17 +41,18 @@
 	  common/hydroembrittle/critfrac(1000), sigfrac0(nume),sigfrac(nume),decfrac(nume)
 	  common /sigfrac/ sigmacrit0, sigmacrit1, sigmacrit2, &
                        sigmacrit3,DecayCount, f_decay, penalty,fractFlag
-	  common /fractureplane/ planeflag(nume), planeflag0(nume)
-	  common /tipvelocity/ ncrack, nelefail(1000),tipelenum(1000,nume)
+!!!!	  common /fractureplane/ planeflag(nume), planeflag0(nume)
+!!!!	  common /tipvelocity/ ncrack, nelefail(1000),tipelenum(1000,nume)
 	  
 	  dimension y(*), z(*), ix(4,*), matp(*), id(2,*), u(*), usi(*),freep(5,*), ym(4,*)
 	  
 	  integer numelt, numnp, ElemFractCode, ele,update_flag,fractFlag
 	  integer sflg, nnn2, ElemDecayed, overlapele
 	  integer lprint, nprint, nstep, numelto
-	  integer elecrack, ovs, ElemDecayCount, planeflag
+	  integer elecrack, ovs, ElemDecayCount
+      integer planeflag
 	  real intersec, ym, area_coeff, sigfrac, decfrac
-	  integer ncrack, nelefail, tipelenum 
+!!!	  integer ncrack, nelefail, tipelenum 
 	  integer ic, nlast, itn, nfile
 	  real yt, zt
 	  
@@ -67,14 +68,14 @@
             if(elecrack(2,ele)==0 .and. elecrack(4,ele)==0) then
             !!----- based on integration point
                 call crackline_int(ele, y, z, ix, id, u)
-                !--- new crack nucleated, pre-existed crack updated in excrack.f
-                if(nstep>0) then     
-                    ncrack=ncrack+1           
-                    tipelenum(2*ncrack-1,1)=ele
-                    tipelenum(2*ncrack,1)=ele
-                    nelefail(2*ncrack-1)=1
-                    nelefail(2*ncrack)=1
-                end if
+!!!!!!!!                !--- new crack nucleated, pre-existed crack updated in excrack.f
+!!!!!!!!                if(nstep>0) then     
+!!!!!!!!                    ncrack=ncrack+1           
+!!!!!!!!                    tipelenum(2*ncrack-1,1)=ele
+!!!!!!!!                    tipelenum(2*ncrack,1)=ele
+!!!!!!!!                    nelefail(2*ncrack-1)=1
+!!!!!!!!                    nelefail(2*ncrack)=1
+!!!!!!!!                end if
             else if(elecrack(2,ele)==2 .and. elecrack(4,ele)==0) then
             !!---based on crack tip
                 call crackline_tip(ele, y, z, ix, id, u) 
@@ -116,7 +117,7 @@
             possion_ratio(numelt+1) = possion_ratio(ele)
             tau_y(numelt+1) = tau_y(ele)
             ElemFractCode(numelt+1)=ElemFractCode(ele)
-            planeflag(numelt+1)=planeflag(ele)
+!!!!            planeflag(numelt+1)=planeflag(ele)
 
             nnn2(numelt+1,1)=nnn2(ele,1)
             maxneq=neq
@@ -170,21 +171,21 @@
             write(iFU_crack_out,*) 'z_coeffi:', intersec(2,ele), intersec(4,ele)
             write(iFU_crack_out,*) '    '
             flush(iFU_crack_out)
-            !---- print information to calculate crack velocity
-            do ic=1,2*ncrack
-                nlast=nelefail(ic)
-                do itn=1,nlast
-                    if(ele==tipelenum(ic,itn)) then
-                        yt=(y(ix(1,ele))+u(id(1,ix(1,ele)))+y(ix(2,ele))+u(id(1,ix(2,ele))) &
-                           +y(ix(3,ele))+u(id(1,ix(3,ele)))+y(ix(4,ele))+u(id(1,ix(4,ele))))/4.0
-                        zt=(z(ix(1,ele))+u(id(2,ix(1,ele)))+z(ix(2,ele))+u(id(2,ix(2,ele))) &
-                           +z(ix(3,ele))+u(id(2,ix(3,ele)))+z(ix(4,ele))+u(id(2,ix(4,ele))))/4.0
-                        nfile=5000+ic
-!                       !!!!---write(nfile,*) ele, nstep, nstep*dt, yt, zt
-                        write(iFU_cracktip_out,*) 'ele, nstep, nstep*dt, yt, zt ',ele, nstep, nstep*dt, yt, zt
-                    end if
-                end do
-            end do					  
+!!!!!!            !---- print information to calculate crack velocity
+!!!!!!            do ic=1,2*ncrack
+!!!!!!!!!                nlast=nelefail(ic)
+!!!!!!                do itn=1,nlast
+!!!!!!                    if(ele==tipelenum(ic,itn)) then
+!!!!!!                        yt=(y(ix(1,ele))+u(id(1,ix(1,ele)))+y(ix(2,ele))+u(id(1,ix(2,ele))) &
+!!!!!!                           +y(ix(3,ele))+u(id(1,ix(3,ele)))+y(ix(4,ele))+u(id(1,ix(4,ele))))/4.0
+!!!!!!                        zt=(z(ix(1,ele))+u(id(2,ix(1,ele)))+z(ix(2,ele))+u(id(2,ix(2,ele))) &
+!!!!!!                           +z(ix(3,ele))+u(id(2,ix(3,ele)))+z(ix(4,ele))+u(id(2,ix(4,ele))))/4.0
+!!!!!!                        nfile=5000+ic
+!!!!!!!                       !!!!---write(nfile,*) ele, nstep, nstep*dt, yt, zt
+!!!!!!                        write(iFU_cracktip_out,*) 'ele, nstep, nstep*dt, yt, zt ',ele, nstep, nstep*dt, yt, zt
+!!!!!!                    end if
+!!!!!!                end do
+!!!!!!            end do					  
         end if!!!if ((ElemFractCode(ele)==2) .AND. (ElemDecayed(ele)==1)) then
     end do !!! do ele=1, numelto
 	  

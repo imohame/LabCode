@@ -68,6 +68,7 @@ module mod_Fract
     integer FractLinesCount,bFractFlag
 !!!    real*8, ALLOCATABLE :: FractNormals(:,:)
     INTEGER, ALLOCATABLE :: FractElemIds(:,:)
+    INTEGER, ALLOCATABLE :: FractElemNeighbors(:,:)
 
     save
 

@@ -133,16 +133,20 @@ subroutine GBApplyCleavagePlanes()
 
 
     integer i,j,GBelemId,GBareaId
+    real vn(3)
 
     i=0
     write(*, *) '----Apply the GB cleave  planes to the elements'
     do i = 1, GBElemCount
       GBelemId=GBElemAreaMap(i,1)
       GBareaId=GBElemAreaMap(i,2)
+      vn(1)=0.0
+      vn(2:3)=GBNormals(GBareaId,1:2)
+      
       do j = 1, 3
-        abc(362+j,GBelemId,1) = 0.0
-        abc(365+j,GBelemId,1) = GBNormals(GBareaId,1)
-        abc(368+j,GBelemId,1) = GBNormals(GBareaId,2)
+        abc(362+j,GBelemId,1) = vn(j)
+        abc(365+j,GBelemId,1) = vn(j)
+        abc(368+j,GBelemId,1) = vn(j)
       end do
     end do
 

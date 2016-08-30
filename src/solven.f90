@@ -74,15 +74,16 @@
 	  common/mbsize/numelt2, numnp2, neq2
 	  common /overlapping/ intersec(4, nume), area_coeff(nume),update_flag
 	  common /ovsum/ ovs
-	  common /excflag/ excf
-	  common /tipvelocity/ ncrack, nelefail(1000),tipelenum(1000,nume)
+!!	  common /excflag/ excf
+!!!!	  common /tipvelocity/ ncrack, nelefail(1000),tipelenum(1000,nume)
 !!!!!      character*8 namef
 !!!!!      logical term
       logical dynlnk
       data isw3on/1/
       data isw7on/0/
-      integer  update_flag, ovs, excf       !!thermalflag,
-	  integer ncrack, nelefail, tipelenum 
+      integer  update_flag, ovs
+!!      integer excf       !!thermalflag,
+!!!!	  integer ncrack, nelefail, tipelenum 
 	  real intersec, area_coeff
       real timesteps,time0,time1,time2,elpt1,timebase,timetotal
       real*8 tim(2), tim2(2)
@@ -112,8 +113,8 @@
    41 format(5x,'ZONE')
 
       ovs=0
-	  ncrack=0
-	  excf=1
+!!!!	  ncrack=0
+!!!!	  excf=1
 	  update_flag=0
       
       !-- this for writing the forplot disp/stress every 100 step

@@ -10,7 +10,7 @@
 	  integer npd, numnpo
 	  real ync, znc, ds
       real distTol
-      distTol= 1.0E-05
+      distTol= 1.0E-11
 	  
 	  ync=(node(1,n2)-node(1,n1))*yc+node(1,n1)
 	  znc=(node(2,n2)-node(2,n1))*zc+node(2,n1)
