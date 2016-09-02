@@ -57,6 +57,7 @@
 ! [ P A R A M E T E R S]
 ! ......................
       use CN_Objects_manager
+      use EC_Objects_manager
 
 
 !!!!!!!!!!!!      integer, parameter :: nume   = 40000
@@ -222,7 +223,7 @@
       write(*,*) '---------after calling input_data'
 
       close (7777)
-
+      
       if(imeth.eq.0.and.nameh.eq.'newfle') then
          call solven
       endif
@@ -233,5 +234,5 @@
 !----------call the CN manager to clean the memory ismail2016-02-17
       Call CNCleanMem()
       CALL GBCleanMemory()
-      CALL FractCleanMemory()
+      CALL EC_CleanMem()
       end

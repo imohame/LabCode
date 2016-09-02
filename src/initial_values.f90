@@ -4,6 +4,7 @@
 !!!      integer, parameter :: nume   = 40000
 !!!      integer, parameter :: no_mat = 1000
       use  mod_parameters
+      use EC_Objects_manager
       use CN_Objects_manager
       use mod_file_units
 
@@ -104,15 +105,15 @@
           abc(j9,i,1) = 0.0
         end do
     end do
-!---------  for debugging                  
-    write(iFU_check_transform_out,*) '---- elements cleavage planes before GB and crack.in   '
-    do i = 1, numelt
-        write(iFU_check_transform_out,*) '---- ele id= ',i
-        do j = 1, 3
-            write(iFU_check_transform_out,*)abc(362+j,i,1),abc(365+j,i,1),abc(368+j,i,1)
-        end do
-    end do      
-!---------  for debugging          
+!!!---------  for debugging                  
+!!    write(iFU_check_transform_out,*) '---- elements cleavage planes before GB and crack.in   '
+!!    do i = 1, numelt
+!!        write(iFU_check_transform_out,*) '---- ele id= ',i
+!!        do j = 1, 3
+!!            write(iFU_check_transform_out,*)abc(362+j,i,1),abc(365+j,i,1),abc(368+j,i,1)
+!!        end do
+!!    end do      
+!!!---------  for debugging          
 
 ! #####################################################
 ! #####################################################
@@ -123,18 +124,21 @@
 ! #####################################################
 !      to read precracked elements and apply proper cleavage planes
        call FractReadApplyPreCrackCleavagePlanes(a(k03),a(k04),a(k02)) !!(y,z,ix)
+       call FractReadElemNeighbors()
+       
+!!!       call EC_PrintTest()
        
 ! #####################################################
 ! #####################################################
-!---------  for debugging                  
-    write(iFU_check_transform_out,*) '---- elements cleavage planes after GB and crack.in   '
-    do i = 1, numelt
-        write(iFU_check_transform_out,*) '---- ele id= ',i
-        do j = 1, 3
-            write(iFU_check_transform_out,*)abc(362+j,i,1),abc(365+j,i,1),abc(368+j,i,1)
-        end do
-    end do      
-!---------  for debugging          
+!!!!---------  for debugging                  
+!!!    write(iFU_check_transform_out,*) '---- elements cleavage planes after GB and crack.in   '
+!!!    do i = 1, numelt
+!!!        write(iFU_check_transform_out,*) '---- ele id= ',i
+!!!        do j = 1, 3
+!!!            write(iFU_check_transform_out,*)abc(362+j,i,1),abc(365+j,i,1),abc(368+j,i,1)
+!!!        end do
+!!!    end do      
+!!!!---------  for debugging          
 
 !!!!           write(*,*)Y_modulus(1:numelt)
 !!!!           write(*,*)possion_ratio(1:numelt)
@@ -151,5 +155,5 @@
        
     close(iFU_check_transform_out)
     write(*, *) '-->>>>>>>>initial_values --done'
-      
+!!    stop
 end

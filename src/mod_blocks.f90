@@ -62,17 +62,39 @@ module mod_GBdata
     save
 
 end module mod_GBdata
-!#####################################################
-!#####################################################
-module mod_Fract
-    integer FractLinesCount,bFractFlag
-!!!    real*8, ALLOCATABLE :: FractNormals(:,:)
-    INTEGER, ALLOCATABLE :: FractElemIds(:,:)
-    INTEGER, ALLOCATABLE :: FractElemNeighbors(:,:)
-
-    save
-
-end module mod_Fract
+!!!#####################################################
+!!!#####################################################
+!!module mod_Fract
+!!    ENUM (KIND=1):: enum_EdgeStatus
+!!          ENUMERATOR :: CrackNon=0         !--edge not cracked
+!!          ENUMERATOR :: CrackFirstSide=1   !--edge cracked on first side
+!!          ENUMERATOR :: CrackBothSide=2    !--edge cracked on both sides
+!!          ENUMERATOR :: CrackSecondSide=3  !--edge crack on second side
+!!    END ENUM
+!!    
+!!    integer FractElemCountPreCracked !- number of pre-cracked elems
+!!    integer bFractFlag !-- 1=allow fracture
+!!    integer FractNodesCountAdded !-- nodes added as overlap nodes
+!!    integer FractElemCountAdded !-- elems added as overlap elems
+!!    integer FractIntersectNodesCount !-- intersection nodes count
+!!    integer ElemCountInput !-- original elem count from the input before any phantom or overlap elements
+!!    integer ElemCountCurrent !-- current or updated or recent elem count that = original + overlapped
+!!    integer NodeCountInput !-- original node count from the input before any phantom or overlap elements
+!!    integer NodeCountCurrent !-- current or updated or recent node count that = original + overlapped
+!!    
+!!    INTEGER FractZoneFactor !--- used to mark the crack front circle, do not crack within this area
+!!    INTEGER FractDecayCount !--- used to mark the crack front circle, do not crack within this area
+!!!!!    INTEGER, ALLOCATABLE :: FractElemIds(:,:) !--pre-cracked
+!!    INTEGER, ALLOCATABLE :: FractElemNeighbors(:,:) !(8,nume) each edge has a neighbor elem and edge; e1:e4,ed1:ed4
+!!    
+!!    TYPE (enum_EdgeStatus) ,ALLOCATABLE :: FractElemEdgeStatus(:,:) !(4,nume) for each edge status
+!!    real*8, ALLOCATABLE ::  FractNodesCoordCracking(:,:) !-- (4,:) for each edge, ratio of length for the cracking point
+!!    real*8, ALLOCATABLE ::  FractElemCleavagePlanes(:,:) !-- (3,:) x,y,z elem cleavage plane
+!!    INTEGER, ALLOCATABLE :: FractElemStatus(:) !(nume) 0=not cracked, 1:FractDecayCount=decaying, >FractDecayCount=cracked
+!!    
+!!    save
+!!
+!!end module mod_Fract
 !#####################################################
 !#####################################################
    !------ module for the files in/out unit numbers

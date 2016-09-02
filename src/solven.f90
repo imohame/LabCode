@@ -83,12 +83,12 @@
       data isw7on/0/
       integer  update_flag, ovs
 !!      integer excf       !!thermalflag,
-!!!!	  integer ncrack, nelefail, tipelenum 
+!!!!	  integer ncrack, nelefail, tipelenum
 	  real intersec, area_coeff
       real timesteps,time0,time1,time2,elpt1,timebase,timetotal
       real*8 tim(2), tim2(2)
-      real*4 elapsed, wdiff  
-      external wdiff       
+      real*4 elapsed, wdiff
+      external wdiff
 	  integer ierr
       INTEGER :: count_rate, count_max,t1,t2
         INTEGER   nb_ticks_initial ! initial value of the clock tick counter
@@ -99,12 +99,14 @@
         REAL :: elapsed_time       ! real time in seconds
        integer connect,idt
        real*8 DtCondDiff
- 
+
 !!!       call CNTestPrint()
 !!!       return
       if (modeltype.ge.4.and.modeltype.le.8) then
         call initial_values(a(k12),numelt)
       endif
+!!!!!!      !--- for fracture: set the input node and elem counts before cracking and overlap
+!!!!!!      CALL FractInitializeData()
 
 !!!!c.....TECPLOT write
 !!!      write(126,4)
@@ -116,7 +118,7 @@
 !!!!	  ncrack=0
 !!!!	  excf=1
 	  update_flag=0
-      
+
       !-- this for writing the forplot disp/stress every 100 step
       iaa = 0
       ibb = 100
@@ -124,20 +126,20 @@
       dynlnk=.false.
       nn    = 0
       a(k08+numelt2:k08+numelt2+numelt2)=1.0
-      
+
 ! ---- nstep starts as -1
-      if (nstep >= 0) go to 40                                               
+      if (nstep >= 0) go to 40
 
       nprint=jprint+nstep
       if (iprint.lt.1000000) then
         lprint=iprint+nstep
       endif
 
-      call CPU_TIME(timebase)   
+      call CPU_TIME(timebase)
       CALL SYSTEM_CLOCK(COUNT_RATE=nb_ticks_sec,COUNT_MAX=nb_ticks_max)
       CALL SYSTEM_CLOCK(COUNT=nb_ticks_initial)
-      
-   10 nstep=nstep+1                                                          
+
+   10 nstep=nstep+1
       nbcku=0
       ntt=0
 
@@ -147,7 +149,7 @@
       else
         iPrintOutputFlag=1 !  print output
       endif
-      call CPU_TIME(time0)     
+      call CPU_TIME(time0)
 
       krfreq=krfreq+1
       if (irfreq.le.krfreq) krfreq=0
@@ -179,26 +181,26 @@
 !c      ITERATION SOVER
 !c     compute element stiffness matrices, stress divergence, and rhs
 !c
-   80 call CPU_TIME(time1)     
+   80 call CPU_TIME(time1)
       call elstf (a(k08),a(k08+numelt2))
-      call CPU_TIME(time2)     
-      elpt1=time2-time1     
+      call CPU_TIME(time2)
+      elpt1=time2-time1
       write(iFU_times_out,*)'---- time of elstf code=',elpt1
-!!!!!!!!    ----------------------------testing  
+!!!!!!!!    ----------------------------testing
 !!!!!!        write(*,*)a(k17:k17+neq)
 !!!!!!!        stop
-      
+
       if(update_flag==0) then
 	      call total_Qe(a(k03),a(k04),a(k02))   ! calculate total elastic energy
 	  end if
-      
+
          if (nstep.eq.ntime) dynlnk=.true.
          if (time.gt.termtm) dynlnk=.true.
-      
+
       if (dynlnk) then
          go to 50
       endif
-      
+
 
       call blkcpy (a(k19),a(k21),neq)
       call bsolvr (a(k19),a(ntlen),newstf+2,6)
@@ -207,12 +209,12 @@
       if (iter > 0) go to 50
 
       ierr=0
-        call CPU_TIME(time1)  
+        call CPU_TIME(time1)
 !!!!!!        write(*,*)k19,k20,k20,k21,neq2,time
 !!!!!!        write(*,*)a(k19:k19+10)
         call quasin (a(k19),a(k20),a(k21),a(k22+neq2),a(k18),a(k22),time,ierr)
-        call CPU_TIME(time2)     
-        elpt1=time2-time1     
+        call CPU_TIME(time2)
+        elpt1=time2-time1
         write(iFU_times_out,*)'---- time of quasin code=',elpt1
 
         if (ierr.eq.1) then ! if the quasin did not converge then terminate
@@ -224,20 +226,20 @@
 !c
    50 lprint=lprint+1
       kprint=iprint-lprint
-      if (kprint.gt.0) go to 60 
-      
+      if (kprint.gt.0) go to 60
+
       call prtout
 !c
 !c     write plot data into binary file
 !c
    60 nprint=nprint+1
       mprint=jprint-nprint
-      
-      
+
+
       write(iFU_times_out,*)'output-> iprint,jprint,kprint,nstep',iprint,jprint,kprint,nstep
       write(iFU_times_out,*)'output-> lprint,mprint,nprint',lprint,mprint,nprint
       if (mprint.gt.0) go to 70
-      
+
       call prtout
 !c
 !c     update displacements, velocities, and accelerations
@@ -250,22 +252,22 @@
 !!!!!      updat (u     ,udt   ,udtt  ,ui)
 !!!	  call edge(a(k03),a(k04),a(k08))
 !!!!!!!!      edge(y     ,z     ,matp)
-      
+
       call propagate(a(k03),a(k04),a(k02),a(k57),a(k18), a(k08),numelt,nstep)
 !!!!!      propagate(y     , z    , ix   , id   , u    , matp  ,numelt,nstep)
       call overlap(a(k03),a(k04),a(k02),a(k08),a(k57),a(k18),a(k20), a(k07), a(k09))
 !!!!!!!!!e overlap(y     , z    , ix   , matp , id   , u    , usi  , freep , ym)
-     
-     
+
+
 	  if (update_flag==1) then
 		  go to 80
 	  end if
-	  
+
 	  call GNDloop(a(k03),a(k04),a(k02),a(k57),a(k18),numelt,numnp)
-      call CPU_TIME(time2)     
-      elpt1=time2-time1     
+      call CPU_TIME(time2)
+      elpt1=time2-time1
       write(iFU_times_out,*)'---- time of fracture code=',elpt1
-      
+
 !!!!!!!!!c     this is my thermal FEM code WML 82010
 !!!!    if (thermalflag.eq.1) then
         call CPU_TIME(time1)
@@ -273,22 +275,22 @@
         ElemCountAct=numelt
         NodeCountAct=numnp
         call CN_UpdateElemConnet(a(k02))
-         
+
 !!!!!!!!!!!!!        call thermal(a(k02),a(k03),a(k04),a(k18),numelt,numnp,a(k57))
-!!!!!!!!!!!!!!            thermal(ix,yold,zold,u,ele,nod,id)       
+!!!!!!!!!!!!!!            thermal(ix,yold,zold,u,ele,nod,id)
 !!!!!        write(*,*)numelt,numnp
-        
+
 !!!!!!!!        write(*,*) a(k08:k08+100)
 !!!!!!!!        write(*,*) int(a(k08:k08+100))
         itempActiveFlagThermal=CNObjThermal%iSolutionActive
         itempActiveFlagDiffusion=CNObjDiffusion%iSolutionActive
-                
+
         if(CNObjDiffusion%iSolutionActive == 1)then
             CNObjThermal%iSolutionActive=0
             call CN_FEM_Solver(a(k03),a(k04),a(k57),a(k18),a(k08))
             CNObjThermal%iSolutionActive=itempActiveFlagThermal
-        endif   
-        
+        endif
+
         if(CNObjThermal%iSolutionActive == 1)then
             CNObjDiffusion%iSolutionActive=0
             call CN_FEM_Solver(a(k03),a(k04),a(k57),a(k18),a(k08))
@@ -296,12 +298,12 @@
             CNObjDiffusion%iSolutionActive=itempActiveFlagDiffusion
         endif
         iPrintOutputFlag=0
-        
-        call CPU_TIME(time2)     
-        elpt1=time2-time1     
+
+        call CPU_TIME(time2)
+        elpt1=time2-time1
         write(iFU_times_out,*)'---- time of conduction/diffusion code=',elpt1
 !    endif
-    
+
     do i = 1, numelt
         do j = 1, 8
             fhg(i, j) = fhghis(i, j)
@@ -314,9 +316,9 @@
     enddo
 
     nn=nn+1
-   
+
 !---------------------------------------------------
-!*..... This is to call the subroutine for calculating the 
+!*..... This is to call the subroutine for calculating the
 !*..... nominal stress-strain curve for both :
 !*.....     - Single crystal, and
 !*.....     - Polycrystal
@@ -324,13 +326,13 @@
 !---------------------------------------------------
 
 !--------------------------------------------------- timing info
-      call CPU_TIME(timesteps)     
-      elpt1=timesteps-time0    
+      call CPU_TIME(timesteps)
+      elpt1=timesteps-time0
       write(iFU_times_out,*)'---- time of a step =',elpt1
       elpt1=timesteps-timebase
       write(iFU_times_out,*)'---- time of a step sum=',elpt1
 !--------------------------------------------------- timing info
-      
+
 !!!!!! ---this is always the case mthsol=1=bfgs
       write(iFU_times_out,*)'---- nstep,ntime,time,termtm',nstep,ntime,time,termtm
       rewind(iFU_solsteps_out)
@@ -342,26 +344,26 @@
       endif
 !!!!        if (nstep.lt.ntime) go to 10
 !!!!        if (time.le.termtm) go to 10
-                                                           
+
 !--------------------------------------------------- timing info
-       call CPU_TIME(timetotal)     
-       elpt1=timetotal-timebase  
-       
+       call CPU_TIME(timetotal)
+       elpt1=timetotal-timebase
+
 	   CALL SYSTEM_CLOCK(COUNT=nb_ticks_final)
 	   nb_ticks = nb_ticks_final - nb_ticks_initial
-	
+
 	   IF (nb_ticks_final < nb_ticks_initial) nb_ticks = nb_ticks + nb_ticks_max
-          
+
 	   elapsed_time   = REAL(nb_ticks) / nb_ticks_sec
-  
+
        write(iFU_times_out,*)'--------------------------------------'
        write(iFU_times_out,*)'--------------------------------------'
        write(iFU_times_out,*)'--------------------------------------'
        write(iFU_times_out,*)'---- time of CPU_TIME',elpt1
 	   write(iFU_times_out,*)'---- time of SYSTEM_CLOCK=',elapsed_time
 !--------------------------------------------------- timing info
-       
-             
+
+
         call bye (1)
 
    90 format(' solution phase  time=',e12.5,'  step number=',i6)
@@ -377,6 +379,3 @@
  1002 format (/'remap phase completed-return to execution phase'/)
 
       end
-
-
-

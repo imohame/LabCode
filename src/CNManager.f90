@@ -501,7 +501,7 @@ module CN_Objects_manager
          subroutine CNmanager_Get_sigalt(iElemId,RetVal)
             implicit none
             integer,    intent(in) :: iElemId
-            real,    intent(inout) :: RetVal(4)  
+            real*8,    intent(inout) :: RetVal(4)  
             !!! column-major and pass by ref
             
             RetVal(1:4)= sigalt(1:4,iElemId)
