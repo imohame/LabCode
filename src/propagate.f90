@@ -1,7 +1,7 @@
       subroutine propagate(y, z, ix, id, u, matp, numelt,nstep)
 !!!!!!!          propagate(a(k03),a(k04),a(k02),a(k57),a(k18), a(k08),numelt,nstep)
 
-    use CN_Objects_manager
+    use CN_Objects_manager 
     use mod_file_units
 !!!!!!!!!!	  integer, parameter :: nume       = 40000
 !!!!!!!!!!	  parameter (n_dim = 3, nss = 24, no_mat = 1000 )
@@ -29,7 +29,7 @@
 
     integer ElemFractCode,ElemDecayCount,ele,numelt,lst,nstep!!,gbflag
     real sig1, abc, stress, sig, sigmafrac1, sigmafrac110       !!!!!!!!,sigalt
-    real cleave, dum, sigmacrit, ncleave, hycon
+    real dum, sigmacrit, ncleave, hycon
     integer DecayCount, ElemDecayed, crackele, oele, cflag,numelto,fractFlag
     real sigmacrit0, sigmacrit1, sigmacrit2, sigmacrit3
     integer nssmat, nssimmat,  thermalflag, ndcircle  !!TDflag,
@@ -41,7 +41,8 @@
 
 
     dimension y(*), z(*), ix(4,*), id(2,*), u(*), matp(*)
-    dimension sig(4,numelt), cleave(3,3),retval(4)
+    dimension sig(4,numelt)
+    real cleave(3,3),retval(4)
 
     data nsp110/1, 2, 3, 7, 8, 14/
     real rElemConcentration

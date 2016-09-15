@@ -2,13 +2,25 @@
 module EC_Consts
     use mod_parameters
     implicit none
+    type typeEC_IntersectionPtsData
+        INTEGER :: EC_NodeGlobalID=0    !--gobal id wrt all nodes
+        real*8  :: EC_NodeLenRatio=0     !--ratio of the defined vector below
+        INTEGER :: EC_NodeVectStart=0   !--start vector pt
+        INTEGER :: EC_NodeVectEnd=0     !--end vector pt
+    end type  typeEC_IntersectionPtsData
+
 
     public
+    integer EC_eCrackNon,EC_eCrackInnerSide,EC_eCrackBothSides,EC_eCrackOutterSide
+    parameter (EC_eCrackNon=0)          !--edge not cracked
+    parameter (EC_eCrackInnerSide=1)    !--edge cracked on first side
+    parameter (EC_eCrackBothSides=2)     !--edge cracked on both sides
+    parameter (EC_eCrackOutterSide=3)   !--edge crack on second side
 
-    INTEGER :: EC_eCrackNon=0         !--edge not cracked
-    INTEGER :: EC_eCrackFirstSide=1   !--edge cracked on first side
-    INTEGER :: EC_eCrackBothSide=2    !--edge cracked on both sides
-    INTEGER :: EC_eCrackSecondSide=3  !--edge crack on second side
+    integer EC_eElemTypeTri,EC_eElemTypeQuad,EC_eElemTypePenta
+    parameter (EC_eElemTypeTri=3)   !--4-node elem triangle
+    parameter (EC_eElemTypeQuad=4)   !--4-node elem quad
+    parameter (EC_eElemTypePenta=5)   !--5-node elem pentagon
 
 
     integer EC_bCracking !-- 1=allow fracture
@@ -24,11 +36,11 @@ module EC_Consts
     integer EC_ElemCountAdded !-- elems added as overlap elems
     integer EC_IntersectNodesCount !-- intersection nodes count
 
-    integer ElemCountInput !-- original elem count from the input before any phantom or overlap elements
-    integer ElemCountCurrent !-- current or updated or recent elem count that = original + overlapped
+    integer EC_ElemCountInput !-- original elem count from the input before any phantom or overlap elements
+    integer EC_ElemCountCurrent !-- current or updated or recent elem count that = original + overlapped
 
-    integer NodeCountInput !-- original node count from the input before any phantom or overlap elements
-    integer NodeCountCurrent !-- current or updated or recent node count that = original + overlapped
+    integer EC_NodeCountInput !-- original node count from the input before any phantom or overlap elements
+    integer EC_NodeCountCurrent !-- current or updated or recent node count that = original + overlapped
 
     integer EC_ElemEdgesConnect(2,4) !-- list the elem edges order 1-2 2-3 3-4 4-1
 
@@ -50,10 +62,10 @@ module EC_Consts
         write(*,*)'EC_PreCrackedElemCount=',EC_PreCrackedElemCount
         write(*,*)'EC_NodesCountAdded=',EC_NodesCountAdded
         write(*,*)'EC_ElemCountAdded=',EC_ElemCountAdded
-        write(*,*)'ElemCountInput=',ElemCountInput
-        write(*,*)'ElemCountCurrent=',ElemCountCurrent
-        write(*,*)'NodeCountInput=',NodeCountInput
-        write(*,*)'NodeCountCurrent=',NodeCountCurrent
+        write(*,*)'EC_ElemCountInput=',EC_ElemCountInput
+        write(*,*)'EC_ElemCountCurrent=',EC_ElemCountCurrent
+        write(*,*)'EC_NodeCountInput=',EC_NodeCountInput
+        write(*,*)'EC_NodeCountCurrent=',EC_NodeCountCurrent
         write(*,*)'EC_ElemEdgesConnect=',EC_ElemEdgesConnect
     end subroutine ECprintTest
 !##############################################################################
@@ -74,8 +86,8 @@ module EC_Consts
         endif
 
         EC_bCracking=mEC_bCracking
-        ElemCountInput=numelto
-        NodeCountInput=numnpo
+        EC_ElemCountInput=numelto
+        EC_NodeCountInput=numnpo
         do i=1,3
           EC_ElemEdgesConnect(1,i)=i
           EC_ElemEdgesConnect(2,i)=i+1
@@ -89,8 +101,8 @@ module EC_Consts
         EC_NodesCountAdded=0
         EC_ElemCountAdded=0
 
-        ElemCountCurrent=ElemCountInput
-        NodeCountCurrent=NodeCountInput
+        EC_ElemCountCurrent=EC_ElemCountInput
+        EC_NodeCountCurrent=EC_NodeCountInput
 
         call ECcalcAverageElemStatistics (ElemConnect,rNodesCoordx,rNodesCoordy)
         EC_ZoneRadius=EC_ZoneFactor*EC_ElemEdgeMin
@@ -100,7 +112,6 @@ module EC_Consts
 !##############################################################################
 !!!        --------------------------------------- to cal. some statistics about elem geometry
     subroutine ECcalcAverageElemStatistics (ElemConnect,rNodesCoordx,rNodesCoordy)
-!            USE EC_Consts
         implicit none
         integer,    intent(in) :: ElemConnect(4,*)
         real,     intent(in) :: rNodesCoordx(*),rNodesCoordy(*)
@@ -111,7 +122,7 @@ module EC_Consts
         rEdgeMin=1e32
         rElemDia=0
 
-        do i=1,ElemCountInput
+        do i=1,EC_ElemCountInput
           do j=1,4
             edgeNode1=ElemConnect(EC_ElemEdgesConnect(1,j),i)
             edgeNode2=ElemConnect(EC_ElemEdgesConnect(2,j),i)
@@ -140,7 +151,7 @@ module EC_Consts
           rElemDia=rElemDia+dist
         enddo
         !-- calc the average diagonal
-        rElemDia=rElemDia/ElemCountInput
+        rElemDia=rElemDia/EC_ElemCountInput
 
         !--- set the results to the CN_Consts
         EC_ElemEdgeMax=rEdgeMax
@@ -155,10 +166,15 @@ module EC_ElemCrackingBaseClass
     use EC_Consts
     implicit none
     TYPE EC_ElemCrackingClass
+        integer :: iElemType=EC_eElemTypeQuad !- default 4-nodes
         integer :: iElemStatus=0 !- 0=not cracked, 1:EC_DecayCount=decaying, >EC_DecayCount=cracked
         real*8  :: rCleavagePlane(3)
         real*8  :: rCoordRatioCracking(4) !- (-ve no cracking )for each edge, ratio of length for the cracking point
         integer :: EdgeStatus(4) !- for each edge status, see enum_EdgeStatus
+        real*8  :: rAreaRatio,rArea !- for area ratio with respect of the original elem. also area value
+        integer :: iElemOverlapping !- for the added new/overlapping/phantom elem
+        integer :: iElemEdgeNeighbors(4,4) !- for each edge can have up to 2 neighboring elems and edges
+
 
      contains
         procedure ::Initialize => EC_ElemCrackingBaseClass_Initialize
@@ -167,21 +183,47 @@ module EC_ElemCrackingBaseClass
         procedure ::SetFailed => EC_ElemCrackingBaseClass_SetFailed
         procedure ::CalcElemMaxStress => EC_ElemCrackingBaseClass_CalcElemMaxStress
         procedure ::CheckDecaying => EC_ElemCrackingBaseClass_CheckDecaying
+        procedure ::CopyElem => EC_ElemCrackingBaseClass_CopyElem
+        procedure ::CalcAreaRatio => EC_ElemCrackingBaseClass_CalcAreaRatio
+        procedure ::EC_GetElemAreaRatio
+        procedure ::EC_GetElemUnloadingCount
+        procedure ::EC_GetElemEdgeNeighbors
 
     ENDTYPE
     !-------------------
     contains
 !!!        --------------------------------------- to allocate memory for the Rn's and CTn's
+!##############################################################################
+     subroutine EC_GetElemEdgeNeighbors (tEC_object,mEdgeId,mOutList)
+        class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
+        integer, intent(in) :: mEdgeId
+        integer, intent(out) :: mOutList(4)
+        mOutList(1:4)=tEC_object%iElemEdgeNeighbors(mEdgeId,1:4)
+    end subroutine EC_GetElemEdgeNeighbors
+!##############################################################################
+!##############################################################################
+    real*8 function EC_GetElemAreaRatio (tEC_object)
+        class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
+        EC_GetElemAreaRatio=tEC_object%rAreaRatio
+    end function EC_GetElemAreaRatio
+!##############################################################################
+    integer function EC_GetElemUnloadingCount (tEC_object)
+        class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
+        EC_GetElemUnloadingCount=tEC_object%iElemStatus
+    end function EC_GetElemUnloadingCount
+!##############################################################################
+
     subroutine EC_ElemCrackingBaseClass_Initialize (tEC_object)
 
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
 
         tEC_object%iElemStatus=0
         tEC_object%rCleavagePlane=[0,0,1]
-!            tEC_object%rCleavagePlane(2)=0
-!            tEC_object%rCleavagePlane(3)=1
         tEC_object%rCoordRatioCracking=-1
         tEC_object%EdgeStatus=0
+        tEC_object%rAreaRatio=1
+        tEC_object%iElemType=EC_eElemTypeQuad !- default 4-nodes
+
 
     end subroutine EC_ElemCrackingBaseClass_Initialize
 !##############################################################################
@@ -196,40 +238,57 @@ module EC_ElemCrackingBaseClass
             write(*,*)tEC_object%rCleavagePlane(2)
             write(*,*)tEC_object%rCleavagePlane(3)
             write(*,*)tEC_object%EdgeStatus
+            write(*,*)tEC_object%rAreaRatio
 
     end subroutine EC_ElemCrackingBaseClass_PrintTest
     !##############################################################################
     !##############################################################################
-     subroutine EC_ElemCrackingBaseClass_SetDataPre (tEC_object,vn,ElemEdge1,rxc1,ryc1,r1,ElemEdge2,rxc2,ryc2,r2)
-
-       implicit none
-         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
-         real , intent(in) :: vn(3)
-         integer , intent(in) ::ElemEdge1,ElemEdge2
-         real , intent(in) ::rxc1,ryc1,r1,rxc2,ryc2,r2
-
-          tEC_object%iElemStatus=EC_DecayCount+1
-          tEC_object%rCleavagePlane=vn
-          tEC_object%EdgeStatus=EC_eCrackFirstSide
-
-     end subroutine EC_ElemCrackingBaseClass_SetDataPre
-     !##############################################################################
-     !##############################################################################
-      subroutine EC_ElemCrackingBaseClass_SetFailed (tEC_object,miElemStatus,vn)
+    subroutine EC_ElemCrackingBaseClass_SetDataPre (tEC_object,vn,ElemEdge1,rxc1,ryc1,r1,ElemEdge2,rxc2,ryc2,r2)
 
         implicit none
-          class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
-          real*8 , intent(in) :: vn(3)
-          integer , intent(in) :: miElemStatus
+        class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
+        real , intent(in) :: vn(3)
+        integer , intent(in) ::ElemEdge1,ElemEdge2
+        real , intent(in) ::rxc1,ryc1,r1,rxc2,ryc2,r2
 
-           tEC_object%iElemStatus=miElemStatus
-           tEC_object%rCleavagePlane=vn
+        tEC_object%iElemStatus=EC_DecayCount+1
+        tEC_object%rCleavagePlane=vn
+        tEC_object%EdgeStatus=EC_eCrackInnerSide
 
-      end subroutine EC_ElemCrackingBaseClass_SetFailed
+    end subroutine EC_ElemCrackingBaseClass_SetDataPre
+     !##############################################################################
+     !##############################################################################
+    subroutine EC_ElemCrackingBaseClass_SetFailed (tEC_object,miElemStatus,vn)
+
+        implicit none
+        class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
+        real*8 , intent(in) :: vn(3)
+        integer , intent(in) :: miElemStatus
+
+        tEC_object%iElemStatus=miElemStatus
+        tEC_object%rCleavagePlane=vn
+
+    end subroutine EC_ElemCrackingBaseClass_SetFailed
+     !##############################################################################
+     !##############################################################################
+    subroutine EC_ElemCrackingBaseClass_CopyElem (tEC_object,tEC_objectOUT)
+
+        implicit none
+        class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object,tEC_objectOUT
+        tEC_objectOUT%iElemStatus=tEC_object%iElemStatus
+        tEC_objectOUT%rCleavagePlane=tEC_object%rCleavagePlane
+        tEC_objectOUT%rCoordRatioCracking=tEC_object%rCoordRatioCracking
+        tEC_objectOUT%EdgeStatus=tEC_object%EdgeStatus
+        tEC_objectOUT%rAreaRatio=tEC_object%rAreaRatio
+        tEC_objectOUT%rArea=tEC_object%rArea
+        tEC_objectOUT%iElemType=tEC_object%iElemType
+
+
+    end subroutine EC_ElemCrackingBaseClass_CopyElem
       !##############################################################################
       !##############################################################################
-      subroutine EC_ElemCrackingBaseClass_CalcElemMaxStress (tEC_object,ElemCleavagePlanes, &
-                                                    ElemStress,MaxStress100,iPlaneId)
+    subroutine EC_ElemCrackingBaseClass_CalcElemMaxStress (tEC_object,ElemCleavagePlanes, &
+                                                ElemStress,MaxStress100,iPlaneId)
 
         implicit none
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
@@ -255,30 +314,43 @@ module EC_ElemCrackingBaseClass
                iPlaneId=j
            end if
         end do
-       end subroutine EC_ElemCrackingBaseClass_CalcElemMaxStress
-      !##############################################################################
-      !##############################################################################
-      function EC_ElemCrackingBaseClass_CheckDecaying (tEC_object,ele,nstep)result(bDecaying)
+    end subroutine EC_ElemCrackingBaseClass_CalcElemMaxStress
+    !##############################################################################
+    !##############################################################################
+    function EC_ElemCrackingBaseClass_CheckDecaying (tEC_object,ele,nstep)result(bDecaying)
         use mod_file_units
         implicit none
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
         integer, intent(in):: ele,nstep
         integer bDecaying
+
         !-- to check if the elem is failed and unloading
         !- if elem is unloading then increase the unloading steps
         if((tEC_object%iElemStatus <= EC_DecayCount) .and.  (tEC_object%iElemStatus>0)) then
           tEC_object%iElemStatus=tEC_object%iElemStatus+1
           write(iFU_crackprog_out,*) ele,nstep,tEC_object%iElemStatus,EC_DecayCount
           bDecaying= 1
-        elseif((tEC_object%iElemStatus > EC_DecayCount) !-for elem that unloaded but not split
+        elseif( tEC_object%iElemStatus > EC_DecayCount) then !-for elem that unloaded but not split
           bDecaying= 1
         else
           bDecaying= 0
         endif
-      end function EC_ElemCrackingBaseClass_CheckDecaying
-!##############################################################################
-!##############################################################################
+    end function EC_ElemCrackingBaseClass_CheckDecaying
+    !##############################################################################
+    !##############################################################################
+    subroutine EC_ElemCrackingBaseClass_CalcAreaRatio (tEC_object,xs,ys,nPts)
 
+        implicit none
+        class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
+        integer, intent(in):: nPts
+        real*8 , intent(in)::xs(nPts),ys(nPts) !-input lines p-p2, q-q2
+        real*8 CalcPolygonArea
+        tEC_object%rArea=CalcPolygonArea(xs,ys,4)
+        tEC_object%rAreaRatio=1
+
+    end subroutine EC_ElemCrackingBaseClass_CalcAreaRatio
+    !##############################################################################
+    !##############################################################################
 
 end module EC_ElemCrackingBaseClass
 ! ###########################################################

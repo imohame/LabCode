@@ -14,20 +14,20 @@ c
       common/bk32/nsref,nequit,time,timep,lprint,nprint
 	  common /pcracktip/ connect(4,nume2),node(2,nume2),penta(nume2),
      >	                 ndflag(2,nume2), numnpt, numeltu, ndc
-c
+
       dimension u(*),udt(*),udtt(*),id(2,*),temp(*),d(7)
       dimension y(*),z(*),d1(2)
-
 	  real node
-c	  
-	  do i=1,nume2
-	      do j=1,2
-		      node(j,i)=0.0
-		  end do
-	  end do
-c
-c     print displacements, velocities, and accelerations
-c
+      
+	  
+!	  do i=1,nume2
+!	      do j=1,2
+!		      node(j,i)=0.0
+!		  end do
+!	  end do
+!c
+!c     print displacements, velocities, and accelerations
+!c
       ic=0
       do 50 ib=1,npb
       node1=nodep(1,ib)

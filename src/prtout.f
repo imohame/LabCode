@@ -39,11 +39,14 @@ c
       lprint=0
 
 !c     calculate nodes position for current step
+      connect=0
+      penta=0
+      ndflag=0
+      node=0.0
       call hspwr (a(k18),a(k55),a(k56),a(k57),a(k81+1),a(k03),
      >            a(k04))
       call datapost(a(k02))
 	  
-!c	  call crack_overlap
       write(29,40) nummat, numnp, numelt, numnpt, numeltu
       if (nstep.eq.0) then
           numnptotal=0

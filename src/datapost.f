@@ -29,9 +29,6 @@
 !!!		  ndflag(1,i)=0
 !!!		  ndflag(2,i)=0
 !!!	  end do
-      connect=0
-      penta=0
-      ndflag=0
 	  
 	  do ele=1, numelt
 !!	      do j=1, 4
@@ -39,12 +36,12 @@
 !!		  end do
           connect(1:4,ele)=ix(1:4,ele)
 		  
-c     cracked element		  
+!c     cracked element		  
 		  if(ElemFractCode(ele)==2) then
 		      call postele3x(ix, ele)
 		  end if
 		  
-c     crack tip element
+!c     crack tip element
           if(ElemFractCode(ele)==1) then
 		      cbflag=0
 		      do est=2,4,2

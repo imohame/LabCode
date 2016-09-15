@@ -21,13 +21,14 @@ subroutine fractCheckFailure(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Node
     real*8 ElemStress(4),ElemCleavagePlanes(3,3)
     real*8 ElemCriticalStress100,ElemCriticalStress110,MaxStress100,StressComp
     real*8 vy,vz,s11,s22,s44
+    
 
 !--- if no fracture then no need to process this subroutine
     if (EC_bCracking == 0) then
         return
     endif
 
-    do i=1, ElemCountInput
+    do i=1, EC_ElemCountInput
       !--- check if the elem is cracked and decaying, then go to next elem
       if( pEC_ElemData(i)%CheckDecaying(i,SolStepCount)==1) then
         continue
@@ -71,14 +72,15 @@ subroutine fractCheckFailure(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Node
           write(iFU_crackprog_out,*) i,SolStepCount,MaxStress100,ElemCriticalStress100,ElemCleavagePlanes(iPlaneId,1:3)
       end if
 
-    enddo !--do i=1, ElemCountInput
+    enddo !--do i=1, EC_ElemCountInput
 
 END
 !##############################################################################
 !##############################################################################
 
-subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, ElemMaterial,SolStepCount)
-
+subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, ElemMaterial, &
+                                usi  , freep , ym,SolStepCount)
+                             !-a(k03)    ,a(k04)      ,a(k02)      ,a(k57  ,a(k18)     , a(k08)      ,a(k20), a(k07), a(k09))
     use CN_Objects_manager
     use mod_file_units
 
@@ -87,6 +89,7 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
     implicit none
 
     real NodesCoordx(*), NodesCoordy(*),NodesDispl(*)
+    real usi(*),freep(5,*), ym(4,*)
     INTEGER ElemConnect(4,*),ElemMaterial(*),DofIds(2,*)
     INTEGER SolStepCount
 
@@ -98,6 +101,7 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
     INTEGER i,j,iPlaneId
     real*8 ElemStress(4),ElemCleavagePlanes(3,3)
     real*8 ElemCriticalStress100,MaxStress100,StressComp
+    real*8 x(4),y(4),Ptc(2)
 
 !--- if no fracture then no need to process this subroutine
     if (EC_bCracking == 0) then
@@ -105,7 +109,7 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
     endif
 
 !--- this part checks for failed element and start unloading them
-    do i=1, ElemCountInput
+    do i=1, EC_ElemCountInput
       !--- check if the elem is failed and decaying, then go to next elem
       if( pEC_ElemData(i)%CheckDecaying(i,SolStepCount)==1) then
         continue
@@ -133,14 +137,36 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
           !-- write to crackprog.out
           write(iFU_crackprog_out,*) i,SolStepCount,MaxStress100,ElemCriticalStress100,ElemCleavagePlanes(iPlaneId,1:3)
       end if
+    enddo !--do i=1, EC_ElemCountInput
 
-    enddo !--do i=1, ElemCountInput
 !-- this part checks for the completely unloaded elems and crack/split them
-    do i=1, ElemCountInput
-      if((pEC_ElemData(i)%iElemStatus > EC_DecayCount) then
+    do i=1, EC_ElemCountInput
+        !-if the elem unloaded but the neighbors are not failed then just mark the edges
+        !- as EC_eCrackInnerSide
+        if(pEC_ElemData(i)%iElemStatus > EC_DecayCount) then
+            !- to calc the elem C.G. as the crack starting point
+            do j=1, 4
+                x(j)=NodesCoordx(ElemConnect(j,i))+NodesDispl(DofIds(1,ElemConnect(j,i)))
+                y(j)=NodesCoordy(ElemConnect(j,i))+NodesDispl(DofIds(2,ElemConnect(j,i)))
+            enddo
+            Ptc(1)=0.25*(x(1)+x(2)+x(3)+x(4))
+            Ptc(2)=0.25*(y(1)+y(2)+y(3)+y(4))
+            !-- set all edges to EC_eCrackInnerSide and neighbors to EC_eCrackOutterSide
+            !-- if neighbors are also EC_eCrackInnerSide, then set this edge to EC_eCrackBothSides
+            CALL EC_MarkElemForCrack(i,Ptc,x,y)
+        endif
+    enddo !--do i=1, EC_ElemCountInput
+!-- this part creates the overlapping elems, if the elem is failed and unloaded and has any edge EC_eCrackBothSides
+    do i=1, EC_ElemCountInput
+        if(pEC_ElemData(i)%iElemStatus > EC_DecayCount) then
+            CALL EC_SplitElem(i,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, ElemMaterial, &
+                            usi  , freep , ym,SolStepCount)
 
-      endif
+            ! if((pEC_ElemData(i)%EdgeStatus(1)==EC_eCrackBothSides) .and. (pEC_ElemData(i)%EdgeStatus(3)==EC_eCrackBothSides)) then
+            !     !-- split into two quads
+            ! endif
 
-    enddo !--do i=1, ElemCountInput
+        endif
+    enddo !--do i=1, EC_ElemCountInput
 
 END

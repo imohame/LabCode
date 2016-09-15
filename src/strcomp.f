@@ -8,6 +8,7 @@
       real abc, sig(4), cleave(3,3), slip(24,3)  !!!sigalt, 
 	  real str, strcl, ncl(3), stro, strsl, nsl(3)
 	  integer ele, nstep, nsp
+      real*8 sig8(4)
 	  
 	  str=0.0
 	  strcl=0.0
@@ -25,7 +26,8 @@
 !!!!!!!!!!!!	  do i=1,4
 !!!!!!!!!!!!	      sig(i)=sigalt(i,ele)
 !!!!!!!!!!!!	  end do
-	  CALL CNmanager_Get_sigalt(ele,sig)
+	  CALL CNmanager_Get_sigalt(ele,sig8)
+      sig=sig8
 c     cleavage plane
       do i=1,3
           cleave(1,i)=abc(362+i,ele,1)

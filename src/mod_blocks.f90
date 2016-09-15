@@ -11,13 +11,14 @@ module mod_parameters
       integer, parameter :: print_intv = 10000
       real, parameter  :: pi=3.14159265358979 !4.d0*atan(1.d0) ! a circle constant
       real, parameter  :: Tempr=293.0d0
+      real*8,parameter :: TolZero16=1.0e-16
 !!!!!!!      real   , parameter :: xi         = 0.3 ! it was 0.3
 !!!!      integer ElemCountB,NodCountB
 
       save
 end module mod_parameters
 
-!#####################################################
+!##################################################### 
 module mod_DiffCoeffTable
     TYPE type_DiffCoeffTable
         integer iPtscount,iMatcount
@@ -71,7 +72,7 @@ end module mod_GBdata
 !!          ENUMERATOR :: CrackBothSide=2    !--edge cracked on both sides
 !!          ENUMERATOR :: CrackSecondSide=3  !--edge crack on second side
 !!    END ENUM
-!!    
+!!
 !!    integer FractElemCountPreCracked !- number of pre-cracked elems
 !!    integer bFractFlag !-- 1=allow fracture
 !!    integer FractNodesCountAdded !-- nodes added as overlap nodes
@@ -81,17 +82,17 @@ end module mod_GBdata
 !!    integer ElemCountCurrent !-- current or updated or recent elem count that = original + overlapped
 !!    integer NodeCountInput !-- original node count from the input before any phantom or overlap elements
 !!    integer NodeCountCurrent !-- current or updated or recent node count that = original + overlapped
-!!    
+!!
 !!    INTEGER FractZoneFactor !--- used to mark the crack front circle, do not crack within this area
 !!    INTEGER FractDecayCount !--- used to mark the crack front circle, do not crack within this area
 !!!!!    INTEGER, ALLOCATABLE :: FractElemIds(:,:) !--pre-cracked
 !!    INTEGER, ALLOCATABLE :: FractElemNeighbors(:,:) !(8,nume) each edge has a neighbor elem and edge; e1:e4,ed1:ed4
-!!    
+!!
 !!    TYPE (enum_EdgeStatus) ,ALLOCATABLE :: FractElemEdgeStatus(:,:) !(4,nume) for each edge status
 !!    real*8, ALLOCATABLE ::  FractNodesCoordCracking(:,:) !-- (4,:) for each edge, ratio of length for the cracking point
 !!    real*8, ALLOCATABLE ::  FractElemCleavagePlanes(:,:) !-- (3,:) x,y,z elem cleavage plane
 !!    INTEGER, ALLOCATABLE :: FractElemStatus(:) !(nume) 0=not cracked, 1:FractDecayCount=decaying, >FractDecayCount=cracked
-!!    
+!!
 !!    save
 !!
 !!end module mod_Fract

@@ -8,9 +8,9 @@ module CN_Diffusion
     type,extends( CN_Base):: DiffusionClass
     end type DiffusionClass
 !!!        ---------------------------------------
-!!!        ---------------------------------------   
+!!!        ---------------------------------------
 !    Interface init_DiffusionClass;                Module Procedure init_DiffusionClass ;          End Interface
-        
+
 !!!        ---------------------------------------
         contains
 end module CN_Diffusion
@@ -25,4 +25,3 @@ type ( DiffusionClass )function init_DiffusionClass ( mNodCountB,mElemCountB )
         Call init_DiffusionClass%AllocateMem()
 
 end function init_DiffusionClass
-      
