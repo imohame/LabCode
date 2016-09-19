@@ -22,6 +22,10 @@ module EC_Consts
     parameter (EC_eElemTypeQuad=4)   !--4-node elem quad
     parameter (EC_eElemTypePenta=5)   !--5-node elem pentagon
 
+    integer EC_eElemOriginMain,EC_eElemOriginOverlap
+    parameter (EC_eElemOriginMain=0)   !--original input elem
+    parameter (EC_eElemOriginOverlap=1)   !--overlapping elem
+
 
     integer EC_bCracking !-- 1=allow fracture
     INTEGER EC_ZoneFactor !--- used to mark the crack front circle, do not crack within this area
@@ -43,6 +47,8 @@ module EC_Consts
     integer EC_NodeCountCurrent !-- current or updated or recent node count that = original + overlapped
 
     integer EC_ElemEdgesConnect(2,4) !-- list the elem edges order 1-2 2-3 3-4 4-1
+    integer EC_ElemNodesEdges(2,4) !-- list the elem nodes' edges order [1:2,1] [2:3,2] [3:4,3] [4:1,4]
+    integer EC_ElemEdgesOpposite(4) !-- list the elem edges opposite edges 1-->3, 2-->4, 3-->1,4-->1
 
 
     Interface ECinitializeConsts;                  Module Procedure ECinitializeConsts;            End Interface
@@ -94,6 +100,21 @@ module EC_Consts
         enddo
         EC_ElemEdgesConnect(1,4)=4
         EC_ElemEdgesConnect(2,4)=1
+        !-- list the elem nodes' edges order [1,2] [2,3] [3,4] [4,1]
+        do i=1,3
+            EC_ElemNodesEdges(1,i)=i
+            EC_ElemNodesEdges(2,i)=i+1
+        enddo
+        EC_ElemNodesEdges(1,4)=4
+        EC_ElemNodesEdges(2,4)=1
+
+        !-- list the elem edges opposite edges 1-->3, 2-->4, 3-->1,4-->1
+        do i=1,2
+            EC_ElemEdgesOpposite(i)=i+2
+        enddo
+        do i=3,4
+            EC_ElemEdgesOpposite(i)=i-2
+        enddo
 
         EC_ZoneFactor=mEC_ZoneFactor
         EC_DecayCount=mEC_DecayCount
@@ -172,8 +193,9 @@ module EC_ElemCrackingBaseClass
         real*8  :: rCoordRatioCracking(4) !- (-ve no cracking )for each edge, ratio of length for the cracking point
         integer :: EdgeStatus(4) !- for each edge status, see enum_EdgeStatus
         real*8  :: rAreaRatio,rArea !- for area ratio with respect of the original elem. also area value
-        integer :: iElemOverlapping !- for the added new/overlapping/phantom elem
-        integer :: iElemEdgeNeighbors(4,4) !- for each edge can have up to 2 neighboring elems and edges
+        integer :: iElemOverlapping=EC_eElemOriginMain !- for the added new/overlapping/phantom elem;0=main, 1=overlap
+        integer :: iElemEdgeNeighbors(6,4) !- each col lists the neighbors of this edge index
+        integer :: iElemConnectivity(4) !- elem nodes
 
 
      contains
@@ -188,6 +210,9 @@ module EC_ElemCrackingBaseClass
         procedure ::EC_GetElemAreaRatio
         procedure ::EC_GetElemUnloadingCount
         procedure ::EC_GetElemEdgeNeighbors
+        procedure ::EC_ElemAddToNeighbors
+        procedure ::EC_SetElemEdgeNeighbors
+        procedure ::EC_CheckElemValid
 
     ENDTYPE
     !-------------------
@@ -197,10 +222,58 @@ module EC_ElemCrackingBaseClass
      subroutine EC_GetElemEdgeNeighbors (tEC_object,mEdgeId,mOutList)
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
         integer, intent(in) :: mEdgeId
-        integer, intent(out) :: mOutList(4)
-        mOutList(1:4)=tEC_object%iElemEdgeNeighbors(mEdgeId,1:4)
+        integer, intent(out) :: mOutList(6)
+        mOutList(1:6)=tEC_object%iElemEdgeNeighbors(1:6,mEdgeId)
     end subroutine EC_GetElemEdgeNeighbors
 !##############################################################################
+     subroutine EC_SetElemEdgeNeighbors (tEC_object,mInList)
+        class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
+        integer, intent(in) :: mInList(8)
+        integer i
+        do i=1,4
+            tEC_object%iElemEdgeNeighbors(1,i)=mInList(i)
+            tEC_object%iElemEdgeNeighbors(2,i)=mInList(i+4)
+        enddo
+    end subroutine EC_SetElemEdgeNeighbors
+!##############################################################################
+     integer function EC_CheckElemValid (tEC_object)
+        class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
+        integer i,counter,valid(4)
+        !- check that there are 2 consequtive nodes of the orignial elem
+        valid=0
+        counter=0
+        EC_CheckElemValid=0
+        do i=1,4
+            if(tEC_object%iElemConnectivity(i) <= EC_NodeCountInput) then
+                valid(i)=1
+            endif
+        enddo
+
+        do i=1,3
+            if(valid(i)+valid(i+1)>=2) then !-if there is 2 cosequtive nodes of
+                EC_CheckElemValid=1
+                return
+            endif
+        enddo
+        if(valid(4)+valid(1)>=2) then !-if there is 2 cosequtive nodes of
+            EC_CheckElemValid=1
+            return
+        endif
+
+    end function EC_CheckElemValid
+!##############################################################################
+     subroutine EC_ElemAddToNeighbors (tEC_object,mMyEdgeId,mElemOther,mEdgeOther)
+        class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
+        integer, intent(in) :: mMyEdgeId,mElemOther,mEdgeOther
+        integer i
+        do i=1,3
+            if(tEC_object%iElemEdgeNeighbors((i-1)*2+1,mMyEdgeId) == 0) then
+                tEC_object%iElemEdgeNeighbors((i-1)*2+1,mMyEdgeId)=mElemOther
+                tEC_object%iElemEdgeNeighbors((i-1)*2+2,mMyEdgeId)=mEdgeOther
+                return
+            endif
+        enddo
+    end subroutine EC_ElemAddToNeighbors
 !##############################################################################
     real*8 function EC_GetElemAreaRatio (tEC_object)
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
@@ -211,6 +284,22 @@ module EC_ElemCrackingBaseClass
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
         EC_GetElemUnloadingCount=tEC_object%iElemStatus
     end function EC_GetElemUnloadingCount
+!##############################################################################
+    subroutine EC_ElemCrackingBaseClass_CopyElem (tEC_object,tEC_objectOUT)
+        implicit none
+        class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object,tEC_objectOUT
+
+        tEC_objectOUT%iElemStatus=tEC_object%iElemStatus
+        tEC_objectOUT%rCleavagePlane=tEC_object%rCleavagePlane
+        tEC_objectOUT%rCoordRatioCracking=tEC_object%rCoordRatioCracking
+        tEC_objectOUT%EdgeStatus=tEC_object%EdgeStatus
+        tEC_objectOUT%rAreaRatio=tEC_object%rAreaRatio
+        tEC_objectOUT%rArea=tEC_object%rArea
+        tEC_objectOUT%iElemType=tEC_object%iElemType
+        tEC_objectOUT%iElemOverlapping=tEC_object%iElemOverlapping
+        tEC_objectOUT%iElemEdgeNeighbors=tEC_object%iElemEdgeNeighbors
+        tEC_objectOUT%iElemConnectivity=tEC_object%iElemConnectivity
+    end subroutine EC_ElemCrackingBaseClass_CopyElem
 !##############################################################################
 
     subroutine EC_ElemCrackingBaseClass_Initialize (tEC_object)
@@ -223,6 +312,8 @@ module EC_ElemCrackingBaseClass
         tEC_object%EdgeStatus=0
         tEC_object%rAreaRatio=1
         tEC_object%iElemType=EC_eElemTypeQuad !- default 4-nodes
+        tEC_object%iElemOverlapping=EC_eElemOriginMain
+        tEC_object%iElemConnectivity=0
 
 
     end subroutine EC_ElemCrackingBaseClass_Initialize
@@ -234,9 +325,7 @@ module EC_ElemCrackingBaseClass
 
             write(*,*)'================================ elem=',mid
             write(*,*)tEC_object%iElemStatus
-            write(*,*)tEC_object%rCleavagePlane(1)
-            write(*,*)tEC_object%rCleavagePlane(2)
-            write(*,*)tEC_object%rCleavagePlane(3)
+            write(*,*)tEC_object%rCleavagePlane(1:3)
             write(*,*)tEC_object%EdgeStatus
             write(*,*)tEC_object%rAreaRatio
 
@@ -270,22 +359,6 @@ module EC_ElemCrackingBaseClass
 
     end subroutine EC_ElemCrackingBaseClass_SetFailed
      !##############################################################################
-     !##############################################################################
-    subroutine EC_ElemCrackingBaseClass_CopyElem (tEC_object,tEC_objectOUT)
-
-        implicit none
-        class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object,tEC_objectOUT
-        tEC_objectOUT%iElemStatus=tEC_object%iElemStatus
-        tEC_objectOUT%rCleavagePlane=tEC_object%rCleavagePlane
-        tEC_objectOUT%rCoordRatioCracking=tEC_object%rCoordRatioCracking
-        tEC_objectOUT%EdgeStatus=tEC_object%EdgeStatus
-        tEC_objectOUT%rAreaRatio=tEC_object%rAreaRatio
-        tEC_objectOUT%rArea=tEC_object%rArea
-        tEC_objectOUT%iElemType=tEC_object%iElemType
-
-
-    end subroutine EC_ElemCrackingBaseClass_CopyElem
-      !##############################################################################
       !##############################################################################
     subroutine EC_ElemCrackingBaseClass_CalcElemMaxStress (tEC_object,ElemCleavagePlanes, &
                                                 ElemStress,MaxStress100,iPlaneId)

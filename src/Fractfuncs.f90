@@ -141,14 +141,14 @@ END
 !###################################################################
 !###################################################################
 subroutine FractReadApplyPreCrackCleavagePlanes(NodesCoordx,NodesCoordy,ElemConnect)
-     
+
     use mod_parameters
     use EC_Objects_manager
     implicit none
- 
+
     real NodesCoordx(*), NodesCoordy(*)
     INTEGER ElemConnect(4,*)
-    
+
 
     common /wblock8/ abc(573,nume,4),his(573,nume,4)
     real abc,his
@@ -264,6 +264,7 @@ END
 
     integer i,IERR
     integer*4 setvbuf3f_local
+    integer EC_ElemNeighbors(8)
 
     write(*, *) '-->>>>>>>>FractReadElemNeighbors -- start'
     IERR=0
@@ -276,8 +277,9 @@ END
 
     do i = 1, EC_ElemCountInput
 
-      read (60, *)    EC_ElemNeighbors(1:8,i)
-      write (6011, *)    EC_ElemNeighbors(1:8,i)
+      read (60, *)    EC_ElemNeighbors(1:8)
+      write (6011, *)    EC_ElemNeighbors(1:8)
+      call pEC_ElemData(i)%EC_SetElemEdgeNeighbors(EC_ElemNeighbors)
     end do
 
     close(60)
