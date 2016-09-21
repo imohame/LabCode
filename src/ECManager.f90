@@ -312,7 +312,7 @@ module EC_Objects_manager
         bElemValidOverlapping=0
         !-- crack the edge of the current elem,create 2 nodes, add 1 elem
         call EC_CreateElems(ElemId,ElemEdgeId,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, ElemMaterial, &
-                usi  , freep , ym,SolStepCount,ElemCrackingClassMain(1),ElemCrackingClassOverlapping(1),edgeNode1N(4),edgeNode2N(4))
+                usi  , freep , ym,SolStepCount,ElemCrackingClassMain(1),ElemCrackingClassOverlapping(1),edgeNode1N(1),edgeNode2N(1))
 
         !-- check that the elem are vaild wrt the connectivity
         bElemValidMain(1)= ElemCrackingClassMain(1)%EC_CheckElemValid ()
@@ -608,8 +608,8 @@ module EC_Objects_manager
     common/hgstress/hgstress1store(nume),hgstress2store(nume), &
                   hgstress1his(nume),hgstress2his(nume)
     real hgstress1store,hgstress2store,hgstress1his,hgstress2his
-
-	common/hydroembrittle/critfrac(1000), sigfrac0(nume),sigfrac(nume),decfrac(nume)
+    
+    common/hydroembrittle/critfrac(1000), sigfrac0(nume),sigfrac(nume),decfrac(nume)
     real sigfrac0,sigfrac,decfrac
     real critfrac
 
