@@ -356,7 +356,7 @@ module EC_Objects_manager
 
         real NodesCoordx(*), NodesCoordy(*),NodesDispl(*)
         real usi(*),freep(5,*), ym(4,*)
-        INTEGER ElemConnect(4,*),ElemMaterial(*),DofIds(2,*)
+        INTEGER ElemConnect(4,*),ElemMaterial(*),DofIds(2,*) 
         INTEGER SolStepCount
 
         common/bk17/dn1,dn2,nwebuf,ntime,numnp,neq,ibar,mthsol
@@ -608,7 +608,7 @@ module EC_Objects_manager
     common/hgstress/hgstress1store(nume),hgstress2store(nume), &
                   hgstress1his(nume),hgstress2his(nume)
     real hgstress1store,hgstress2store,hgstress1his,hgstress2his
-    
+
     common/hydroembrittle/critfrac(1000), sigfrac0(nume),sigfrac(nume),decfrac(nume)
     real sigfrac0,sigfrac,decfrac
     real critfrac
