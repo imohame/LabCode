@@ -227,8 +227,7 @@ module EC_Objects_manager
 
         !- copy nodes data to the new nodes
         do i=1,4
-            call EC_CopyNodesData(nodesIds(i),nodesIds(i+4),NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, &
-                                ElemMaterial, usi  , freep , ym,SolStepCount)
+            call EC_CopyNodesData(nodesIds(i),nodesIds(i+4),NodesCoordx, NodesCoordy, DofIds, NodesDispl,usi,freep,ym)
         enddo
         !- copy elems data to the new nodes
         call EC_CopyElemsData(ElemId,EC_ElemCountCurrent+1,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, &
@@ -276,6 +275,9 @@ module EC_Objects_manager
         bDone=0
         do while(bDone==0)
             if(pEC_ElemData(ElemId)%EdgeStatus(mEdgeCount)==EC_eCrackBothSides) then
+                CALL EC_SplitEdge(ElemId,mEdgeCount,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl,  &
+                        ElemMaterial,usi  , freep , ym,SolStepCount)
+
             endif
         enddo
 
@@ -302,17 +304,25 @@ module EC_Objects_manager
         real dn1,dn2
 
         integer , intent(in)::ElemId,ElemEdgeId
-        integer ::ElemId2,ElemEdgeId2
+        integer ::ElemId2,ElemEdgeId2,j
         INTEGER mElemEdgeNeighborsList(6)
-        integer EdgeNode1,EdgeNode2,EdgeNode1N(4),EdgeNode2N(4),j
+        ! integer EdgeNode1,EdgeNode2,EdgeNode1N(4),EdgeNode2N(4),j
         type ( EC_ElemCrackingClass ) :: ElemCrackingClassMain(4),ElemCrackingClassOverlapping(4)
         INTEGER bElemValidMain(4),bElemValidOverlapping(4)
+        INTEGER edgeNodeOld1,edgeNodeOld2,edgeNodeNew1,edgeNodeNew2
+        INTEGER bEdgeCracked !-- 0=not cracked, 1= cracked with elems added
+
+        !- get new and old edge nodes
+        edgeNodeOld1=ElemConnect(EC_ElemEdgesConnect(1,ElemEdgeId),ElemId)
+        edgeNodeOld2=ElemConnect(EC_ElemEdgesConnect(2,ElemEdgeId),ElemId)
+        edgeNodeNew1= EC_NodeCountCurrent+1
+        edgeNodeNew2= EC_NodeCountCurrent+2
 
         bElemValidMain=0
         bElemValidOverlapping=0
         !-- crack the edge of the current elem,create 2 nodes, add 1 elem
-        call EC_CreateElems(ElemId,ElemEdgeId,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, ElemMaterial, &
-                usi  , freep , ym,SolStepCount,ElemCrackingClassMain(1),ElemCrackingClassOverlapping(1),edgeNode1N(1),edgeNode2N(1))
+        call EC_CreateElemsTemp(ElemId,ElemEdgeId,ElemConnect,ElemCrackingClassMain(1),ElemCrackingClassOverlapping(1), &
+                                edgeNodeNew1,edgeNodeNew2)
 
         !-- check that the elem are vaild wrt the connectivity
         bElemValidMain(1)= ElemCrackingClassMain(1)%EC_CheckElemValid ()
@@ -324,56 +334,41 @@ module EC_Objects_manager
             if(mElemEdgeNeighborsList((j-1)*2+1) /= 0) then
                 ElemId2=mElemEdgeNeighborsList((j-1)*2+1)
                 ElemEdgeId2=mElemEdgeNeighborsList((j-1)*2+2)
-                call EC_CreateElems(ElemId2,ElemEdgeId2,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl,  &
-                    ElemMaterial,usi,freep,ym,SolStepCount,ElemCrackingClassMain(1+j),ElemCrackingClassOverlapping(1+j), &
-                    edgeNode1N(1+j),edgeNode2N(1+j))
+                call EC_CreateElemsTemp(ElemId2,ElemEdgeId2,ElemConnect,ElemCrackingClassMain(1+j), &
+                                        ElemCrackingClassOverlapping(1+j),edgeNodeNew1,edgeNodeNew2)
                 !-- check that the elem are vaild wrt the connectivity
                 bElemValidMain(1+j)= ElemCrackingClassMain(1+j)%EC_CheckElemValid ()
                 bElemValidOverlapping(1+j)= ElemCrackingClassOverlapping(1+j)%EC_CheckElemValid ()
             endif
         enddo
         !- loop over all the temp elems and nodes and add them
+        bEdgeCracked=0
         do j=1,4    !--each edge can be shared between more than one elem
-            if(bElemValidMain(j) ==1) then
+            if(bElemValidMain(j) ==1) then 
+                bEdgeCracked=1
 
             endif
         enddo
+        if(bEdgeCracked ==1) then
+            !- then add the new nodes
+            CALL EC_AddOneNode(edgeNodeOld1,edgeNodeNew1,NodesCoordx, NodesCoordy, DofIds, NodesDispl,usi  , freep , ym)
+            CALL EC_AddOneNode(edgeNodeOld2,edgeNodeNew2,NodesCoordx, NodesCoordy, DofIds, NodesDispl,usi  , freep , ym)
+        endif
 
     end subroutine EC_SplitEdge
 !##############################################################################
 !##############################################################################
-    subroutine EC_AddElem(ElemId,ElemEdgeId,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, ElemMaterial, &
-                usi  , freep , ym,SolStepCount,ElemCrackingClassMain,ElemCrackingClassOverlapping,EdgeNode1N,EdgeNode2N)
-                !-a(k03)    ,a(k04)      ,a(k02)      ,a(k57)  ,a(k18)     , a(k08)      ,a(k20), a(k07), a(k09))
-        use EC_Consts
-        use EC_ElemCrackingBaseClass
-        use mod_parameters
+    subroutine EC_AddTwoElems(ElemId,ElemEdgeId,ElemCrackingClassMain,ElemCrackingClassOverlapping,EdgeNode1N,EdgeNode2N)
 
+        use EC_ElemCrackingBaseClass
         implicit none
         type ( EC_ElemCrackingClass ), intent(out) :: ElemCrackingClassMain,ElemCrackingClassOverlapping
-        integer , intent(out)::EdgeNode1N,EdgeNode2N
+        integer , intent(in)::EdgeNode1N,EdgeNode2N
         integer , intent(in)::ElemId,ElemEdgeId
 
-        real NodesCoordx(*), NodesCoordy(*),NodesDispl(*)
-        real usi(*),freep(5,*), ym(4,*)
-        INTEGER ElemConnect(4,*),ElemMaterial(*),DofIds(2,*)    
-        INTEGER SolStepCount
-
-        common/bk17/dn1,dn2,nwebuf,ntime,numnp,neq,ibar,mthsol
-        integer nwebuf,ntime,numnp,neq,ibar,mthsol
-        real dn1,dn2
-
-        integer EdgeNode1,EdgeNode2,j
         integer nodeIdLocal,edge1,edge2
         integer mMyEdgeId,mElemOther,mEdgeOther
 
-        !-- split into two quads -- copy the current connect to the new elem
-        ! ElemCrackingClassMain%iElemConnectivity(1:4)=ElemConnect(1:4,ElemId)
-        ! ElemCrackingClassOverlapping%iElemConnectivity(1:4)=ElemConnect(1:4,ElemId)
-        ! ! ElemConnect(1:4,EC_ElemCountCurrent+1)=ElemConnect(1:4,ElemId)
-        ! !- copy elems data to the new nodes
-        ! call EC_CopyElemsData(ElemId,EC_ElemCountCurrent+1,NodesCoordx, NodesCoordy, ElemConnect, DofIds,  &
-        !                         NodesDispl,ElemMaterial, usi  , freep , ym,SolStepCount)
         !-------------------------- create new elems connectivity
         !-- this is the main elem
         !- e1: 1 - 2 - n+2 - 4
@@ -385,12 +380,6 @@ module EC_Objects_manager
         edge2=EC_ElemNodesEdges(2,nodeIdLocal)
         ElemCrackingClassMain%iElemEdgeNeighbors(:,edge1)=0
         ElemCrackingClassMain%iElemEdgeNeighbors(:,edge2)=0
-        ! !-- add the new overlapping elem as neighbor to this elem at the opposite edge
-        ! !-- this is the opposite edge to the cracked edge.
-        ! mMyEdgeId=EC_ElemEdgesOpposite(ElemEdgeId)
-        ! mElemOther=EC_ElemCountCurrent+1
-        ! mEdgeOther=mMyEdgeId
-        ! call ElemCrackingClassMain%EC_ElemAddToNeighbors (mMyEdgeId,mElemOther,mEdgeOther)
 
         !-- make this as the overlapping elem
         !- e2: 1 - n+1 - 3 - 4
@@ -402,6 +391,12 @@ module EC_Objects_manager
         edge2=EC_ElemNodesEdges(2,nodeIdLocal)
         ElemCrackingClassOverlapping%iElemEdgeNeighbors(:,edge1)=0
         ElemCrackingClassOverlapping%iElemEdgeNeighbors(:,edge2)=0
+        ! !-- add the new overlapping elem as neighbor to this elem at the opposite edge
+        ! !-- this is the opposite edge to the cracked edge.
+        ! mMyEdgeId=EC_ElemEdgesOpposite(ElemEdgeId)
+        ! mElemOther=EC_ElemCountCurrent+1
+        ! mEdgeOther=mMyEdgeId
+        ! call ElemCrackingClassMain%EC_ElemAddToNeighbors (mMyEdgeId,mElemOther,mEdgeOther)
         ! !-- add the main elem as neighbor to new overlapping elem at the opposite edge
         ! !-- this is the opposite edge to the cracked edge.
         ! mElemOther=ElemId
@@ -409,83 +404,41 @@ module EC_Objects_manager
         ! !-- copy edge neighbors to the new edges
         ! EC_ElemCountCurrent=EC_ElemCountCurrent+1
 
-    end subroutine EC_AddElem
+    end subroutine EC_AddTwoElems
 !##############################################################################
 !##############################################################################
-    subroutine EC_AddNodes(ElemId,ElemEdgeId,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, ElemMaterial, &
-                usi  , freep , ym,SolStepCount,ElemCrackingClassMain,ElemCrackingClassOverlapping,EdgeNode1N,EdgeNode2N)
+    subroutine EC_CreateElemsTemp(ElemId,ElemEdgeId,ElemConnect,ElemCrackingClassMain,ElemCrackingClassOverlapping, &
+                                    EdgeNode1N,EdgeNode2N)
                 !-a(k03)    ,a(k04)      ,a(k02)      ,a(k57)  ,a(k18)     , a(k08)      ,a(k20), a(k07), a(k09))
         use EC_Consts
         use EC_ElemCrackingBaseClass
         use mod_parameters
 
         implicit none
-        type ( EC_ElemCrackingClass ), intent(out) :: ElemCrackingClassMain,ElemCrackingClassOverlapping
-        integer , intent(out)::EdgeNode1N,EdgeNode2N
+        type ( EC_ElemCrackingClass ), intent(inout) :: ElemCrackingClassMain,ElemCrackingClassOverlapping
+        integer , intent(in)::EdgeNode1N,EdgeNode2N
         integer , intent(in)::ElemId,ElemEdgeId
 
-        real NodesCoordx(*), NodesCoordy(*),NodesDispl(*)
-        real usi(*),freep(5,*), ym(4,*)
-        INTEGER ElemConnect(4,*),ElemMaterial(*),DofIds(2,*)
-        INTEGER SolStepCount
+        ! real NodesCoordx(*), NodesCoordy(*),NodesDispl(*)
+        ! real usi(*),freep(5,*), ym(4,*)
+        INTEGER ElemConnect(4,*)!,ElemMaterial(*),DofIds(2,*)
+        ! INTEGER SolStepCount
 
-        common/bk17/dn1,dn2,nwebuf,ntime,numnp,neq,ibar,mthsol
-        integer nwebuf,ntime,numnp,neq,ibar,mthsol
-        real dn1,dn2
+        ! common/bk17/dn1,dn2,nwebuf,ntime,numnp,neq,ibar,mthsol
+        ! integer nwebuf,ntime,numnp,neq,ibar,mthsol
+        ! real dn1,dn2
 
-        integer EdgeNode1,EdgeNode2,j
-        integer nodeIdLocal,edge1,edge2
-        integer mMyEdgeId,mElemOther,mEdgeOther
+        ! integer EdgeNode1,EdgeNode2,j
+        ! integer nodeIdLocal,edge1,edge2
+        ! integer mMyEdgeId,mElemOther,mEdgeOther
+        !-- add 2 temp elem objects
+        !-- split into two quads -- copy the current connect to the new elem
+        ElemCrackingClassMain%iElemConnectivity(1:4)=ElemConnect(1:4,ElemId)
+        ElemCrackingClassOverlapping%iElemConnectivity(1:4)=ElemConnect(1:4,ElemId)
+        CALL EC_AddTwoElems(ElemId,ElemEdgeId,ElemCrackingClassMain,ElemCrackingClassOverlapping,EdgeNode1N,EdgeNode2N)
 
         ! edgeNode1N= EC_NodeCountCurrent+1
         ! edgeNode2N= edgeNode1N+1
-        edgeNode1=ElemConnect(EC_ElemEdgesConnect(1,ElemEdgeId),ElemId)
-        edgeNode2=ElemConnect(EC_ElemEdgesConnect(2,ElemEdgeId),ElemId)
-        !- copy nodes data to the new nodes
-        call EC_CopyNodesData(edgeNode1,edgeNode1N,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, &
-                        ElemMaterial, usi  , freep , ym,SolStepCount)
-        call EC_CopyNodesData(edgeNode2,edgeNode2N,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, &
-                        ElemMaterial, usi  , freep , ym,SolStepCount)
-        !---------------------------1- add Dof
-        DofIds(1,edgeNode1N)=neq+1
-        DofIds(2,edgeNode1N)=neq+2
-        DofIds(1,edgeNode2N)=neq+3
-        DofIds(2,edgeNode2N)=neq+4
-
-        numnp=numnp+2
-        neq=neq+4
-        EC_NodeCountCurrent=EC_NodeCountCurrent+2
-
-    end subroutine EC_AddNodes
-!##############################################################################
-!##############################################################################
-    subroutine EC_CreateElems(ElemId,ElemEdgeId,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, ElemMaterial, &
-                usi  , freep , ym,SolStepCount,ElemCrackingClassMain,ElemCrackingClassOverlapping,EdgeNode1N,EdgeNode2N)
-                !-a(k03)    ,a(k04)      ,a(k02)      ,a(k57)  ,a(k18)     , a(k08)      ,a(k20), a(k07), a(k09))
-        use EC_Consts
-        use EC_ElemCrackingBaseClass
-        use mod_parameters
-
-        implicit none
-        type ( EC_ElemCrackingClass ), intent(out) :: ElemCrackingClassMain,ElemCrackingClassOverlapping
-        integer , intent(out)::EdgeNode1N,EdgeNode2N
-        integer , intent(in)::ElemId,ElemEdgeId
-
-        real NodesCoordx(*), NodesCoordy(*),NodesDispl(*)
-        real usi(*),freep(5,*), ym(4,*)
-        INTEGER ElemConnect(4,*),ElemMaterial(*),DofIds(2,*)
-        INTEGER SolStepCount
-
-        common/bk17/dn1,dn2,nwebuf,ntime,numnp,neq,ibar,mthsol
-        integer nwebuf,ntime,numnp,neq,ibar,mthsol
-        real dn1,dn2
-
-        integer EdgeNode1,EdgeNode2,j
-        integer nodeIdLocal,edge1,edge2
-        integer mMyEdgeId,mElemOther,mEdgeOther
-
-        edgeNode1N= EC_NodeCountCurrent+1
-        edgeNode2N= edgeNode1N+1
         ! edgeNode1=ElemConnect(EC_ElemEdgesConnect(1,ElemEdgeId),ElemId)
         ! edgeNode2=ElemConnect(EC_ElemEdgesConnect(2,ElemEdgeId),ElemId)
         ! !- copy nodes data to the new nodes
@@ -502,53 +455,82 @@ module EC_Objects_manager
         ! neq=neq+4
         ! EC_NodeCountCurrent=EC_NodeCountCurrent+2
 
-        !-- split into two quads -- copy the current connect to the new elem
-        ElemCrackingClassMain%iElemConnectivity(1:4)=ElemConnect(1:4,ElemId)
-        ElemCrackingClassOverlapping%iElemConnectivity(1:4)=ElemConnect(1:4,ElemId)
-        ! ! ElemConnect(1:4,EC_ElemCountCurrent+1)=ElemConnect(1:4,ElemId)
-        ! !- copy elems data to the new nodes
-        ! call EC_CopyElemsData(ElemId,EC_ElemCountCurrent+1,NodesCoordx, NodesCoordy, ElemConnect, DofIds,  &
-        !                         NodesDispl,ElemMaterial, usi  , freep , ym,SolStepCount)
-        !-------------------------- create new elems connectivity
-        !-- this is the main elem
-        !- e1: 1 - 2 - n+2 - 4
-        ElemCrackingClassMain%iElemConnectivity(EC_ElemEdgesConnect(2,ElemEdgeId))=edgeNode2N
-        ElemCrackingClassMain%iElemOverlapping=EC_eElemOriginMain
-        !-- update edges neighbors
-        nodeIdLocal=EC_ElemEdgesConnect(2,ElemEdgeId)
-        edge1=EC_ElemNodesEdges(1,nodeIdLocal)
-        edge2=EC_ElemNodesEdges(2,nodeIdLocal)
-        ElemCrackingClassMain%iElemEdgeNeighbors(:,edge1)=0
-        ElemCrackingClassMain%iElemEdgeNeighbors(:,edge2)=0
-        ! !-- add the new overlapping elem as neighbor to this elem at the opposite edge
-        ! !-- this is the opposite edge to the cracked edge.
-        ! mMyEdgeId=EC_ElemEdgesOpposite(ElemEdgeId)
-        ! mElemOther=EC_ElemCountCurrent+1
-        ! mEdgeOther=mMyEdgeId
-        ! call ElemCrackingClassMain%EC_ElemAddToNeighbors (mMyEdgeId,mElemOther,mEdgeOther)
+        ! !-- split into two quads -- copy the current connect to the new elem
+        ! ElemCrackingClassMain%iElemConnectivity(1:4)=ElemConnect(1:4,ElemId)
+        ! ElemCrackingClassOverlapping%iElemConnectivity(1:4)=ElemConnect(1:4,ElemId)
+!!        ! ! ElemConnect(1:4,EC_ElemCountCurrent+1)=ElemConnect(1:4,ElemId)
+!!        ! !- copy elems data to the new nodes
+!!        ! call EC_CopyElemsData(ElemId,EC_ElemCountCurrent+1,NodesCoordx, NodesCoordy, ElemConnect, DofIds,  &
+!!        !                         NodesDispl,ElemMaterial, usi  , freep , ym,SolStepCount)
+!!        !-------------------------- create new elems connectivity
+!!        !-- this is the main elem
+!!        !- e1: 1 - 2 - n+2 - 4
+!!        ElemCrackingClassMain%iElemConnectivity(EC_ElemEdgesConnect(2,ElemEdgeId))=edgeNode2N
+!!        ElemCrackingClassMain%iElemOverlapping=EC_eElemOriginMain
+!!        !-- update edges neighbors
+!!        nodeIdLocal=EC_ElemEdgesConnect(2,ElemEdgeId)
+!!        edge1=EC_ElemNodesEdges(1,nodeIdLocal)
+!!        edge2=EC_ElemNodesEdges(2,nodeIdLocal)
+!!        ElemCrackingClassMain%iElemEdgeNeighbors(:,edge1)=0
+!!        ElemCrackingClassMain%iElemEdgeNeighbors(:,edge2)=0
+!!        ! !-- add the new overlapping elem as neighbor to this elem at the opposite edge
+!!        ! !-- this is the opposite edge to the cracked edge.
+!!        ! mMyEdgeId=EC_ElemEdgesOpposite(ElemEdgeId)
+!!        ! mElemOther=EC_ElemCountCurrent+1
+!!        ! mEdgeOther=mMyEdgeId
+!!        ! call ElemCrackingClassMain%EC_ElemAddToNeighbors (mMyEdgeId,mElemOther,mEdgeOther)
+!!
+!!        !-- make this as the overlapping elem
+!!        !- e2: 1 - n+1 - 3 - 4
+!!        ElemCrackingClassOverlapping%iElemConnectivity(EC_ElemEdgesConnect(1,ElemEdgeId))=edgeNode1N
+!!        ElemCrackingClassOverlapping%iElemOverlapping=EC_eElemOriginOverlap
+!!        !-- update edges neighbors
+!!        nodeIdLocal=EC_ElemEdgesConnect(1,ElemEdgeId)
+!!        edge1=EC_ElemNodesEdges(1,nodeIdLocal)
+!!        edge2=EC_ElemNodesEdges(2,nodeIdLocal)
+!!        ElemCrackingClassOverlapping%iElemEdgeNeighbors(:,edge1)=0
+!!        ElemCrackingClassOverlapping%iElemEdgeNeighbors(:,edge2)=0
+!!        ! !-- add the main elem as neighbor to new overlapping elem at the opposite edge
+!!        ! !-- this is the opposite edge to the cracked edge.
+!!        ! mElemOther=ElemId
+!!        ! call ElemCrackingClassOverlapping%EC_ElemAddToNeighbors (mMyEdgeId,mElemOther,mEdgeOther)
+!!        ! !-- copy edge neighbors to the new edges
+!!        ! EC_ElemCountCurrent=EC_ElemCountCurrent+1
 
-        !-- make this as the overlapping elem
-        !- e2: 1 - n+1 - 3 - 4
-        ElemCrackingClassOverlapping%iElemConnectivity(EC_ElemEdgesConnect(1,ElemEdgeId))=edgeNode1N
-        ElemCrackingClassOverlapping%iElemOverlapping=EC_eElemOriginOverlap
-        !-- update edges neighbors
-        nodeIdLocal=EC_ElemEdgesConnect(1,ElemEdgeId)
-        edge1=EC_ElemNodesEdges(1,nodeIdLocal)
-        edge2=EC_ElemNodesEdges(2,nodeIdLocal)
-        ElemCrackingClassOverlapping%iElemEdgeNeighbors(:,edge1)=0
-        ElemCrackingClassOverlapping%iElemEdgeNeighbors(:,edge2)=0
-        ! !-- add the main elem as neighbor to new overlapping elem at the opposite edge
-        ! !-- this is the opposite edge to the cracked edge.
-        ! mElemOther=ElemId
-        ! call ElemCrackingClassOverlapping%EC_ElemAddToNeighbors (mMyEdgeId,mElemOther,mEdgeOther)
-        ! !-- copy edge neighbors to the new edges
-        ! EC_ElemCountCurrent=EC_ElemCountCurrent+1
-
-    end subroutine EC_CreateElems
+    end subroutine EC_CreateElemsTemp
 !##############################################################################
 !##############################################################################
-    subroutine EC_CopyNodesData(n1,n2,NodesCoordx, NodesCoordy, ElemConnect, DofIds, &
-                            NodesDispl, ElemMaterial, usi  , freep , ym,SolStepCount)
+    subroutine EC_AddOneNode(NodeFrom,NodeTo,NodesCoordx, NodesCoordy, DofIds, NodesDispl,usi  , freep , ym)
+                !-a(k03)    ,a(k04)      ,a(k02)      ,a(k57)  ,a(k18)     , a(k08)      ,a(k20), a(k07), a(k09))
+        use EC_Consts
+        use EC_ElemCrackingBaseClass
+        use mod_parameters
+
+        implicit none
+        integer , intent(in)::NodeFrom,NodeTo
+
+        real NodesCoordx(*), NodesCoordy(*),NodesDispl(*)
+        real usi(*),freep(5,*), ym(4,*)
+        INTEGER DofIds(2,*)
+        !
+        common/bk17/dn1,dn2,nwebuf,ntime,numnp,neq,ibar,mthsol
+        integer nwebuf,ntime,numnp,neq,ibar,mthsol
+        real dn1,dn2
+
+        !- copy nodes data to the new nodes
+        CALL EC_CopyNodesData(NodeFrom,NodeTo,NodesCoordx, NodesCoordy, DofIds,NodesDispl, usi  , freep , ym)
+        !---------------------------1- add Dof
+        DofIds(1,NodeTo)=neq+1
+        DofIds(2,NodeTo)=neq+2
+
+        numnp=numnp+1
+        neq=neq+1
+        EC_NodeCountCurrent=EC_NodeCountCurrent+1
+
+    end subroutine EC_AddOneNode
+!##############################################################################
+!##############################################################################
+    subroutine EC_CopyNodesData(NodeFrom,NodeTo,NodesCoordx, NodesCoordy, DofIds,NodesDispl, usi  , freep , ym)
                              !-a(k03)    ,a(k04)      ,a(k02)      ,a(k57  ,a(k18)     , a(k08)      ,a(k20), a(k07), a(k09))
     use mod_parameters
     use CN_Objects_manager
@@ -556,20 +538,17 @@ module EC_Objects_manager
     implicit none
     real NodesCoordx(*), NodesCoordy(*),NodesDispl(*)
     real usi(*),freep(5,*), ym(4,*)
-    INTEGER ElemConnect(4,*),ElemMaterial(*),DofIds(2,*)
-    INTEGER SolStepCount
-    common/bk17/dn1,dn2,nwebuf,ntime,numnp,neq,ibar,mthsol
-    integer nwebuf,ntime,numnp,neq,ibar,mthsol
-    real dn1,dn2
-    integer n1,n2
+    INTEGER DofIds(2,*)
 
-    NodesCoordx(n2)=NodesCoordx(n1)
-    NodesCoordy(n2)=NodesCoordy(n1)
-    NodesDispl(DofIds(1,n2))=NodesDispl(DofIds(1,n1))
-    NodesDispl(DofIds(2,n2))=NodesDispl(DofIds(2,n1))
-    usi(DofIds(1,n2))=usi(DofIds(1,n1))
-    usi(DofIds(2,n2))=usi(DofIds(2,n1))
-    call CNmanager_CopyNode(n1,n2)
+    integer  , intent(in)::NodeFrom,NodeTo
+
+    NodesCoordx(NodeTo)=NodesCoordx(NodeFrom)
+    NodesCoordy(NodeTo)=NodesCoordy(NodeFrom)
+    NodesDispl(DofIds(1,NodeTo))=NodesDispl(DofIds(1,NodeFrom))
+    NodesDispl(DofIds(2,NodeTo))=NodesDispl(DofIds(2,NodeFrom))
+    usi(DofIds(1,NodeTo))=usi(DofIds(1,NodeFrom))
+    usi(DofIds(2,NodeTo))=usi(DofIds(2,NodeFrom))
+    call CNmanager_CopyNode(NodeFrom,NodeTo)
 
     end subroutine EC_CopyNodesData
 !##############################################################################

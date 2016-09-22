@@ -1,7 +1,7 @@
 
 module CN_Consts
     use mod_parameters
-    implicit none 
+    implicit none
     public
     integer:: ElemCountAct,NodeCountAct
     integer:: NodCountB,ElemCountB,iBCcount
