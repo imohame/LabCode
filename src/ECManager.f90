@@ -230,9 +230,9 @@ module EC_Objects_manager
             call EC_CopyNodesData(nodesIds(i),nodesIds(i+4),NodesCoordx, NodesCoordy, DofIds, NodesDispl,usi,freep,ym)
         enddo
         !- copy elems data to the new nodes
-        call EC_CopyElemsData(ElemId,EC_ElemCountCurrent+1,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, &
-                                ElemMaterial, usi  , freep , ym,SolStepCount)
-        CALL pEC_ElemData(ElemId)%CopyElem (pEC_ElemData(EC_ElemCountCurrent+1))
+        ! call EC_CopyElemsData(ElemId,EC_ElemCountCurrent+1,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, &
+        !                         ElemMaterial, usi  , freep , ym,SolStepCount)
+        ! CALL pEC_ElemData(ElemId)%CopyElem (pEC_ElemData(EC_ElemCountCurrent+1))
 
         !---------------------------1- add Dof
         do j=1,4
@@ -308,9 +308,10 @@ module EC_Objects_manager
         INTEGER mElemEdgeNeighborsList(6)
         ! integer EdgeNode1,EdgeNode2,EdgeNode1N(4),EdgeNode2N(4),j
         type ( EC_ElemCrackingClass ) :: ElemCrackingClassMain(4),ElemCrackingClassOverlapping(4)
-        INTEGER bElemValidMain(4),bElemValidOverlapping(4)
+        INTEGER bElemValidMain(4),bElemValidOverlapping(4),ElemIdsNewMain(4),ElemIdsNewOverlapping(4)
         INTEGER edgeNodeOld1,edgeNodeOld2,edgeNodeNew1,edgeNodeNew2
         INTEGER bEdgeCracked !-- 0=not cracked, 1= cracked with elems added
+        INTEGER nodeIdLocal,edge1,edge2,mMyEdgeId,mElemOther,mEdgeOther
 
         !- get new and old edge nodes
         edgeNodeOld1=ElemConnect(EC_ElemEdgesConnect(1,ElemEdgeId),ElemId)
@@ -320,13 +321,18 @@ module EC_Objects_manager
 
         bElemValidMain=0
         bElemValidOverlapping=0
+        ElemIdsNewMain=0
+        ElemIdsNewOverlapping=0
         !-- crack the edge of the current elem,create 2 nodes, add 1 elem
         call EC_CreateElemsTemp(ElemId,ElemEdgeId,ElemConnect,ElemCrackingClassMain(1),ElemCrackingClassOverlapping(1), &
                                 edgeNodeNew1,edgeNodeNew2)
 
         !-- check that the elem are vaild wrt the connectivity
         bElemValidMain(1)= ElemCrackingClassMain(1)%EC_CheckElemValid ()
+        !-- save the elem ids, the main and the overlapping
+        if(bElemValidMain(1) ==1) ElemIdsNewMain(1)=ElemId
         bElemValidOverlapping(1)= ElemCrackingClassOverlapping(1)%EC_CheckElemValid ()
+        if(bElemValidOverlapping(1) ==1) ElemIdsNewOverlapping(1)=EC_ElemCountCurrent+1
 
         !-- find the edge neighbors and crack their edges
         call pEC_ElemData(ElemId)%EC_GetElemEdgeNeighbors (ElemEdgeId,mElemEdgeNeighborsList)
@@ -338,15 +344,49 @@ module EC_Objects_manager
                                         ElemCrackingClassOverlapping(1+j),edgeNodeNew1,edgeNodeNew2)
                 !-- check that the elem are vaild wrt the connectivity
                 bElemValidMain(1+j)= ElemCrackingClassMain(1+j)%EC_CheckElemValid ()
+                if(bElemValidMain(1+j) ==1) ElemIdsNewMain(1+j)=ElemId2
+
                 bElemValidOverlapping(1+j)= ElemCrackingClassOverlapping(1+j)%EC_CheckElemValid ()
+                if(bElemValidOverlapping(1+j) ==1) ElemIdsNewOverlapping(1+j)=EC_ElemCountCurrent+1+j
             endif
         enddo
         !- loop over all the temp elems and nodes and add them
         bEdgeCracked=0
         do j=1,4    !--each edge can be shared between more than one elem
-            if(bElemValidMain(j) ==1) then 
+            if(bElemValidMain(j) ==1) then
                 bEdgeCracked=1
-
+                ElemConnect(1:4,ElemIdsNewMain(j))=ElemCrackingClassMain(j)%iElemConnectivity(1:4)
+                CALL EC_CopyElemsData(ElemIdsNewMain(j),ElemIdsNewMain(j),ElemCrackingClassMain(j),ElemCrackingClassMain(j), &
+                                    ElemMaterial, freep,ym )
+            !    !-- update edges neighbors
+            !    nodeIdLocal=EC_ElemEdgesConnect(2,ElemEdgeId)
+            !    edge1=EC_ElemNodesEdges(1,nodeIdLocal)
+            !    edge2=EC_ElemNodesEdges(2,nodeIdLocal)
+            !    ElemCrackingClassMain(j)%iElemEdgeNeighbors(:,edge1)=0
+            !    ElemCrackingClassMain(j)%iElemEdgeNeighbors(:,edge2)=0
+            !    !-- add the new overlapping elem as neighbor to this elem at the opposite edge
+            !    !-- this is the opposite edge to the cracked edge.
+            !    mMyEdgeId=EC_ElemEdgesOpposite(ElemEdgeId)
+            !    mElemOther=EC_ElemCountCurrent+1
+            !    mEdgeOther=mMyEdgeId
+            !    call ElemCrackingClassMain(j)%EC_ElemAddToNeighbors (mMyEdgeId,mElemOther,mEdgeOther)
+            endif
+            if(bElemValidOverlapping(j) ==1) then
+                ElemConnect(1:4,ElemIdsNewOverlapping(j))=ElemCrackingClassOverlapping(j)%iElemConnectivity(1:4)
+                CALL EC_CopyElemsData(ElemIdsNewMain(j),ElemIdsNewOverlapping(j),ElemCrackingClassMain(j), &
+                                        ElemCrackingClassOverlapping(j),ElemMaterial, freep,ym )
+            !    !-- update edges neighbors
+            !    nodeIdLocal=EC_ElemEdgesConnect(1,ElemEdgeId)
+            !    edge1=EC_ElemNodesEdges(1,nodeIdLocal)
+            !    edge2=EC_ElemNodesEdges(2,nodeIdLocal)
+            !    ElemCrackingClassOverlapping(j)%iElemEdgeNeighbors(:,edge1)=0
+            !    ElemCrackingClassOverlapping(j)%iElemEdgeNeighbors(:,edge2)=0
+            !    !-- add the main elem as neighbor to new overlapping elem at the opposite edge
+            !    !-- this is the opposite edge to the cracked edge.
+            !    mElemOther=ElemId
+            !    call ElemCrackingClassOverlapping(j)%EC_ElemAddToNeighbors (mMyEdgeId,mElemOther,mEdgeOther)
+            !    !-- copy edge neighbors to the new edges
+            !    EC_ElemCountCurrent=EC_ElemCountCurrent+1
             endif
         enddo
         if(bEdgeCracked ==1) then
@@ -553,13 +593,17 @@ module EC_Objects_manager
     end subroutine EC_CopyNodesData
 !##############################################################################
 !##############################################################################
-    subroutine EC_CopyElemsData(e1,e2,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, &
-                                ElemMaterial, usi  , freep , ym,SolStepCount)
+    subroutine EC_CopyElemsData(ElemFrom,ElemTo,ElemCrackingClassMain,ElemCrackingClassOverlapping,ElemMaterial, freep,ym )
                              !-a(k03)    ,a(k04)      ,a(k02)      ,a(k57  ,a(k18)     , a(k08)      ,a(k20), a(k07), a(k09))
     use mod_parameters
     use CN_Objects_manager
+    use EC_ElemCrackingBaseClass
 
     implicit none
+    type ( EC_ElemCrackingClass ), intent(inout) :: ElemCrackingClassMain,ElemCrackingClassOverlapping
+    integer, intent(in) :: ElemFrom,ElemTo
+
+
     common/wblock8/  abc(573,nume,4), his(573,nume,4)
     real abc,his
 
@@ -592,46 +636,51 @@ module EC_Objects_manager
     real sigfrac0,sigfrac,decfrac
     real critfrac
 
-    real NodesCoordx(*), NodesCoordy(*),NodesDispl(*)
-    real usi(*),freep(5,*), ym(4,*)
-    INTEGER ElemConnect(4,*),ElemMaterial(*),DofIds(2,*)
-    INTEGER SolStepCount
-    integer e1,e2
+    real freep(5,*),ym(4,*)
+    INTEGER ElemMaterial(*)
+    integer j
 
-    freep(1:5,e2)=freep(1:5,e1)
+    freep(1:5,ElemTo)=freep(1:5,ElemFrom)
 
-    Y_modulus(e2)=Y_modulus(e1)
-    possion_ratio(e2) = possion_ratio(e1)
-    tau_y(e2) = tau_y(e1)
-    abc(1:573,e2,1)=abc(1:573,e1,1)
-    his(1:573,e2,1)=his(1:573,e1,1)
+    ElemMaterial(ElemTo)=ElemMaterial(ElemFrom)
+    Y_modulus(ElemTo)=Y_modulus(ElemFrom)
+    possion_ratio(ElemTo) = possion_ratio(ElemFrom)
+    tau_y(ElemTo) = tau_y(ElemFrom)
+    abc(1:573,ElemTo,1)=abc(1:573,ElemFrom,1)
+    his(1:573,ElemTo,1)=his(1:573,ElemFrom,1)
 
-    nnn2(e2,1)=nnn2(e1,1)
+    nnn2(ElemTo,1)=nnn2(ElemFrom,1)
+    !!--- lumped mass matrix
+    do j=1,4
+        ym(j,ElemTo)=ym(j,ElemFrom)*ElemCrackingClassMain%EC_GetElemAreaRatio()
+        ym(j,ElemFrom)=ym(j,ElemFrom)*ElemCrackingClassOverlapping%EC_GetElemAreaRatio()
+    end do
 
-    fhg(e1,1:8)=fhg(e2,1:8)
-    fhghis(e1,1:8)=fhghis(e2,1:8)
+    fhg(ElemTo,1:8)=fhg(ElemFrom,1:8)
+    fhghis(ElemTo,1:8)=fhghis(ElemFrom,1:8)
 
-    hgsstore(e1)=hgsstore(e2)
-    hgshis(e1)=hgshis(e2)
+    hgsstore(ElemTo)=hgsstore(ElemFrom)
+    hgshis(ElemTo)=hgshis(ElemFrom)
 
-    totenerstore(e1)=totenerstore(e2)
-    totenerhis(e1)=totenerhis(e2)
-    inertener(e1)=inertener(e2)
+    totenerstore(ElemTo)=totenerstore(ElemFrom)
+    totenerhis(ElemTo)=totenerhis(ElemFrom)
+    inertener(ElemTo)=inertener(ElemFrom)
 
-    hgenerstore(e1)=hgenerstore(e2)
-    hgenerhis(e1)=hgenerhis(e2)
+    hgenerstore(ElemTo)=hgenerstore(ElemFrom)
+    hgenerhis(ElemTo)=hgenerhis(ElemFrom)
 
-    hgstress1store(e1)=hgstress1store(e2)
-    hgstress2store(e1)=hgstress2store(e2)
-    hgstress1his(e1)=hgstress1his(e2)
-    hgstress2his(e1)=hgstress2his(e2)
+    hgstress1store(ElemTo)=hgstress1store(ElemFrom)
+    hgstress2store(ElemTo)=hgstress2store(ElemFrom)
+    hgstress1his(ElemTo)=hgstress1his(ElemFrom)
+    hgstress2his(ElemTo)=hgstress2his(ElemFrom)
 
-    sigfrac0(e1)=sigfrac0(e2)
-    sigfrac(e1)=sigfrac(e2)
-    decfrac(e1)=decfrac(e2)
+    sigfrac0(ElemTo)=sigfrac0(ElemFrom)
+    sigfrac(ElemTo)=sigfrac(ElemFrom)
+    decfrac(ElemTo)=decfrac(ElemFrom)
 
-    CALL CNmanager_CopyElemnt(e1,e2)
-    CALL pEC_ElemData(e1)%CopyElem (pEC_ElemData(e2))
+    CALL CNmanager_CopyElemnt(ElemFrom,ElemTo)
+    CALL pEC_ElemData(ElemFrom)%CopyElem (pEC_ElemData(ElemTo))
+
 
     end subroutine EC_CopyElemsData
 !##############################################################################
