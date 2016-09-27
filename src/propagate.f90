@@ -42,7 +42,8 @@
 
     dimension y(*), z(*), ix(4,*), id(2,*), u(*), matp(*)
     dimension sig(4,numelt)
-    real cleave(3,3),retval(4)
+    real cleave(3,3)
+    real*8 retval8(4)
 
     data nsp110/1, 2, 3, 7, 8, 14/
     real rElemConcentration
@@ -103,8 +104,8 @@
         end if
 
         retval=0.0
-        CALL CNmanager_Get_sigalt(ele,retval)
-        sig(1:4,ele)=retval(1:4)
+        CALL CNmanager_Get_sigalt(ele,retval8)
+        sig(1:4,ele)=retval8(1:4)
 
 !!c         assign critical fracture stress for current element
         sigmacrit100=sigfrac0(ele)		! {100} planes

@@ -21,7 +21,7 @@ subroutine fractCheckFailure(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Node
     real*8 ElemStress(4),ElemCleavagePlanes(3,3)
     real*8 ElemCriticalStress100,ElemCriticalStress110,MaxStress100,StressComp
     real*8 vy,vz,s11,s22,s44
-    
+
 
 !--- if no fracture then no need to process this subroutine
     if (EC_bCracking == 0) then
@@ -150,7 +150,7 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
                 y(j)=NodesCoordy(ElemConnect(j,i))+NodesDispl(DofIds(2,ElemConnect(j,i)))
             enddo
             Ptc(1)=0.25*(x(1)+x(2)+x(3)+x(4))
-            Ptc(2)=0.25*(y(1)+y(2)+y(3)+y(4))
+            Ptc(2)=0.25*(y(1)+y(2)+y(3)+y(4)) 
             !-- set all edges to EC_eCrackInnerSide and neighbors to EC_eCrackOutterSide
             !-- if neighbors are also EC_eCrackInnerSide, then set this edge to EC_eCrackBothSides
             CALL EC_MarkElemForCrack(i,Ptc,x,y)
@@ -161,10 +161,6 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
         if(pEC_ElemData(i)%iElemStatus > EC_DecayCount) then
             CALL EC_SplitElem(i,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, ElemMaterial, &
                             usi  , freep , ym,SolStepCount)
-
-            ! if((pEC_ElemData(i)%EdgeStatus(1)==EC_eCrackBothSides) .and. (pEC_ElemData(i)%EdgeStatus(3)==EC_eCrackBothSides)) then
-            !     !-- split into two quads
-            ! endif
 
         endif
     enddo !--do i=1, EC_ElemCountInput

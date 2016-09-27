@@ -3,13 +3,13 @@
       integer*4 fileid,size1,size2,ierr
       setvbuf3f_local=0
       !err=setvbuf3f(fileid,size1,size2)
-      
-      end  
-      
-      subroutine open_files 
+
+      end
+
+      subroutine open_files
       use  mod_file_units
  	  integer*4 ierr
-         
+
 	  integer*4 setvbuf3f_local
 
       ierr=setvbuf3f_local(6,2,0)   ! set standard output buffer
@@ -37,7 +37,7 @@
 	  open(935,file = 'stress001.out',     status = 'unknown')
 	  open(936,file = 'stress110.out',     status = 'unknown')
 	  open(937,file = 'qeqp.out',     status = 'unknown')
-	  
+
 !c     output file for only one position
 !	  open(2001,file = 'deltarm.out1',     status = 'unknown')
 !	  open(2002,file = 'deltarim.out1',     status = 'unknown')
@@ -51,7 +51,7 @@
 !	  open(2010,file = 'qe.out1',     status = 'unknown')
 !	  open(2011,file = 'qp.out1',     status = 'unknown')
 !	  open(2012,file = 'qeqp.out1',     status = 'unknown')
-	  
+
 !c	  open(2013,file = 'gb_tr1.out1', status = 'unknown')
 !c	  open(2014,file = 'gb_tr2.out1', status = 'unknown')
 !c	  open(2015,file = 'gb_tr3.out1', status = 'unknown')
@@ -66,7 +66,7 @@
 !c	  open(2024,file = 'gb_tr12.out1', status = 'unknown')
 !c	  open(2025,file = 'gb_trtot.out1', status = 'unknown')
 !c	  open(2026,file = 'gb_dentot.out1', status = 'unknown')
-	  
+
 	  ierr=setvbuf3f_local(20,1,100)
 	  ierr=setvbuf3f_local(21,1,100)
 	  ierr=setvbuf3f_local(22,1,100)
@@ -78,7 +78,7 @@
 	  ierr=setvbuf3f_local(993,1,100)
 	  ierr=setvbuf3f_local(935,1,100)
 	  ierr=setvbuf3f_local(936,1,100)
-	  ierr=setvbuf3f_local(937,1,100)	 
+	  ierr=setvbuf3f_local(937,1,100)
 	  ierr=setvbuf3f_local(2001,1,100)
 	  ierr=setvbuf3f_local(2002,1,100)
 	  ierr=setvbuf3f_local(2003,1,100)
@@ -105,12 +105,12 @@
 !!c	  ierr=setvbuf3f_local(2024,1,100)
 !!c	  ierr=setvbuf3f_local(2025,1,100)
 !!c	  ierr=setvbuf3f_local(2026,1,100)
-	  
+
 !      open(30,file = 'res_stress1.out', status = 'unknown')
 !      open(31,file = 'res_stress2.out', status = 'unknown')
 !      open(32,file = 'res_stress3.out', status = 'unknown')
 !      open(33,file = 'res_stress4.out', status = 'unknown')
-!      open(34,file = 'res_stress5.out', status = 'unknown')     
+!      open(34,file = 'res_stress5.out', status = 'unknown')
 !      open(35,file = 'res_stress6.out', status = 'unknown')
 !      open(36,file = 'res_stress7.out', status = 'unknown')
 !      open(37,file = 'res_stress8.out', status = 'unknown')
@@ -122,7 +122,7 @@
 !      open(131,file = 'res_stress14.out', status = 'unknown')
 !      open(132,file = 'res_stress15.out', status = 'unknown')
 !      open(133,file = 'res_stress16.out', status = 'unknown')
-!      open(134,file = 'res_stress17.out', status = 'unknown')     
+!      open(134,file = 'res_stress17.out', status = 'unknown')
 !      open(135,file = 'res_stress18.out', status = 'unknown')
 !      open(136,file = 'res_stress19.out', status = 'unknown')
 !      open(137,file = 'res_stress20.out', status = 'unknown')
@@ -354,7 +354,7 @@
 !	  ierr=setvbuf3f_local(584,1,100)
 !	  ierr=setvbuf3f_local(585,1,100)
 !	  ierr=setvbuf3f_local(586,1,100)
-!	  ierr=setvbuf3f_local(587,1,100)	  
+!	  ierr=setvbuf3f_local(587,1,100)
 !	  ierr=setvbuf3f_local(588,1,100)
 !	  ierr=setvbuf3f_local(589,1,100)
 !	  ierr=setvbuf3f_local(590,1,100)
@@ -373,15 +373,15 @@
 !	  ierr=setvbuf3f_local(603,1,100)
 !	  ierr=setvbuf3f_local(604,1,100)
 !	  ierr=setvbuf3f_local(605,1,100)
-!	  ierr=setvbuf3f_local(606,1,100)	  
+!	  ierr=setvbuf3f_local(606,1,100)
 !	  ierr=setvbuf3f_local(607,1,100)
 !	  ierr=setvbuf3f_local(608,1,100)
 !	  ierr=setvbuf3f_local(609,1,100)
 !	  ierr=setvbuf3f_local(610,1,100)
 !	  ierr=setvbuf3f_local(611,1,100)
 !	  ierr=setvbuf3f_local(612,1,100)
-	  
-      
+
+
 !	  open(613,file = 'ygen1.out', status = 'unknown')
 !      open(614,file = 'ygen2.out', status = 'unknown')
 !      open(615,file = 'ygen3.out', status = 'unknown')
@@ -430,7 +430,7 @@
 !	  ierr=setvbuf3f_local(634,1,100)
 !	  ierr=setvbuf3f_local(635,1,100)
 !	  ierr=setvbuf3f_local(636,1,100)
-!	  
+!
 !	  open(701,file = 'yintr1.out', status = 'unknown')
 !      open(702,file = 'yintr2.out', status = 'unknown')
 !      open(703,file = 'yintr3.out', status = 'unknown')
@@ -473,7 +473,7 @@
 !      open(740,file = 'yintr40.out', status = 'unknown')
 !	  open(741,file = 'yintr41.out', status = 'unknown')
 !      open(742,file = 'yintr42.out', status = 'unknown')
-!      open(743,file = 'yintr43.out', status = 'unknown')	  
+!      open(743,file = 'yintr43.out', status = 'unknown')
 !      open(744,file = 'yintr44.out', status = 'unknown')
 !      open(745,file = 'yintr45.out', status = 'unknown')
 !      open(746,file = 'yintr46.out', status = 'unknown')
@@ -516,8 +516,8 @@
 !      open(783,file = 'yintr83.out', status = 'unknown')
 !	  open(784,file = 'yintr84.out', status = 'unknown')
 !      open(785,file = 'yintr85.out', status = 'unknown')
-!      open(786,file = 'yintr86.out', status = 'unknown')      
-!      open(787,file = 'yintr87.out', status = 'unknown')  
+!      open(786,file = 'yintr86.out', status = 'unknown')
+!      open(787,file = 'yintr87.out', status = 'unknown')
 !	  ierr=setvbuf3f_local(701,1,100)
 !	  ierr=setvbuf3f_local(702,1,100)
 !	  ierr=setvbuf3f_local(703,1,100)
@@ -605,7 +605,7 @@
 !	  ierr=setvbuf3f_local(785,1,100)
 !	  ierr=setvbuf3f_local(786,1,100)
 !	  ierr=setvbuf3f_local(787,1,100)
-	  
+
 !	  open(801,file = 'yrecov1.out', status = 'unknown')
 !      open(802,file = 'yrecov2.out', status = 'unknown')
 !      open(803,file = 'yrecov3.out', status = 'unknown')
@@ -691,8 +691,8 @@
 !      open(883,file = 'yrecov83.out', status = 'unknown')
 !	  open(884,file = 'yrecov84.out', status = 'unknown')
 !      open(885,file = 'yrecov85.out', status = 'unknown')
-!      open(886,file = 'yrecov86.out', status = 'unknown')    
-!      open(887,file = 'yrecov87.out', status = 'unknown')     
+!      open(886,file = 'yrecov86.out', status = 'unknown')
+!      open(887,file = 'yrecov87.out', status = 'unknown')
 !	  ierr=setvbuf3f_local(801,1,100)
 !	  ierr=setvbuf3f_local(802,1,100)
 !	  ierr=setvbuf3f_local(803,1,100)
@@ -778,8 +778,8 @@
 !	  ierr=setvbuf3f_local(883,1,100)
 !	  ierr=setvbuf3f_local(884,1,100)
 !	  ierr=setvbuf3f_local(885,1,100)
-!	  ierr=setvbuf3f_local(886,1,100)	  
-!	  ierr=setvbuf3f_local(887,1,100)	
+!	  ierr=setvbuf3f_local(886,1,100)
+!	  ierr=setvbuf3f_local(887,1,100)
 
 !	  open(888,file = 'yrecovtot.out', status = 'unknown')
 !      open(889,file = 'ygentot.out', status = 'unknown')
@@ -889,7 +889,7 @@
 !	  ierr=setvbuf3f_local(220,1,100)
 !	  ierr=setvbuf3f_local(221,1,100)
 !	  ierr=setvbuf3f_local(222,1,100)
-	  
+
 !	  open(3111,file = 'den_gb1.out', status = 'unknown')
 !      open(3112,file = 'den_gb2.out', status = 'unknown')
 !      open(3113,file = 'den_gb3.out', status = 'unknown')
@@ -939,7 +939,7 @@
 !	  ierr=setvbuf3f_local(3221,1,100)
 !	  ierr=setvbuf3f_local(3222,1,100)
 
-!c     generate files for grain boundary transmission factor	  
+!c     generate files for grain boundary transmission factor
 !	  open(3123,file = 'gbtr1.out', status = 'unknown')
 !      open(3124,file = 'gbtr2.out', status = 'unknown')
 !      open(3125,file = 'gbtr3.out', status = 'unknown')
@@ -999,8 +999,8 @@
 	  ierr=setvbuf3f_local(501,1,100)
 	  ierr=setvbuf3f_local(502,1,100)
 	  ierr=setvbuf3f_local(503,1,100)
-	  
-	  
+
+
 !      open(996,file='n1.out',status='unknown')
 !      open(997,file='n2.out',status='unknown')
 !      open(998,file='n3.out',status='unknown')
@@ -1010,7 +1010,7 @@
 !	  ierr=setvbuf3f_local(998,1,100)
 !	  ierr=setvbuf3f_local(999,1,100)
 
-	  
+
 !	  open(3248,file = 'gnd_edge1.out', status = 'unknown')
 !      open(3249,file = 'gnd_edge2.out', status = 'unknown')
 !      open(3250,file = 'gnd_edge3.out', status = 'unknown')
@@ -1112,11 +1112,11 @@
 	  ierr=setvbuf3f_local(911,1,100)
       open(959,file = 'Qe.out', status = 'unknown')
 	  ierr=setvbuf3f_local(959,1,100)
-      
+
 !      open(999,file = 'gb.out', status = 'unknown')
 !	  ierr=setvbuf3f_local(999,1,100)
-      
-      
+
+
       open(iFU_solsteps_out,file = 'solsteps.out', status = 'unknown')
 	  ierr=setvbuf3f_local(iFU_solsteps_out,1,100)
       open(iFU_times_out,file = 'times.out', status = 'unknown')
@@ -1129,9 +1129,9 @@
 	  ierr=setvbuf3f_local(iFU_meshElems_out,1,100)
       open(iFU_meshNodes_out,file = 'meshNodes.out', status = 'unknown')
 	  ierr=setvbuf3f_local(iFU_meshNodes_out,1,100)
-!!--- this file used t dump all the abc elem matrix data     
+!!--- this file used t dump all the abc elem matrix data
 !      OPEN(iFU_abcDumpBIN_out,FILE='abcDumpBIN.out',STATUS='unknown',FORM='binary')
-      OPEN(iFU_abcDumpBIN_out,FILE='abcDumpBIN.out',STATUS='unknown',FORM='unformatted')      
+      OPEN(iFU_abcDumpBIN_out,FILE='abcDumpBIN.out',STATUS='unknown',FORM='unformatted')
       open(iFU_temperNodes_out,file='temperNodes.out', status = 'unknown')
 	  ierr=setvbuf3f_local(iFU_temperNodes_out,1,100)
       open(iFU_temperElem_out,file='temperElem.out',status='unknown')
@@ -1140,7 +1140,7 @@
 	  ierr=setvbuf3f_local(iFU_DijSijElem_out,1,100)
       open(iFU_DiffCoeff_out,file='DiffCoeff.out',status='unknown')
 	  ierr=setvbuf3f_local(iFU_DiffCoeff_out,1,100)
-      
+
 !!!!!	  open(2101,file = 'Diffusion.out',     status = 'unknown')
 	  open(2102,file = 'gradpy.out',     status = 'unknown')
 	  open(2103,file = 'gradpz.out',     status = 'unknown')
@@ -1153,7 +1153,7 @@
 	  ierr=setvbuf3f_local(2104,1,100)
 	  ierr=setvbuf3f_local(2105,1,100)
 	  ierr=setvbuf3f_local(2106,1,100)
-      
+
       open(iFU_DiffNodes_out,file='DiffNodes.out',status='unknown')
 	  ierr=setvbuf3f_local(iFU_DiffNodes_out,1,100)
       open(iFU_DiffElem_out,file='DiffElem.out',status='unknown')
@@ -1168,14 +1168,17 @@
 
 !!!--- fracture files
 !!      open(938,file = 'frac_plane.out',     status = 'unknown')
-!!      ierr=setvbuf3f_local(938,1,100)	
-      
+!!      ierr=setvbuf3f_local(938,1,100)
+
 	  open(2107,file = 'frac_crit.out',     status = 'unknown')
 	  ierr=setvbuf3f_local(2107,1,100)
 	  open(2108,file = 'frac_dec.out',     status = 'unknown')
 	  ierr=setvbuf3f_local(2108,1,100)
 	  open(iFU_crack_out,file = 'frac_crack.out',     status = 'unknown')
 	  ierr=setvbuf3f_local(iFU_crack_out,1,100)
+	  open(iFU_crackinput_out,file = 'frac_crackinput.out',     status = 'unknown')
+	  ierr=setvbuf3f_local(iFU_crackinput_out,1,100)
+
       open(iFU_crackprog_out,file = 'frac_crackprog.out', status = 'unknown')
 	  ierr=setvbuf3f_local(iFU_crackprog_out,1,100)
       open(iFU_cracktip_out,file = 'frac_cracktip.out', status = 'unknown')
@@ -1183,4 +1186,3 @@
 
       return
       end
-      

@@ -49,6 +49,7 @@ module EC_Consts
     integer EC_ElemEdgesConnect(2,4) !-- list the elem edges order 1-2 2-3 3-4 4-1
     integer EC_ElemNodesEdges(2,4) !-- list the elem nodes' edges order [1:2,1] [2:3,2] [3:4,3] [4:1,4]
     integer EC_ElemEdgesOpposite(4) !-- list the elem edges opposite edges 1-->3, 2-->4, 3-->1,4-->1
+    integer EC_ElemEdgesBeforeAfter(2,4) !-- list the elem edges before and after edges  4-2,1-3,2-4,3-1
 
 
     Interface ECinitializeConsts;                  Module Procedure ECinitializeConsts;            End Interface
@@ -115,6 +116,15 @@ module EC_Consts
         do i=3,4
             EC_ElemEdgesOpposite(i)=i-2
         enddo
+        !-- list the elem edges before and after edges  4-2,1-3,2-4,3-1
+        EC_ElemEdgesBeforeAfter(1,1)=4
+        EC_ElemEdgesBeforeAfter(2,1)=2
+        do i=2,3
+            EC_ElemEdgesBeforeAfter(1,i)=i-1
+            EC_ElemEdgesBeforeAfter(2,i)=i+1
+        enddo
+        EC_ElemEdgesBeforeAfter(1,4)=3
+        EC_ElemEdgesBeforeAfter(2,4)=1
 
         EC_ZoneFactor=mEC_ZoneFactor
         EC_DecayCount=mEC_DecayCount
@@ -320,14 +330,22 @@ module EC_ElemCrackingBaseClass
 !##############################################################################
 !##############################################################################
     subroutine EC_ElemCrackingBaseClass_PrintTest (tEC_object,mid)
+        use mod_file_units
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
         integer mid
 
-            write(*,*)'================================ elem=',mid
-            write(*,*)tEC_object%iElemStatus
-            write(*,*)tEC_object%rCleavagePlane(1:3)
-            write(*,*)tEC_object%EdgeStatus
-            write(*,*)tEC_object%rAreaRatio
+            write(iFU_crackinput_out,*)'================================ elem=',mid
+            write(iFU_crackinput_out,*)tEC_object%iElemStatus
+            write(iFU_crackinput_out,*)'         ------------- EdgeStatus='
+            write(iFU_crackinput_out,*)tEC_object%EdgeStatus
+            write(iFU_crackinput_out,*)'         ------------- rAreaRatio='
+            write(iFU_crackinput_out,*)tEC_object%rAreaRatio
+            write(iFU_crackinput_out,*)'         ------------- iElemConnectivity='
+            write(iFU_crackinput_out,*)tEC_object%iElemConnectivity
+            write(iFU_crackinput_out,*)'         ------------- iElemEdgeNeighbors='
+            write(iFU_crackinput_out,*)tEC_object%iElemEdgeNeighbors
+            write(iFU_crackinput_out,*)'         ------------- rCleavagePlane='
+            write(iFU_crackinput_out,*)tEC_object%rCleavagePlane(1:3)
 
     end subroutine EC_ElemCrackingBaseClass_PrintTest
     !##############################################################################
@@ -410,7 +428,6 @@ module EC_ElemCrackingBaseClass
         endif
     end function EC_ElemCrackingBaseClass_CheckDecaying
     !##############################################################################
-    !##############################################################################
     subroutine EC_ElemCrackingBaseClass_CalcAreaRatio (tEC_object,xs,ys,nPts)
 
         implicit none
@@ -423,6 +440,81 @@ module EC_ElemCrackingBaseClass
 
     end subroutine EC_ElemCrackingBaseClass_CalcAreaRatio
     !##############################################################################
+    subroutine EC_CalcCrackedElemAreaRatio (tEC_object,xs,ys,nPts)
+
+        implicit none
+        class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
+        integer, intent(in):: nPts
+        real*8 , intent(in)::xs(nPts),ys(nPts) !-input lines p-p2, q-q2
+        real*8 CalcPolygonArea,DistRatio,AreaTemp
+        real*8 rPtc(2,2),rPtc1(2),rPtc2(2),rP1(2),rP2(2)
+        real*8 :: ElemNodesCoordx(6),ElemNodesCoordy(6),xNew(4),yNew(4)
+        integer :: i,counter
+        integer :: nodesOrder(4),CrackedEdges(2)
+        integer :: EdgeBefore,EdgeAfter,node1
+        !----------------------------------- see sketch in P1
+        nodesOrder=0
+        CrackedEdges=0
+        counter=1
+        !-- find the cracked edges and the points
+        do i=1,4
+            if(tEC_object%rCoordRatioCracking(i)>0.0) then
+                DistRatio=tEC_object%rCoordRatioCracking(i)
+                rP1(1)=xs(EC_ElemEdgesConnect(1,i))
+                rP1(2)=ys(EC_ElemEdgesConnect(1,i))
+                rP2(1)=xs(EC_ElemEdgesConnect(2,i))
+                rP2(2)=ys(EC_ElemEdgesConnect(2,i))
+                CALL GetPtOnLine(rP1,rP2,DistRatio,rPtc1)
+                rPtc(1:2,counter)=rPtc1(1:2)
+                CrackedEdges(counter)=i
+                counter=counter+1
+            endif
+            !- limit two cracked edges for now ....
+            if ( counter>2 ) exit !-- break the loop
+        enddo
+        !- elem has nodes 1,2,3,4 and the edge crack points are 5, 6
+        !- if they are opposite edges
+        if (EC_ElemEdgesOpposite(CrackedEdges(1)) == CrackedEdges(2))then
+            !- this is a 4 node elem
+            tEC_object%iElemType=EC_eElemTypeQuad
+            EdgeBefore=EC_ElemEdgesBeforeAfter(1,CrackedEdges(1))
+            EdgeAfter=EC_ElemEdgesBeforeAfter(2,CrackedEdges(1))
+            !- my first point
+            Node1=EC_ElemEdgesConnect(1,CrackedEdges(1))
+            if ( node1> EC_NodeCountInput ) then
+                node1=EC_ElemEdgesConnect(2,CrackedEdges(1))
+                !- my crack point
+                nodesOrder(1)=5
+                !- my second point
+                nodesOrder(2)=node1
+                !- the seond node of my after edge
+                nodesOrder(3)=EC_ElemEdgesConnect(2,EdgeAfter)
+                !- the other crack point
+                nodesOrder(4)=6
+            else
+                !- my crack point
+                nodesOrder(1)=5
+                !- the other crack point
+                nodesOrder(2)=6
+                !- the first node of my before edge
+                nodesOrder(3)=EC_ElemEdgesConnect(1,EdgeBefore)
+                !- my first point
+                nodesOrder(4)=node1
+            end if
+        end if
+        ElemNodesCoordx(1:4)=xs(1:4)
+        ElemNodesCoordy(1:4)=ys(1:4)
+        ElemNodesCoordx(5:6)=rPtc(1,1:2)
+        ElemNodesCoordy(5:6)=rPtc(2,1:2)
+        do i = 1, 4
+            xNew(i)=ElemNodesCoordx(nodesOrder(i))
+            yNew(i)=ElemNodesCoordy(nodesOrder(i))
+        end do
+
+        AreaTemp=CalcPolygonArea(xNew,yNew,4)
+        tEC_object%rAreaRatio=AreaTemp/tEC_object%rArea
+
+    end subroutine EC_CalcCrackedElemAreaRatio
     !##############################################################################
 
 end module EC_ElemCrackingBaseClass

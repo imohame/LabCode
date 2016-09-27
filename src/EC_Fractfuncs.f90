@@ -1,11 +1,9 @@
 
 
-!!###################################################################
 !###################################################################
 !###################################################################
 subroutine FractReadApplyPreCrackCleavagePlanes2(x,y,ix)
     use EC_Objects_manager
-!    use EC_ElemCrackingBaseClass
     use  mod_parameters
     common /wblock8/ abc(573,nume,4),his(573,nume,4)
     common/meshnum/ numnpo, numelto
@@ -140,14 +138,16 @@ END
 !!###################################################################
 !###################################################################
 !###################################################################
-subroutine FractReadApplyPreCrackCleavagePlanes(NodesCoordx,NodesCoordy,ElemConnect)
-
+subroutine FractReadApplyPreCrackCleavagePlanes(NodesCoordx,NodesCoordy,ElemConnect,ElemMaterial,DofIds &
+                                                ,NodesDispl,usi  , freep , ym)
+    !!(x     ,y     ,ix    , matp , id   , u    , usi  , freep , ym)
     use mod_parameters
     use EC_Objects_manager
     implicit none
 
-    real NodesCoordx(*), NodesCoordy(*)
-    INTEGER ElemConnect(4,*)
+    real NodesCoordx(*), NodesCoordy(*),NodesDispl(*)
+    real usi(*),freep(5,*), ym(4,*)
+    INTEGER ElemConnect(4,*),ElemMaterial(*),DofIds(2,*)
 
 
     common /wblock8/ abc(573,nume,4),his(573,nume,4)
@@ -165,6 +165,7 @@ subroutine FractReadApplyPreCrackCleavagePlanes(NodesCoordx,NodesCoordy,ElemConn
     real*8 rxc2Ratio,ryc2Ratio,rxc1Ratio,ryc1Ratio
     integer mEC_bCracking,mEC_ZoneFactor,mEC_DecayCount,mEC_PreCrackedElemCount
     real*8 x(4),y(4),Ptc(2)
+    integer, ALLOCATABLE :: ElemIdsPreCracked(:)
 
     write(*, *) '-->>>>>>>>FractReadApplyPreCrackCleavagePlanes'
     IERR=0
@@ -213,11 +214,14 @@ subroutine FractReadApplyPreCrackCleavagePlanes(NodesCoordx,NodesCoordy,ElemConn
 
     read(60, *) strTitle
     write(6011, *) strTitle !'!!!--------- id  ed1     rxc1    ryc1     r1  ed2     rxc2    ryc2     r2'
+    allocate(ElemIdsPreCracked(mEC_PreCrackedElemCount))
+    ElemIdsPreCracked=0
     do i = 1, mEC_PreCrackedElemCount
         !!!--------- id  ed1     rxc1    ryc1     r1  ed2     rxc2    ryc2     r2
         read(60, *) elemId,ElemEdge1,rxc1,ryc1,r1,ElemEdge2,rxc2,ryc2,r2,rxc2Ratio,ryc2Ratio,rxc1Ratio,ryc1Ratio
         write(6011, *) elemId,ElemEdge1,rxc1,ryc1,r1,ElemEdge2,rxc2,ryc2,r2,rxc2Ratio,ryc2Ratio,rxc1Ratio,ryc1Ratio
         write(*, *) 'Pre-exist crack, element', elemId, 'cracks.in'
+        ElemIdsPreCracked(i)=elemId
 
         do j = 1, 3
           abc(362+j,elemId,1) = vn(j)
@@ -237,6 +241,11 @@ subroutine FractReadApplyPreCrackCleavagePlanes(NodesCoordx,NodesCoordy,ElemConn
         !--- for debugging
         ! call pEC_ElemData(elemId)%PrintTest(elemId)
 
+    end do
+    do i = 1, mEC_PreCrackedElemCount
+
+            CALL EC_SplitElem(ElemIdsPreCracked(i),NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, ElemMaterial, &
+                            usi  , freep , ym,1)
     end do
 
     close(60)
