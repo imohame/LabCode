@@ -47,7 +47,7 @@ module EC_Consts
     integer EC_NodeCountCurrent !-- current or updated or recent node count that = original + overlapped
 
     integer EC_ElemEdgesConnect(2,4) !-- list the elem edges order 1-2 2-3 3-4 4-1
-    integer EC_ElemNodesEdges(2,4) !-- list the elem nodes' edges order [1:2,1] [2:3,2] [3:4,3] [4:1,4]
+!!    integer EC_ElemNodesEdges(2,4) !-- list the elem nodes' edges order [1:2,1] [2:3,2] [3:4,3] [4:1,4]
     integer EC_ElemEdgesOpposite(4) !-- list the elem edges opposite edges 1-->3, 2-->4, 3-->1,4-->1
     integer EC_ElemEdgesBeforeAfter(2,4) !-- list the elem edges before and after edges  4-2,1-3,2-4,3-1
 
@@ -58,22 +58,22 @@ module EC_Consts
 !    ---------------------------
     contains
     subroutine ECprintTest
-        write(*,*)'EC_bCracking=',EC_bCracking
-        write(*,*)'EC_ZoneFactor=',EC_ZoneFactor
-        write(*,*)'EC_ZoneRadius=',EC_ZoneRadius
-        write(*,*)'EC_DecayCount=',EC_DecayCount
-        write(*,*)'EC_DecayCount=',EC_DecayCount
-        write(*,*)'EC_ElemEdgeMin=',EC_ElemEdgeMin
-        write(*,*)'EC_ElemEdgeMax=',EC_ElemEdgeMax
-        write(*,*)'EC_ElemAverageDia=',EC_ElemAverageDia
-        write(*,*)'EC_PreCrackedElemCount=',EC_PreCrackedElemCount
-        write(*,*)'EC_NodesCountAdded=',EC_NodesCountAdded
-        write(*,*)'EC_ElemCountAdded=',EC_ElemCountAdded
-        write(*,*)'EC_ElemCountInput=',EC_ElemCountInput
-        write(*,*)'EC_ElemCountCurrent=',EC_ElemCountCurrent
-        write(*,*)'EC_NodeCountInput=',EC_NodeCountInput
-        write(*,*)'EC_NodeCountCurrent=',EC_NodeCountCurrent
-        write(*,*)'EC_ElemEdgesConnect=',EC_ElemEdgesConnect
+        use mod_file_units
+        write(iFU_crackinput_out,*)'EC_bCracking=',EC_bCracking
+        write(iFU_crackinput_out,*)'EC_ZoneFactor=',EC_ZoneFactor
+        write(iFU_crackinput_out,*)'EC_ZoneRadius=',EC_ZoneRadius
+        write(iFU_crackinput_out,*)'EC_DecayCount=',EC_DecayCount
+        write(iFU_crackinput_out,*)'EC_ElemEdgeMin=',EC_ElemEdgeMin
+        write(iFU_crackinput_out,*)'EC_ElemEdgeMax=',EC_ElemEdgeMax
+        write(iFU_crackinput_out,*)'EC_ElemAverageDia=',EC_ElemAverageDia
+        write(iFU_crackinput_out,*)'EC_PreCrackedElemCount=',EC_PreCrackedElemCount
+        write(iFU_crackinput_out,*)'EC_NodesCountAdded=',EC_NodesCountAdded
+        write(iFU_crackinput_out,*)'EC_ElemCountAdded=',EC_ElemCountAdded
+        write(iFU_crackinput_out,*)'EC_ElemCountInput=',EC_ElemCountInput
+        write(iFU_crackinput_out,*)'EC_ElemCountCurrent=',EC_ElemCountCurrent
+        write(iFU_crackinput_out,*)'EC_NodeCountInput=',EC_NodeCountInput
+        write(iFU_crackinput_out,*)'EC_NodeCountCurrent=',EC_NodeCountCurrent
+        write(iFU_crackinput_out,*)'EC_ElemEdgesConnect=',EC_ElemEdgesConnect
     end subroutine ECprintTest
 !##############################################################################
 !##############################################################################
@@ -101,13 +101,13 @@ module EC_Consts
         enddo
         EC_ElemEdgesConnect(1,4)=4
         EC_ElemEdgesConnect(2,4)=1
-        !-- list the elem nodes' edges order [1,2] [2,3] [3,4] [4,1]
-        do i=1,3
-            EC_ElemNodesEdges(1,i)=i
-            EC_ElemNodesEdges(2,i)=i+1
-        enddo
-        EC_ElemNodesEdges(1,4)=4
-        EC_ElemNodesEdges(2,4)=1
+!!        !-- list the elem nodes' edges order [1,2] [2,3] [3,4] [4,1]
+!!        do i=1,3
+!!            EC_ElemNodesEdges(1,i)=i
+!!            EC_ElemNodesEdges(2,i)=i+1
+!!        enddo
+!!        EC_ElemNodesEdges(1,4)=4
+!!        EC_ElemNodesEdges(2,4)=1
 
         !-- list the elem edges opposite edges 1-->3, 2-->4, 3-->1,4-->1
         do i=1,2
@@ -154,32 +154,32 @@ module EC_Consts
         rElemDia=0
 
         do i=1,EC_ElemCountInput
-          do j=1,4
-            edgeNode1=ElemConnect(EC_ElemEdgesConnect(1,j),i)
-            edgeNode2=ElemConnect(EC_ElemEdgesConnect(2,j),i)
+            do j=1,4
+                edgeNode1=ElemConnect(EC_ElemEdgesConnect(1,j),i)
+                edgeNode2=ElemConnect(EC_ElemEdgesConnect(2,j),i)
+                x1=rNodesCoordx(edgeNode1)
+                y1=rNodesCoordy(edgeNode1)
+                x2=rNodesCoordx(edgeNode2)
+                y2=rNodesCoordy(edgeNode2)
+                dist=sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
+                !-- the max elem edge
+                if(dist>rEdgeMax) then
+                  rEdgeMax=dist
+                endif
+                !-- the min elem edge
+                if((dist<rEdgeMin) .and. (dist>0)) then
+                  rEdgeMin=dist
+                endif
+            enddo
+            !-- calc the elem diagonal
+            edgeNode1=ElemConnect(1,i)
+            edgeNode2=ElemConnect(3,i)
             x1=rNodesCoordx(edgeNode1)
             y1=rNodesCoordy(edgeNode1)
             x2=rNodesCoordx(edgeNode2)
             y2=rNodesCoordy(edgeNode2)
             dist=sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
-            !-- the max elem edge
-            if(dist>rEdgeMax) then
-              rEdgeMax=dist
-            endif
-            !-- the min elem edge
-            if((dist<rEdgeMin) .and. (dist>0)) then
-              rEdgeMin=dist
-            endif
-          enddo
-          !-- calc the elem diagonal
-          edgeNode1=ElemConnect(1,i)
-          edgeNode2=ElemConnect(3,i)
-          x1=rNodesCoordx(edgeNode1)
-          y1=rNodesCoordy(edgeNode1)
-          x2=rNodesCoordx(edgeNode2)
-          y2=rNodesCoordy(edgeNode2)
-          dist=sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
-          rElemDia=rElemDia+dist
+            rElemDia=rElemDia+dist
         enddo
         !-- calc the average diagonal
         rElemDia=rElemDia/EC_ElemCountInput
@@ -215,14 +215,15 @@ module EC_ElemCrackingBaseClass
         procedure ::SetFailed => EC_ElemCrackingBaseClass_SetFailed
         procedure ::CalcElemMaxStress => EC_ElemCrackingBaseClass_CalcElemMaxStress
         procedure ::CheckDecaying => EC_ElemCrackingBaseClass_CheckDecaying
-        procedure ::CopyElem => EC_ElemCrackingBaseClass_CopyElem
-        procedure ::CalcAreaRatio => EC_ElemCrackingBaseClass_CalcAreaRatio
+        procedure ::EC_CopyElem
+        procedure ::EC_CalcAreaRatio
         procedure ::EC_GetElemAreaRatio
         procedure ::EC_GetElemUnloadingCount
         procedure ::EC_GetElemEdgeNeighbors
         procedure ::EC_ElemAddToNeighbors
         procedure ::EC_SetElemEdgeNeighbors
         procedure ::EC_CheckElemValid
+        procedure ::EC_CalcCrackedElemAreaRatio
 
     ENDTYPE
     !-------------------
@@ -295,7 +296,7 @@ module EC_ElemCrackingBaseClass
         EC_GetElemUnloadingCount=tEC_object%iElemStatus
     end function EC_GetElemUnloadingCount
 !##############################################################################
-    subroutine EC_ElemCrackingBaseClass_CopyElem (tEC_object,tEC_objectOUT)
+    subroutine EC_CopyElem (tEC_object,tEC_objectOUT)
         implicit none
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object,tEC_objectOUT
 
@@ -309,22 +310,23 @@ module EC_ElemCrackingBaseClass
         tEC_objectOUT%iElemOverlapping=tEC_object%iElemOverlapping
         tEC_objectOUT%iElemEdgeNeighbors=tEC_object%iElemEdgeNeighbors
         tEC_objectOUT%iElemConnectivity=tEC_object%iElemConnectivity
-    end subroutine EC_ElemCrackingBaseClass_CopyElem
+    end subroutine EC_CopyElem
 !##############################################################################
 
     subroutine EC_ElemCrackingBaseClass_Initialize (tEC_object)
 
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
 
-        tEC_object%iElemStatus=0
+        tEC_object%EdgeStatus=-1
         tEC_object%rCleavagePlane=[0,0,1]
+        tEC_object%iElemStatus=0
         tEC_object%rCoordRatioCracking=-1
-        tEC_object%EdgeStatus=0
-        tEC_object%rAreaRatio=1
-        tEC_object%iElemType=EC_eElemTypeQuad !- default 4-nodes
+        tEC_object%rArea=0
+        tEC_object%rAreaRatio=0
+        tEC_object%iElemType=EC_eElemTypeQuad
         tEC_object%iElemOverlapping=EC_eElemOriginMain
-        tEC_object%iElemConnectivity=0
-
+        tEC_object%iElemEdgeNeighbors=-1
+        tEC_object%iElemConnectivity=-1
 
     end subroutine EC_ElemCrackingBaseClass_Initialize
 !##############################################################################
@@ -335,15 +337,18 @@ module EC_ElemCrackingBaseClass
         integer mid
 
             write(iFU_crackinput_out,*)'================================ elem=',mid
+            write(iFU_crackinput_out,*)'         ------------- iElemStatus='
             write(iFU_crackinput_out,*)tEC_object%iElemStatus
             write(iFU_crackinput_out,*)'         ------------- EdgeStatus='
             write(iFU_crackinput_out,*)tEC_object%EdgeStatus
             write(iFU_crackinput_out,*)'         ------------- rAreaRatio='
             write(iFU_crackinput_out,*)tEC_object%rAreaRatio
+             write(iFU_crackinput_out,*)'         ------------- rArea='
+            write(iFU_crackinput_out,*)tEC_object%rArea
             write(iFU_crackinput_out,*)'         ------------- iElemConnectivity='
             write(iFU_crackinput_out,*)tEC_object%iElemConnectivity
             write(iFU_crackinput_out,*)'         ------------- iElemEdgeNeighbors='
-            write(iFU_crackinput_out,*)tEC_object%iElemEdgeNeighbors
+            write(iFU_crackinput_out,*)tEC_object%iElemEdgeNeighbors(1:2,1:4)
             write(iFU_crackinput_out,*)'         ------------- rCleavagePlane='
             write(iFU_crackinput_out,*)tEC_object%rCleavagePlane(1:3)
 
@@ -428,7 +433,7 @@ module EC_ElemCrackingBaseClass
         endif
     end function EC_ElemCrackingBaseClass_CheckDecaying
     !##############################################################################
-    subroutine EC_ElemCrackingBaseClass_CalcAreaRatio (tEC_object,xs,ys,nPts)
+    subroutine EC_CalcAreaRatio (tEC_object,xs,ys,nPts)
 
         implicit none
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
@@ -438,7 +443,7 @@ module EC_ElemCrackingBaseClass
         tEC_object%rArea=CalcPolygonArea(xs,ys,4)
         tEC_object%rAreaRatio=1
 
-    end subroutine EC_ElemCrackingBaseClass_CalcAreaRatio
+    end subroutine EC_CalcAreaRatio
     !##############################################################################
     subroutine EC_CalcCrackedElemAreaRatio (tEC_object,xs,ys,nPts)
 
@@ -448,7 +453,7 @@ module EC_ElemCrackingBaseClass
         real*8 , intent(in)::xs(nPts),ys(nPts) !-input lines p-p2, q-q2
         real*8 CalcPolygonArea,DistRatio,AreaTemp
         real*8 rPtc(2,2),rPtc1(2),rPtc2(2),rP1(2),rP2(2)
-        real*8 :: ElemNodesCoordx(6),ElemNodesCoordy(6),xNew(4),yNew(4)
+        real*8 :: ElemNodesCoordx(6),ElemNodesCoordy(6),xNew(4),yNew(4)    
         integer :: i,counter
         integer :: nodesOrder(4),CrackedEdges(2)
         integer :: EdgeBefore,EdgeAfter,node1
@@ -512,6 +517,7 @@ module EC_ElemCrackingBaseClass
         end do
 
         AreaTemp=CalcPolygonArea(xNew,yNew,4)
+!!!        write(*,*)tEC_object%rArea,AreaTemp
         tEC_object%rAreaRatio=AreaTemp/tEC_object%rArea
 
     end subroutine EC_CalcCrackedElemAreaRatio

@@ -26,12 +26,15 @@ module EC_Objects_manager
 !##############################################################################
 !##############################################################################
     contains
-        subroutine EC_AllocateMem()
+        subroutine EC_AllocateMem(ElemConnect,rNodesCoordx,rNodesCoordy)
             use EC_Consts
 
             implicit none
-            integer ne,i
-
+            integer,    intent(in) :: ElemConnect(4,*)
+            real,     intent(in) :: rNodesCoordx(*),rNodesCoordy(*)
+            INTEGER numnpo, numelto
+            integer ne,i,j
+            real*8 x(4),y(4)
 
             if(EC_bCracking == 0) then
               return
@@ -39,20 +42,23 @@ module EC_Objects_manager
             ne=int(EC_ElemCountInput*1.25)
             Allocate(pEC_ElemData(ne))
 !!!!!            Allocate(EC_ElemNeighbors(8,ne))
+!!!!!            EC_ElemNeighbors=-1
+            !-- initialize the elems to default
+            do i=1,ne
+                CALL pEC_ElemData(i)%Initialize()
+            enddo
+            !-- calc the elems area
+            do i=1,EC_ElemCountInput
+                do j=1, 4
+                    x(j)=rNodesCoordx(ElemConnect(j,i))
+                    y(j)=rNodesCoordy(ElemConnect(j,i))
+                    pEC_ElemData(i)%iElemConnectivity(j)=ElemConnect(j,i)
+                enddo
+                CALL pEC_ElemData(i)%EC_CalcAreaRatio(x,y,4)
+            enddo
+
             ne=int(EC_NodeCountInput*.1) +100
             Allocate(EC_NodesIntersectData(ne))
-
-            do i=1,ne
-                pEC_ElemData(i)%EdgeStatus=-1
-                pEC_ElemData(i)%rCleavagePlane=[0,0,1]
-                pEC_ElemData(i)%iElemStatus=0
-                pEC_ElemData(i)%rCoordRatioCracking=-1
-                pEC_ElemData(i)%rArea=0
-                pEC_ElemData(i)%rAreaRatio=0
-                pEC_ElemData(i)%iElemType=EC_eElemTypeQuad
-                pEC_ElemData(i)%iElemOverlapping=EC_eElemOriginMain
-            enddo
-!!!!            EC_ElemNeighbors=-1
 
             EC_NodesIntersectDataCount=0
 
@@ -66,9 +72,9 @@ module EC_Objects_manager
           if(EC_bCracking == 0) then
             return
           endif
-          IF (ALLOCATED (pEC_ElemData))              DEALLOCATE (pEC_ElemData)
+          IF (ALLOCATED (pEC_ElemData))                         DEALLOCATE (pEC_ElemData)
+          IF (ALLOCATED (EC_NodesIntersectData))                DEALLOCATE (EC_NodesIntersectData)
 !!!          IF (ALLOCATED (EC_ElemNeighbors))              DEALLOCATE (EC_ElemNeighbors)
-          IF (ALLOCATED (EC_NodesIntersectData))              DEALLOCATE (EC_NodesIntersectData)
         end subroutine EC_CleanMem
 !##############################################################################
 !##############################################################################
@@ -107,7 +113,7 @@ module EC_Objects_manager
     real*8 Vx,Vy,p1(2),p2(2),q1(2),q2(2),rPtc(2),pRatio,qRatio
     real*8 ElemAreaTotal
     !-- calculate elem area
-    call pEC_ElemData(ElemId)%CalcAreaRatio(ElemCoordx,ElemCoordy,4)
+    call pEC_ElemData(ElemId)%EC_CalcAreaRatio(ElemCoordx,ElemCoordy,4)
     !- this elem is cracked either on cleavage planes, or on the neighboring edges
     !-- set all edges to inner side crack
     pEC_ElemData(ElemId)%EdgeStatus(1:4)=EC_eCrackInnerSide
@@ -186,9 +192,10 @@ module EC_Objects_manager
         INTEGER bDone
 
         EdgeStatus=-1
-        mEdgeCount=1
+        mEdgeCount=0
         bDone=0
-        do while(bDone==0)
+        do while(bDone==0 .and. mEdgeCount<5)
+            mEdgeCount=mEdgeCount+1
             if(pEC_ElemData(ElemId)%EdgeStatus(mEdgeCount)==EC_eCrackBothSides) then
                 CALL EC_SplitEdge(ElemId,mEdgeCount,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl,  &
                         ElemMaterial,usi  , freep , ym,SolStepCount)
@@ -220,7 +227,7 @@ module EC_Objects_manager
         real dn1,dn2
 
         integer , intent(in)::ElemId,ElemEdgeId
-        integer ::ElemId2,ElemEdgeId2,j
+        integer ::ElemId2,ElemEdgeId2,j,i,ElemIdtemp
         INTEGER mElemEdgeNeighborsList(6)
         ! integer EdgeNode1,EdgeNode2,EdgeNode1N(4),EdgeNode2N(4),j
         type ( EC_ElemCrackingClass ) :: ElemCrackingClassMain(4),ElemCrackingClassOverlapping(4)
@@ -228,6 +235,8 @@ module EC_Objects_manager
         INTEGER edgeNodeOld1,edgeNodeOld2,edgeNodeNew1,edgeNodeNew2
         INTEGER bEdgeCracked !-- 0=not cracked, 1= cracked with elems added
         INTEGER nodeIdLocal,edge1,edge2,mMyEdgeId,mElemOther,mEdgeOther
+        real*8 xs(4),ys(4)
+
 
         !- get new and old edge nodes
         edgeNodeOld1=ElemConnect(EC_ElemEdgesConnect(1,ElemEdgeId),ElemId)
@@ -239,6 +248,13 @@ module EC_Objects_manager
         bElemValidOverlapping=0
         ElemIdsNewMain=0
         ElemIdsNewOverlapping=0
+        mElemEdgeNeighborsList=0
+        do j=1,4
+            CALL ElemCrackingClassMain(j)%Initialize()
+            call pEC_ElemData(ElemId)%EC_CopyElem (ElemCrackingClassMain(j))
+            CALL ElemCrackingClassOverlapping(j)%Initialize()
+            call pEC_ElemData(ElemId)%EC_CopyElem (ElemCrackingClassOverlapping(j))
+        enddo
         !-- crack the edge of the current elem,create 2 nodes, add 1 elem
         call EC_CreateElemsTemp(ElemId,ElemEdgeId,ElemConnect,ElemCrackingClassMain(1),ElemCrackingClassOverlapping(1), &
                                 edgeNodeNew1,edgeNodeNew2)
@@ -253,7 +269,7 @@ module EC_Objects_manager
         !-- find the edge neighbors and crack their edges
         call pEC_ElemData(ElemId)%EC_GetElemEdgeNeighbors (ElemEdgeId,mElemEdgeNeighborsList)
         do j=1,3    !--each edge can be shared between more than one elem
-            if(mElemEdgeNeighborsList((j-1)*2+1) /= 0) then
+            if(mElemEdgeNeighborsList((j-1)*2+1) > 0) then
                 ElemId2=mElemEdgeNeighborsList((j-1)*2+1)
                 ElemEdgeId2=mElemEdgeNeighborsList((j-1)*2+2)
                 call EC_CreateElemsTemp(ElemId2,ElemEdgeId2,ElemConnect,ElemCrackingClassMain(1+j), &
@@ -271,7 +287,15 @@ module EC_Objects_manager
         do j=1,4    !--each edge can be shared between more than one elem
             if(bElemValidMain(j) ==1) then
                 bEdgeCracked=1
-                ElemConnect(1:4,ElemIdsNewMain(j))=ElemCrackingClassMain(j)%iElemConnectivity(1:4)
+                ElemIdtemp=ElemIdsNewMain(j)
+                !- to get the elem nodes coordinates
+                do i=1, 4
+                    xs(i)=NodesCoordx(ElemConnect(i,ElemIdtemp))+NodesDispl(DofIds(1,ElemConnect(i,ElemIdtemp)))
+                    ys(i)=NodesCoordy(ElemConnect(i,ElemIdtemp))+NodesDispl(DofIds(2,ElemConnect(i,ElemIdtemp)))
+                enddo
+                CALL ElemCrackingClassMain(j)%EC_CalcCrackedElemAreaRatio (xs,ys,4)
+
+                ElemConnect(1:4,ElemIdtemp)=ElemCrackingClassMain(j)%iElemConnectivity(1:4)
                 CALL EC_CopyElemsData(ElemIdsNewMain(j),ElemIdsNewMain(j),ElemCrackingClassMain(j),ElemCrackingClassMain(j), &
                                     ElemMaterial, freep,ym )
                 pEC_ElemData(ElemIdsNewMain(j))%iElemOverlapping=ElemIdsNewOverlapping(j)
@@ -289,9 +313,19 @@ module EC_Objects_manager
             !    call ElemCrackingClassMain(j)%EC_ElemAddToNeighbors (mMyEdgeId,mElemOther,mEdgeOther)
             endif
             if(bElemValidOverlapping(j) ==1) then
-                ElemConnect(1:4,ElemIdsNewOverlapping(j))=ElemCrackingClassOverlapping(j)%iElemConnectivity(1:4)
-                CALL EC_CopyElemsData(ElemIdsNewMain(j),ElemIdsNewOverlapping(j),ElemCrackingClassMain(j), &
+                ElemIdtemp=ElemIdsNewOverlapping(j)
+                !- to get the elem nodes coordinates
+                do i=1, 4
+                    xs(i)=NodesCoordx(ElemConnect(i,ElemIdtemp))+NodesDispl(DofIds(1,ElemConnect(i,ElemIdtemp)))
+                    ys(i)=NodesCoordy(ElemConnect(i,ElemIdtemp))+NodesDispl(DofIds(2,ElemConnect(i,ElemIdtemp)))
+                enddo
+                !-- calc the new elem area ratio, arrange the new elem connectivity
+                CALL ElemCrackingClassOverlapping(j)%EC_CalcCrackedElemAreaRatio (xs,ys,4)
+
+                ElemConnect(1:4,ElemIdtemp)=ElemCrackingClassOverlapping(j)%iElemConnectivity(1:4)
+                CALL EC_CopyElemsData(ElemIdsNewMain(j),ElemIdtemp,ElemCrackingClassMain(j), &
                                         ElemCrackingClassOverlapping(j),ElemMaterial, freep,ym )
+                !-- set the related elem to main
                 pEC_ElemData(ElemIdsNewOverlapping(j))%iElemOverlapping=ElemIdsNewMain(j)
             !    !-- update edges neighbors
             !    nodeIdLocal=EC_ElemEdgesConnect(1,ElemEdgeId)
@@ -320,7 +354,7 @@ module EC_Objects_manager
 
         use EC_ElemCrackingBaseClass
         implicit none
-        type ( EC_ElemCrackingClass ), intent(out) :: ElemCrackingClassMain,ElemCrackingClassOverlapping
+        type ( EC_ElemCrackingClass ), intent(inout) :: ElemCrackingClassMain,ElemCrackingClassOverlapping
         integer , intent(in)::EdgeNode1N,EdgeNode2N
         integer , intent(in)::ElemId,ElemEdgeId
 
@@ -334,8 +368,8 @@ module EC_Objects_manager
         ElemCrackingClassMain%iElemOverlapping=EC_eElemOriginMain
         !-- update edges neighbors
         nodeIdLocal=EC_ElemEdgesConnect(2,ElemEdgeId)
-        edge1=EC_ElemNodesEdges(1,nodeIdLocal)
-        edge2=EC_ElemNodesEdges(2,nodeIdLocal)
+        edge1=EC_ElemEdgesConnect(1,nodeIdLocal)
+        edge2=EC_ElemEdgesConnect(2,nodeIdLocal)
         ElemCrackingClassMain%iElemEdgeNeighbors(:,edge1)=0
         ElemCrackingClassMain%iElemEdgeNeighbors(:,edge2)=0
 
@@ -345,8 +379,8 @@ module EC_Objects_manager
         ElemCrackingClassOverlapping%iElemOverlapping=EC_eElemOriginOverlap
         !-- update edges neighbors
         nodeIdLocal=EC_ElemEdgesConnect(1,ElemEdgeId)
-        edge1=EC_ElemNodesEdges(1,nodeIdLocal)
-        edge2=EC_ElemNodesEdges(2,nodeIdLocal)
+        edge1=EC_ElemEdgesConnect(1,nodeIdLocal)
+        edge2=EC_ElemEdgesConnect(2,nodeIdLocal)
         ElemCrackingClassOverlapping%iElemEdgeNeighbors(:,edge1)=0
         ElemCrackingClassOverlapping%iElemEdgeNeighbors(:,edge2)=0
 
@@ -514,13 +548,102 @@ module EC_Objects_manager
     decfrac(ElemTo)=decfrac(ElemFrom)
 
     CALL CNmanager_CopyElemnt(ElemFrom,ElemTo)
-    CALL pEC_ElemData(ElemFrom)%CopyElem (pEC_ElemData(ElemTo))
-
+    CALL pEC_ElemData(ElemFrom)%EC_CopyElem (pEC_ElemData(ElemTo))
 
     end subroutine EC_CopyElemsData
 !##############################################################################
-!##############################################################################
+    subroutine EC_CalcElemNeighbors(mmElemIdsList,mmElemCount,bAllElems)
 
+    implicit none
+    integer, intent(in) :: mmElemCount
+    integer, intent(in) :: bAllElems !-1= all elem, 0=use the list
+    integer, intent(in) :: mmElemIdsList(mmElemCount)
+
+    integer i,j,mElemCount,ElemIdi,ElemIdj
+    integer edgei,edgej,nodei1,nodei2,nodej1,nodej2
+    integer, ALLOCATABLE::mElemIdsList(:)
+    integer ierr,mlist(8)
+    integer*4 setvbuf3f_local
+
+    !-------------------------- allocate the new list if all elems
+    if(bAllElems==1)then
+        mElemCount=EC_ElemCountCurrent
+        allocate(mElemIdsList(mElemCount))
+        do i=1,mElemCount
+            mElemIdsList(i)=i
+        enddo
+    endif
+    !----------------- set all neighbors to zero
+    do i=1,mElemCount
+        if(bAllElems==1)then
+            ElemIdi=mElemIdsList(i) !- use all elems, the new list
+        else
+            ElemIdi=mmElemIdsList(i)  !- use the list
+        endif
+        pEC_ElemData(ElemIdi)%iElemEdgeNeighbors=0
+    enddo
+
+    !---------------------------- loop over the elems to find the neighbors
+    do i=1,mElemCount
+        if(bAllElems == 1)then
+            ElemIdi=mElemIdsList(i) !- use all elems, the new list
+        else
+            ElemIdi=mmElemIdsList(i)  !- use the list
+        endif
+        !-- loop over the edges of the ElemIdi
+        do edgei=1,4
+
+            if(pEC_ElemData(ElemIdi)%iElemEdgeNeighbors(1,edgei) == 0) then
+
+                nodei1=pEC_ElemData(ElemIdi)%iElemConnectivity(EC_ElemEdgesConnect(1,edgei))
+                nodei2=pEC_ElemData(ElemIdi)%iElemConnectivity(EC_ElemEdgesConnect(2,edgei))
+                !-- loop over the other elems
+                do j=1,mElemCount
+
+                    if(bAllElems == 1)then
+                        ElemIdj=mElemIdsList(j) !- use all elems, the new list
+                    else
+                        ElemIdj=mmElemIdsList(j)  !- use the list
+                    endif
+
+                    if(ElemIdi /= ElemIdj) then
+                        !-- loop over the edges of the ElemIdj
+                        do edgej=1,4
+                            nodej1=pEC_ElemData(ElemIdj)%iElemConnectivity(EC_ElemEdgesConnect(1,edgej))
+                            nodej2=pEC_ElemData(ElemIdj)%iElemConnectivity(EC_ElemEdgesConnect(2,edgej))
+                            if((nodei1==nodej1 .and. nodei2==nodej2) .or.(nodei1==nodej2 .and. nodei2==nodej1))then
+                                pEC_ElemData(ElemIdi)%iElemEdgeNeighbors(1,edgei)=ElemIdj
+                                pEC_ElemData(ElemIdi)%iElemEdgeNeighbors(2,edgei)=edgej
+                                pEC_ElemData(ElemIdj)%iElemEdgeNeighbors(1,edgej)=ElemIdi
+                                pEC_ElemData(ElemIdj)%iElemEdgeNeighbors(2,edgej)=edgei
+                            endif
+                        enddo !-do edgej=1,4
+                    endif !-if(ElemIdi/=ElemIdj) then
+                enddo !-do j=1,mElemCount
+            endif !- if(pEC_ElemData(ElemIdi)%iElemEdgeNeighbors(1,edgei)==0) then
+        enddo !-do edgei=1,4
+    enddo !-- do i=1,mElemCount
+    !----------------- print output file ElemsNeighbors2.out
+    if(bAllElems == 1)then
+        open(7011, file = 'ElemsNeighbors3.out', status = 'unknown')
+        ierr=setvbuf3f_local(7011,1,100)
+        do i=1,mElemCount
+            do j=1,4
+                mlist(j)=pEC_ElemData(i)%iElemEdgeNeighbors(1,j)
+                mlist(j+4)=pEC_ElemData(i)%iElemEdgeNeighbors(2,j)
+            enddo
+            write (7011, *) mlist(1:8)
+        enddo
+        close(7011)
+    endif
+
+    !------------------------------- clean the memory
+    if(bAllElems==1)then
+        deallocate(mElemIdsList)
+    endif
+
+    end subroutine EC_CalcElemNeighbors
+!##############################################################################
 end module EC_Objects_manager
 
 

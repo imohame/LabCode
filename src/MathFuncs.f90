@@ -70,26 +70,32 @@
     !##############################################################################
     function CalcPolygonArea(xs,ys,nPts)result(rArea)
         implicit none
+        integer , intent(in):: nPts
         real*8 , intent(in)::xs(nPts),ys(nPts) !-input lines p-p2, q-q2
         real*8 ::rArea !- output area
-        real*8 ::v1(2),v2(2),CorssProduct2d !- output area
-        integer i,nPts
+!!!        real*8 ::v1(2),v2(2),CorssProduct2d !- output area
+        integer i
 
         rArea=0.0
-        do i=2,nPts
-            v1(1)=xs(i+1)-xs(i)
-            v1(2)=ys(i+1)-ys(i)
-
-            v2(1)=xs(i)-xs(i-1)
-            v2(2)=ys(i)-ys(i-1)
-            rArea=rArea+CorssProduct2d(v1,v2)
+!!!        do i=2,nPts
+!!!            v1(1)=xs(i+1)-xs(i)
+!!!            v1(2)=ys(i+1)-ys(i)
+!!!
+!!!            v2(1)=xs(i)-xs(i-1)
+!!!            v2(2)=ys(i)-ys(i-1)
+!!!            rArea=rArea+abs(CorssProduct2d(v1,v2))
+!!!        end do
+!!!        v1(1)=xs(1)-xs(4)
+!!!        v1(2)=ys(1)-ys(4)
+!!!
+!!!        v2(1)=xs(4)-xs(3)
+!!!        v2(2)=ys(4)-ys(3)
+!!!        rArea=rArea+abs(CorssProduct2d(v1,v2))
+        do i=1,nPts-1
+            !- (x2-x1)(y2+y1)
+            rArea=rArea+(xs(i+1)-xs(i))*(ys(i+1)+ys(i))
         end do
-        v1(1)=xs(1)-xs(4)
-        v1(2)=ys(1)-ys(4)
-
-        v2(1)=xs(4)-xs(3)
-        v2(2)=ys(4)-ys(3)
-        rArea=rArea+CorssProduct2d(v1,v2)
+        rArea=rArea+(xs(1)-xs(nPts))*(ys(1)+ys(nPts))
 
         rArea=0.5*abs(rArea)
 

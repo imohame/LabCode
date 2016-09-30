@@ -122,8 +122,8 @@
       call GBApplyCleavagePlanes()
 ! #####################################################
 ! #####################################################
-!      this is has to be called first b/c the pre-crack needs it
-       call FractReadElemNeighbors()
+!!      this is has to be called first b/c the pre-crack needs it
+!       call FractReadElemNeighbors()
 !      to read precracked elements and apply proper cleavage planes
        call FractReadApplyPreCrackCleavagePlanes(a(k03),a(k04),a(k02),a(k08),a(k57),a(k18),a(k20), a(k07), a(k09)) 
                                               !!(y     ,z     ,ix    , matp , id   , u    , usi  , freep , ym)
