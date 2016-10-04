@@ -69,7 +69,7 @@ subroutine fractCheckFailure(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Node
       if((pEC_ElemData(i)%iElemStatus==0) .and. (MaxStress100 > ElemCriticalStress100)) then
           call pEC_ElemData(i)%SetFailed(1,ElemCleavagePlanes(iPlaneId,1:3))
           !-- write to crackprog.out
-          write(iFU_crackprog_out,*) i,SolStepCount,MaxStress100,ElemCriticalStress100,ElemCleavagePlanes(iPlaneId,1:3)
+          write(iFU_frac_crackFailedInfo,*) i,SolStepCount,MaxStress100,ElemCriticalStress100,ElemCleavagePlanes(iPlaneId,1:3)
       end if
 
     enddo !--do i=1, EC_ElemCountInput
@@ -135,7 +135,7 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
       if((pEC_ElemData(i)%iElemStatus==0) .and. (MaxStress100 > ElemCriticalStress100)) then
           call pEC_ElemData(i)%SetFailed(1,ElemCleavagePlanes(iPlaneId,1:3))
           !-- write to crackprog.out
-          write(iFU_crackprog_out,*) i,SolStepCount,MaxStress100,ElemCriticalStress100,ElemCleavagePlanes(iPlaneId,1:3)
+          write(iFU_frac_crackFailedInfo,*) i,SolStepCount,MaxStress100,ElemCriticalStress100,ElemCleavagePlanes(iPlaneId,1:3)
       end if
     enddo !--do i=1, EC_ElemCountInput
 
@@ -153,7 +153,7 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
             Ptc(2)=0.25*(y(1)+y(2)+y(3)+y(4)) 
             !-- set all edges to EC_eCrackInnerSide and neighbors to EC_eCrackOutterSide
             !-- if neighbors are also EC_eCrackInnerSide, then set this edge to EC_eCrackBothSides
-            CALL EC_MarkElemForCrack(i,Ptc,x,y)
+            CALL EC_MarkElemForCrack(i,Ptc,x,y,SolStepCount)
         endif
     enddo !--do i=1, EC_ElemCountInput
 !-- this part creates the overlapping elems, if the elem is failed and unloaded and has any edge EC_eCrackBothSides

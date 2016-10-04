@@ -124,10 +124,13 @@ module mod_file_units
     integer :: iFU_temperElemID_out         =55555
     integer :: iFU_temperNodeID_out         =66666
     !--- fracture files
-    integer :: iFU_crackinput_out           =7100
-    integer :: iFU_crackprog_out            =989
-    integer :: iFU_crack_out                =979
-    integer :: iFU_cracktip_out             =5001
+    integer :: iFU_crackinput_out           =7100 
+    integer :: iFU_frac_crackUnloading      =7101
+    integer :: iFU_frac_crackEdgeSplit      =7102
+    integer :: iFU_frac_crackOverlapInfo    =7103
+    integer :: iFU_frac_crackFailedInfo     =7104
+    integer :: iFU_crack_out                =7105
+    integer :: iFU_cracktip_out             =7106
     !--- input checking files
     integer :: iFU_check_transform_out      =66
     save

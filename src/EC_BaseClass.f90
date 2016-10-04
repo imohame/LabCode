@@ -221,6 +221,7 @@ module EC_ElemCrackingBaseClass
         procedure ::EC_GetElemUnloadingCount
         procedure ::EC_GetElemEdgeNeighbors
         procedure ::EC_ElemAddToNeighbors
+        procedure ::EC_ElemRemoveFromNeighbors
         procedure ::EC_SetElemEdgeNeighbors
         procedure ::EC_CheckElemValid
         procedure ::EC_CalcCrackedElemAreaRatio
@@ -273,11 +274,39 @@ module EC_ElemCrackingBaseClass
 
     end function EC_CheckElemValid
 !##############################################################################
+     subroutine EC_ElemRemoveFromNeighbors (tEC_object,mElemOther)
+        class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
+        integer, intent(in) :: mElemOther
+        integer i,j,k,e1,ed1,mMyEdgeId
+        !- to mark the removed neighbors
+        do k=1,4 !-- over all edges
+            mMyEdgeId=k
+            do i=1,3
+                if(tEC_object%iElemEdgeNeighbors((i-1)*2+1,mMyEdgeId) == mElemOther) then
+                    !- find the last one in the list that is not zero and replce the removed one with it
+                    tEC_object%iElemEdgeNeighbors((i-1)*2+1,mMyEdgeId)=0
+                    tEC_object%iElemEdgeNeighbors((i-1)*2+2,mMyEdgeId)=0
+                    do j=3,i,-1 !-- start the loop from the end
+                        if(tEC_object%iElemEdgeNeighbors((j-1)*2+1,mMyEdgeId) /= 0) then
+                            e1=tEC_object%iElemEdgeNeighbors((j-1)*2+1,mMyEdgeId)
+                            ed1=tEC_object%iElemEdgeNeighbors((j-1)*2+2,mMyEdgeId)
+                            !-- replace the removed one
+                            tEC_object%iElemEdgeNeighbors((i-1)*2+1,mMyEdgeId)=e1
+                            tEC_object%iElemEdgeNeighbors((i-1)*2+2,mMyEdgeId)=ed1
+                            return
+                        endif
+                    enddo
+                endif
+            enddo
+        enddo
+    end subroutine EC_ElemRemoveFromNeighbors
+!##############################################################################
      subroutine EC_ElemAddToNeighbors (tEC_object,mMyEdgeId,mElemOther,mEdgeOther)
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
         integer, intent(in) :: mMyEdgeId,mElemOther,mEdgeOther
         integer i
         do i=1,3
+            if(tEC_object%iElemEdgeNeighbors((i-1)*2+1,mMyEdgeId) == mElemOther) return
             if(tEC_object%iElemEdgeNeighbors((i-1)*2+1,mMyEdgeId) == 0) then
                 tEC_object%iElemEdgeNeighbors((i-1)*2+1,mMyEdgeId)=mElemOther
                 tEC_object%iElemEdgeNeighbors((i-1)*2+2,mMyEdgeId)=mEdgeOther
@@ -424,7 +453,7 @@ module EC_ElemCrackingBaseClass
         !- if elem is unloading then increase the unloading steps
         if((tEC_object%iElemStatus <= EC_DecayCount) .and.  (tEC_object%iElemStatus>0)) then
           tEC_object%iElemStatus=tEC_object%iElemStatus+1
-          write(iFU_crackprog_out,*) ele,nstep,tEC_object%iElemStatus,EC_DecayCount
+          write(iFU_frac_crackUnloading,*) ele,nstep,tEC_object%iElemStatus,EC_DecayCount
           bDecaying= 1
         elseif( tEC_object%iElemStatus > EC_DecayCount) then !-for elem that unloaded but not split
           bDecaying= 1
@@ -453,7 +482,7 @@ module EC_ElemCrackingBaseClass
         real*8 , intent(in)::xs(nPts),ys(nPts) !-input lines p-p2, q-q2
         real*8 CalcPolygonArea,DistRatio,AreaTemp
         real*8 rPtc(2,2),rPtc1(2),rPtc2(2),rP1(2),rP2(2)
-        real*8 :: ElemNodesCoordx(6),ElemNodesCoordy(6),xNew(4),yNew(4)    
+        real*8 :: ElemNodesCoordx(6),ElemNodesCoordy(6),xNew(4),yNew(4)
         integer :: i,counter
         integer :: nodesOrder(4),CrackedEdges(2)
         integer :: EdgeBefore,EdgeAfter,node1

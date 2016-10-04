@@ -245,7 +245,7 @@ subroutine FractReadApplyPreCrackCleavagePlanes(NodesCoordx,NodesCoordy,ElemConn
             x(j)=NodesCoordx(ElemConnect(j,elemId))
             y(j)=NodesCoordy(ElemConnect(j,elemId))
         enddo
-        call EC_MarkElemForCrack(elemId,Ptc,x,y)
+        call EC_MarkElemForCrack(elemId,Ptc,x,y,0)
         !--- for debugging
         ! call pEC_ElemData(elemId)%PrintTest(elemId)
 
@@ -258,6 +258,11 @@ subroutine FractReadApplyPreCrackCleavagePlanes(NodesCoordx,NodesCoordy,ElemConn
 
     close(60)
     close(6011)
+    !---------------- debugging
+    do i=7100,7106
+        close(i)
+    enddo
+    !---------------- debugging
     write(*, *) '-->>>>>>>>FractReadApplyPreCrackCleavagePlanes'
     return
 !    -------------------------------------------

@@ -1179,8 +1179,17 @@
 	  open(iFU_crackinput_out,file = 'frac_crackinput.out',     status = 'unknown')
 	  ierr=setvbuf3f_local(iFU_crackinput_out,1,100)
 
-      open(iFU_crackprog_out,file = 'frac_crackprog.out', status = 'unknown')
-	  ierr=setvbuf3f_local(iFU_crackprog_out,1,100)
+      open(iFU_frac_crackUnloading,file = 'frac_crackUnloading.out', status = 'unknown')
+	  ierr=setvbuf3f_local(iFU_frac_crackUnloading,1,100)
+      
+      open(iFU_frac_crackEdgeSplit,file = 'frac_crackEdgeSplit.out', status = 'unknown')
+	  ierr=setvbuf3f_local(iFU_frac_crackEdgeSplit,1,100)
+
+      open(iFU_frac_crackOverlapInfo,file = 'frac_crackOverlapInfo.out', status = 'unknown')
+	  ierr=setvbuf3f_local(iFU_frac_crackOverlapInfo,1,100)
+      open(iFU_frac_crackFailedInfo,file = 'frac_crackFailedInfo.out', status = 'unknown')
+	  ierr=setvbuf3f_local(iFU_frac_crackFailedInfo,1,100)
+
       open(iFU_cracktip_out,file = 'frac_cracktip.out', status = 'unknown')
 	  ierr=setvbuf3f_local(iFU_cracktip_out,1,100)
 
