@@ -225,6 +225,7 @@ module EC_ElemCrackingBaseClass
         procedure ::EC_SetElemEdgeNeighbors
         procedure ::EC_CheckElemValid
         procedure ::EC_CalcCrackedElemAreaRatio
+        procedure ::EC_FindNodeEdgeWithPhantomNode
 
     ENDTYPE
     !-------------------
@@ -293,6 +294,9 @@ module EC_ElemCrackingBaseClass
                             !-- replace the removed one
                             tEC_object%iElemEdgeNeighbors((i-1)*2+1,mMyEdgeId)=e1
                             tEC_object%iElemEdgeNeighbors((i-1)*2+2,mMyEdgeId)=ed1
+                            !-- null the e1,ed1 location
+                            tEC_object%iElemEdgeNeighbors((j-1)*2+1,mMyEdgeId)=0
+                            tEC_object%iElemEdgeNeighbors((j-1)*2+2,mMyEdgeId)=0
                             return
                         endif
                     enddo
@@ -550,6 +554,29 @@ module EC_ElemCrackingBaseClass
         tEC_object%rAreaRatio=AreaTemp/tEC_object%rArea
 
     end subroutine EC_CalcCrackedElemAreaRatio
+    !##############################################################################
+    subroutine EC_FindNodeEdgeWithPhantomNode (tEC_object,nodeOut)
+
+        implicit none
+        class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
+        integer, intent(out):: nodeOut
+        integer :: i,node1,node2
+        nodeOut=-1
+        !-- find the cracked edges and the points
+        do i=1,4
+            node1=tEC_object%iElemConnectivity(EC_ElemEdgesConnect(1,i))
+            node2=tEC_object%iElemConnectivity(EC_ElemEdgesConnect(2,i))
+            if((node1 > EC_NodeCountInput) .and. (node2 <= EC_NodeCountInput)) then
+                nodeOut=EC_ElemEdgesConnect(1,i) !- the node local index in the elem connectivity
+                return
+            endif
+            if((node2 > EC_NodeCountInput) .and. (node1 <= EC_NodeCountInput)) then
+                nodeOut=EC_ElemEdgesConnect(2,i) !- the node local index in the elem connectivity
+                return
+            endif
+        enddo
+
+    end subroutine EC_FindNodeEdgeWithPhantomNode
     !##############################################################################
 
 end module EC_ElemCrackingBaseClass

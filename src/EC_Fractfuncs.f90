@@ -262,6 +262,7 @@ subroutine FractReadApplyPreCrackCleavagePlanes(NodesCoordx,NodesCoordy,ElemConn
     do i=7100,7106
         close(i)
     enddo
+    stop
     !---------------- debugging
     write(*, *) '-->>>>>>>>FractReadApplyPreCrackCleavagePlanes'
     return

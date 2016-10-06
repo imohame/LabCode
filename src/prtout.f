@@ -38,29 +38,34 @@ c
       if (mprint.le.0) go to 10
       lprint=0
 
-!c     calculate nodes position for current step
-      connect=0
-      penta=0
-      ndflag=0
-      node=0.0
-      call hspwr (a(k18),a(k55),a(k56),a(k57),a(k81+1),a(k03),
-     >            a(k04))
-      call datapost(a(k02))
-	  
-      write(29,40) nummat, numnp, numelt, numnpt, numeltu
-      if (nstep.eq.0) then
-          numnptotal=0
-          numeltotal=0
-      endif
-
-!----------------------------ismail20150715
-      numnptotal=numnptotal+numnp
-      numeltotal=numeltotal+numelt
-      write(7017,*) numnptotal,numeltotal
-!      -- dump the entire history matrix for post-processing
-      write(7021)his(1:573,1:numelt,1)
-!----------------------------------------------       
-	  call outconnect(a(k08))
+      call hspwr (a(k18),a(k55),a(k56),a(k57),a(k81+1),a(k03)
+     >,a(k04))
+      
+      !-- to write file 29, the elem connectivity and coordinaes
+      CALL EC_WriteConnectivity(a(k02),a(k03),a(k04),a(k18)
+     >,a(k57),a(k08))
+!!     CALL EC_WriteConnectivity(ElemConnect,NodesCoordx, NodesCoordy,NodesDispl,DofIds,ElemMaterial)
+!!!!c     calculate nodes position for current step
+!!!      connect=0
+!!!      penta=0
+!!!      ndflag=0
+!!!      node=0.0
+!!!      call datapost(a(k02))
+!!!	  
+!!!      write(29,40) nummat, numnp, numelt, numnpt, numeltu
+!!!      if (nstep.eq.0) then
+!!!          numnptotal=0
+!!!          numeltotal=0
+!!!      endif
+!!!
+!!!!----------------------------ismail20150715
+!!!      numnptotal=numnptotal+numnp
+!!!      numeltotal=numeltotal+numelt
+!!!      write(7017,*) numnptotal,numeltotal
+!!!!      -- dump the entire history matrix for post-processing
+!!!      write(7021)his(1:573,1:numelt,1)
+!!!!----------------------------------------------       
+!!!	  call outconnect(a(k08))
       
 
       go to 20
