@@ -223,8 +223,8 @@ module EC_Objects_manager
                 CALL EC_SplitEdge(ElemId,mEdgeCount,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl,  &
                         ElemMaterial,usi  , freep , ym,mSolStepCount)
                 !-- reset the elem
-                write(*,*)ElemId,pEC_ElemData(ElemId)%iElemStatus,pEC_ElemData(ElemId)%iElemSplit
                 pEC_ElemData(ElemId)%iElemSplit=1               
+                write(*,*)ElemId,pEC_ElemData(ElemId)%iElemStatus,pEC_ElemData(ElemId)%iElemSplit
                 !-- split only one edge per elem per time step
                 bDone=1
             endif
@@ -258,9 +258,14 @@ module EC_Objects_manager
             !-- add tracking info
             write(iFU_frac_crackOverlapInfo,*) '------------------------------------------step#',mSolStepCount
             !- elem no, step no, elem connect, elem neighbors
+            do i=1,mElemCount1
+                e1=mElemIdsList1(i)
+                pEC_ElemData(e1)%iElemSplit=1
+            enddo
             do i=1,mElemCount2
                 e1=mElemIdsList2(i)
-                write(iFU_frac_crackOverlapInfo,*) e1,pEC_ElemData(e1)%iElemConnectivity,pEC_ElemData(e1)%EC_GetMyAreaRatio()
+                write(iFU_frac_crackOverlapInfo,*) e1,pEC_ElemData(e1)%iElemConnectivity,pEC_ElemData(e1)%EC_GetMyAreaRatio() &
+                                                    ,pEC_ElemData(e1)%iElemSplit
                 do j=1,4
                     write(iFU_frac_crackOverlapInfo,*) pEC_ElemData(e1)%iElemEdgeNeighbors(:,j)
                 enddo

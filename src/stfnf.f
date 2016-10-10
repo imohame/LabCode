@@ -1024,9 +1024,9 @@ c     Is this incremental??
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!		if(ElemFractCode(ink)==2) then !-- already decayed
 		if(EC_GetElemSplit(ink)>0) then !-- already decayed
           Aratio=EC_GetElemAreaRatio (ink)
-        if((ink==200).or.(ink==401))then
+!!!        if((ink==200).or.(ink==401))then
             write(*,*)ink,Aratio
-        endif
+!!        endif
 		  r1(i)=Aratio*r1(i)
 		  r2(i)=Aratio*r2(i)
 		  r3(i)=Aratio*r3(i)

@@ -108,6 +108,7 @@
 !!c&&&&&&&&&&&&&&&&
       nelg=(numel-1)/nelemg+1
       nmel=nelemg
+      
       if(imeth.gt.0.and.(.not.icolht))call xpegat(1)
       do 110 ng=1,nelg
       lft=1
@@ -115,8 +116,11 @@
       nft=1+(ng-1)*nelemg
       nlt=min(numel,ng*nelemg)
       nftm1=nft-1
-      
-!      write(*,*)nftm1,lft,llt
+!!!!      write(*,*)'numel numelt lft llt nft nftm1 nelemg ng nelg', 
+!!!!     > 'ntime numnp neq'
+!!!!      write(*,*)numel,numelt,lft,llt,nft,nftm1,nelemg,ng,nelg, 
+!!!!     > ntime,numnp,neq
+!!!!!      write(*,*)nftm1,lft,llt
       
       if (icolht) go to 90
 
