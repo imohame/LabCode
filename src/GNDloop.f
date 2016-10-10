@@ -25,15 +25,17 @@
 		      connect(i,j)=ix(j,i)
 		  end do
 	  end do	  
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c               distribute shear slip to node
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      do i=1,numnp
-	      nelenode2(i)=0
-		  do nsi=1,24
-		      slipnode(i,nsi)=0.0
-		  end do
-	  end do
+!!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!!c               distribute shear slip to node
+!!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!!      do i=1,numnp
+!!	      nelenode2(i)=0
+!!		  do nsi=1,24
+!!		      slipnode(i,nsi)=0.0
+!!		  end do
+!!	  end do
+      nelenode2=0
+      slipnode=0
 	  
       do i=1,numelt
           do j=1,4

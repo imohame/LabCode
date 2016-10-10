@@ -206,6 +206,7 @@ module EC_ElemCrackingBaseClass
         integer :: iElemOverlapping=EC_eElemOriginMain !- for the added new/overlapping/phantom elem;0=main, 1=overlap
         integer :: iElemEdgeNeighbors(6,4) !- each col lists the neighbors of this edge index
         integer :: iElemConnectivity(4) !- elem nodes
+        integer :: iElemSplit !- to indicate that the elem is failed, cracked and split 0=not, 1=splitted...
 
 
      contains
@@ -217,8 +218,8 @@ module EC_ElemCrackingBaseClass
         procedure ::CheckDecaying => EC_ElemCrackingBaseClass_CheckDecaying
         procedure ::EC_CopyElem
         procedure ::EC_CalcAreaRatio
-        procedure ::EC_GetElemAreaRatio
-        procedure ::EC_GetElemUnloadingCount
+        procedure ::EC_GetMyAreaRatio
+        procedure ::EC_GetMyUnloadingCount
         procedure ::EC_GetElemEdgeNeighbors
         procedure ::EC_ElemAddToNeighbors
         procedure ::EC_ElemRemoveFromNeighbors
@@ -319,15 +320,15 @@ module EC_ElemCrackingBaseClass
         enddo
     end subroutine EC_ElemAddToNeighbors
 !##############################################################################
-    real*8 function EC_GetElemAreaRatio (tEC_object)
+    real*8 function EC_GetMyAreaRatio (tEC_object)
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
-        EC_GetElemAreaRatio=tEC_object%rAreaRatio
-    end function EC_GetElemAreaRatio
+        EC_GetMyAreaRatio=tEC_object%rAreaRatio
+    end function EC_GetMyAreaRatio
 !##############################################################################
-    integer function EC_GetElemUnloadingCount (tEC_object)
+    integer function EC_GetMyUnloadingCount (tEC_object)
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
-        EC_GetElemUnloadingCount=tEC_object%iElemStatus
-    end function EC_GetElemUnloadingCount
+        EC_GetMyUnloadingCount=tEC_object%iElemStatus
+    end function EC_GetMyUnloadingCount
 !##############################################################################
     subroutine EC_CopyElem (tEC_object,tEC_objectOUT)
         implicit none
@@ -343,6 +344,7 @@ module EC_ElemCrackingBaseClass
         tEC_objectOUT%iElemOverlapping=tEC_object%iElemOverlapping
         tEC_objectOUT%iElemEdgeNeighbors=tEC_object%iElemEdgeNeighbors
         tEC_objectOUT%iElemConnectivity=tEC_object%iElemConnectivity
+        tEC_objectOUT%iElemSplit=tEC_object%iElemSplit
     end subroutine EC_CopyElem
 !##############################################################################
 
@@ -360,6 +362,7 @@ module EC_ElemCrackingBaseClass
         tEC_object%iElemOverlapping=EC_eElemOriginMain
         tEC_object%iElemEdgeNeighbors=-1
         tEC_object%iElemConnectivity=-1
+        tEC_object%iElemSplit=0
 
     end subroutine EC_ElemCrackingBaseClass_Initialize
 !##############################################################################
@@ -456,8 +459,8 @@ module EC_ElemCrackingBaseClass
         !-- to check if the elem is failed and unloading
         !- if elem is unloading then increase the unloading steps
         if((tEC_object%iElemStatus <= EC_DecayCount) .and.  (tEC_object%iElemStatus>0)) then
-          tEC_object%iElemStatus=tEC_object%iElemStatus+1
-          write(iFU_frac_crackUnloading,*) ele,nstep,tEC_object%iElemStatus,EC_DecayCount
+          tEC_object%iElemStatus=tEC_object%iElemStatus+1          
+          write(iFU_frac_crackUnloading,*) ele,nstep,tEC_object%iElemStatus,EC_DecayCount,tEC_object%iElemSplit
           bDecaying= 1
         elseif( tEC_object%iElemStatus > EC_DecayCount) then !-for elem that unloaded but not split
           bDecaying= 1
@@ -478,11 +481,11 @@ module EC_ElemCrackingBaseClass
 
     end subroutine EC_CalcAreaRatio
     !##############################################################################
-    subroutine EC_CalcCrackedElemAreaRatio (tEC_object,xs,ys,nPts)
+    subroutine EC_CalcCrackedElemAreaRatio (tEC_object,xs,ys,nPts,ElemConnectGlobal)
 
         implicit none
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
-        integer, intent(in):: nPts
+        integer, intent(in):: nPts,ElemConnectGlobal(4)
         real*8 , intent(in)::xs(nPts),ys(nPts) !-input lines p-p2, q-q2
         real*8 CalcPolygonArea,DistRatio,AreaTemp
         real*8 rPtc(2,2),rPtc1(2),rPtc2(2),rP1(2),rP2(2)
@@ -516,15 +519,15 @@ module EC_ElemCrackingBaseClass
             !- this is a 4 node elem
             tEC_object%iElemType=EC_eElemTypeQuad
             EdgeBefore=EC_ElemEdgesBeforeAfter(1,CrackedEdges(1))
-            EdgeAfter=EC_ElemEdgesBeforeAfter(2,CrackedEdges(1))
+            EdgeAfter =EC_ElemEdgesBeforeAfter(2,CrackedEdges(1))
             !- my first point
-            Node1=EC_ElemEdgesConnect(1,CrackedEdges(1))
+            Node1=ElemConnectGlobal(EC_ElemEdgesConnect(1,CrackedEdges(1)))
             if ( node1> EC_NodeCountInput ) then
-                node1=EC_ElemEdgesConnect(2,CrackedEdges(1))
+!!                node1=EC_ElemEdgesConnect(2,CrackedEdges(1))
                 !- my crack point
                 nodesOrder(1)=5
                 !- my second point
-                nodesOrder(2)=node1
+                nodesOrder(2)=EC_ElemEdgesConnect(1,EdgeAfter)
                 !- the seond node of my after edge
                 nodesOrder(3)=EC_ElemEdgesConnect(2,EdgeAfter)
                 !- the other crack point
@@ -537,7 +540,7 @@ module EC_ElemCrackingBaseClass
                 !- the first node of my before edge
                 nodesOrder(3)=EC_ElemEdgesConnect(1,EdgeBefore)
                 !- my first point
-                nodesOrder(4)=node1
+                nodesOrder(4)=EC_ElemEdgesConnect(2,EdgeBefore)
             end if
         end if
         ElemNodesCoordx(1:4)=xs(1:4)
@@ -548,7 +551,7 @@ module EC_ElemCrackingBaseClass
             xNew(i)=ElemNodesCoordx(nodesOrder(i))
             yNew(i)=ElemNodesCoordy(nodesOrder(i))
         end do
-
+ 
         AreaTemp=CalcPolygonArea(xNew,yNew,4)
 !!!        write(*,*)tEC_object%rArea,AreaTemp
         tEC_object%rAreaRatio=AreaTemp/tEC_object%rArea
@@ -564,14 +567,15 @@ module EC_ElemCrackingBaseClass
         nodeOut=-1
         !-- find the cracked edges and the points
         do i=1,4
+            if(tEC_object%rCoordRatioCracking(i) > 0) cycle !goto next edge i
             node1=tEC_object%iElemConnectivity(EC_ElemEdgesConnect(1,i))
             node2=tEC_object%iElemConnectivity(EC_ElemEdgesConnect(2,i))
             if((node1 > EC_NodeCountInput) .and. (node2 <= EC_NodeCountInput)) then
-                nodeOut=EC_ElemEdgesConnect(1,i) !- the node local index in the elem connectivity
+                nodeOut=EC_ElemEdgesConnect(2,i) !- the node local index in the elem connectivity
                 return
             endif
             if((node2 > EC_NodeCountInput) .and. (node1 <= EC_NodeCountInput)) then
-                nodeOut=EC_ElemEdgesConnect(2,i) !- the node local index in the elem connectivity
+                nodeOut=EC_ElemEdgesConnect(1,i) !- the node local index in the elem connectivity
                 return
             endif
         enddo

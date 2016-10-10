@@ -155,6 +155,8 @@ subroutine FractReadApplyPreCrackCleavagePlanes(NodesCoordx,NodesCoordy,ElemConn
     real abc,his
     common/meshnum/ numnpo, numelto
     integer numnpo, numelto
+    common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
+    INTEGER nprnt,mprint,itmpop,numelt,jprint,idump,locstr
 
     integer*4 setvbuf3f_local
     integer i,j,elemId,IERR
@@ -254,16 +256,24 @@ subroutine FractReadApplyPreCrackCleavagePlanes(NodesCoordx,NodesCoordy,ElemConn
 
             CALL EC_SplitElem(ElemIdsPreCracked(i),NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, ElemMaterial, &
                             usi  , freep , ym,1)
+            pEC_ElemData(ElemIdsPreCracked(i))%iElemSplit =1             
     end do
 
     close(60)
     close(6011)
-    !---------------- debugging
-    do i=7100,7106
-        close(i)
-    enddo
-    stop
-    !---------------- debugging
+!!!================================================================
+!!!================================================================
+!!!========= update this global count b/c it's used in the rest of the code
+!!!================================================================
+!!!================================================================
+    numelt=EC_ElemCountCurrent
+    
+!!    !---------------- debugging
+!!    do i=7100,7106
+!!        close(i)
+!!    enddo
+!!    stop
+!!    !---------------- debugging
     write(*, *) '-->>>>>>>>FractReadApplyPreCrackCleavagePlanes'
     return
 !    -------------------------------------------

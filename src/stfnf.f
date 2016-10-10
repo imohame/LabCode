@@ -1,7 +1,9 @@
       subroutine stfnf (yz,matp,hgs,nmel,prop,den)
 !c.....this subroutine calculations for B, Bbar, K, Dij, Wij, Fij
 !c     implicit double precision (a-h,o-z)                                    dp
-       use mod_parameters
+      use mod_parameters
+      use EC_Objects_manager
+      
       common/bk02/ioofc,iphase,imass,lpar(9)
       common/bk03/numdc,imassn,idampn,irller,penstf
       common/bk08/kprint,nstep,ite,ilimit,newstf
@@ -138,6 +140,7 @@
      1 cg13c(nelemg),cg23c(nelemg),cg14c(nelemg),cg24c(nelemg)
       equivalence (lpar(1),model),(lpar(5),ityp2d)
       real intener, area_coeff, stra
+      real Aratio
 	  integer ElemFractCode, update_flag
 !c.....Parameter for hourglass control type
 !c     3=stiffness hourglass control
@@ -1018,17 +1021,22 @@ c     Is this incremental??
 !c     update element internal force and stiffness for cracked element
       do i=lft,llt
         ink=i+nftm1
-		if(ElemFractCode(ink)==2) then !-- already decayed
-		  r1(i)=area_coeff(ink)*r1(i)
-		  r2(i)=area_coeff(ink)*r2(i)
-		  r3(i)=area_coeff(ink)*r3(i)
-		  r4(i)=area_coeff(ink)*r4(i)
-		  r5(i)=area_coeff(ink)*r5(i)
-		  r6(i)=area_coeff(ink)*r6(i)
-		  r7(i)=area_coeff(ink)*r7(i)
-		  r8(i)=area_coeff(ink)*r8(i) 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!		if(ElemFractCode(ink)==2) then !-- already decayed
+		if(EC_GetElemSplit(ink)>0) then !-- already decayed
+          Aratio=EC_GetElemAreaRatio (ink)
+        if((ink==200).or.(ink==401))then
+            write(*,*)ink,Aratio
+        endif
+		  r1(i)=Aratio*r1(i)
+		  r2(i)=Aratio*r2(i)
+		  r3(i)=Aratio*r3(i)
+		  r4(i)=Aratio*r4(i)
+		  r5(i)=Aratio*r5(i)
+		  r6(i)=Aratio*r6(i)
+		  r7(i)=Aratio*r7(i)
+		  r8(i)=Aratio*r8(i) 
 		  do j=1,36
-		    s(8+j,i)=area_coeff(ink)*s(8+j,i)
+		    s(8+j,i)=Aratio*s(8+j,i)
 	      end do
 		end if
 	  end do

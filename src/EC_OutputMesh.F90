@@ -32,6 +32,7 @@ subroutine EC_WriteConnectivity(ElemConnect,NodesCoordx, NodesCoordy,NodesDispl,
 
 !-- loop over all the elems to change the nodes coordinates if the nodes are phantom
     do i=1, EC_ElemCountCurrent
+!!        write(*,*)i,iElemConnectivityNew(:,i)
         do j=1,4
             !----- if it has a corresponding / related elem,  then it has phantom nodes
             DistRatio=pEC_ElemData(i)%rCoordRatioCracking(j)
@@ -55,15 +56,21 @@ subroutine EC_WriteConnectivity(ElemConnect,NodesCoordx, NodesCoordy,NodesDispl,
                 end if
                 !-- elem has only one cracked edge,,!-- add a new node, reconnect the elem to it
                 if ((node1 <= EC_NodeCountInput) .and. (node2 <= EC_NodeCountInput)) then
+                    if ((bNodeFlag(node1)==1) .and. (bNodeFlag(node2)==1)) then
+                        cycle
+                    endif
                     iNodeCountCurrentNew=iNodeCountCurrentNew+1
                     rNodesCoords(1:2,iNodeCountCurrentNew)=rPtc(1:2)
                     bNodeFlag(iNodeCountCurrentNew)=1
+                    bNodeFlag(node1)=1
+                    bNodeFlag(node2)=1
                     !-- update the elems connectivity
                     !- find the edge that has a phantom node, then chnage the non-phantom node
                     CALL pEC_ElemData(i)%EC_FindNodeEdgeWithPhantomNode (nodeOut)
                     if ( nodeOut>0 ) then
                         iElemConnectivityNew(nodeOut,i)=iNodeCountCurrentNew
                     end if
+!!                    write(*,*)i,iElemConnectivityNew(:,i)
                     !-- find the edge neighbors and update the elems connectivity
                     call pEC_ElemData(i)%EC_GetElemEdgeNeighbors (j,mElemEdgeNeighborsList)
                     do k=1,3    !--each edge can be shared between more than one elem
@@ -72,7 +79,9 @@ subroutine EC_WriteConnectivity(ElemConnect,NodesCoordx, NodesCoordy,NodesDispl,
                             ElemEdgeId2=mElemEdgeNeighborsList((k-1)*2+2)
                             CALL pEC_ElemData(ElemId2)%EC_FindNodeEdgeWithPhantomNode (nodeOut)
                             if ( nodeOut>0 ) then
+!!!                                write(*,*)ElemId2,iElemConnectivityNew(:,ElemId2)
                                 iElemConnectivityNew(nodeOut,ElemId2)=iNodeCountCurrentNew
+!!!                                write(*,*)ElemId2,iElemConnectivityNew(:,ElemId2)
                             end if
                         endif
                     enddo
@@ -85,6 +94,8 @@ subroutine EC_WriteConnectivity(ElemConnect,NodesCoordx, NodesCoordy,NodesDispl,
     CALL EC_WriteFile29(ElemMaterial)
     !--- clean the memory
     DEALLOCATE(bNodeFlag,rNodesCoords,iElemConnectivityNew)
+    iNodeCountCurrentNew=0
+    iElemCountCurrentNew=0
 
 END subroutine EC_WriteConnectivity
 !##############################################################################

@@ -253,10 +253,17 @@
 !!!	  call edge(a(k03),a(k04),a(k08))
 !!!!!!!!      edge(y     ,z     ,matp)
 
-      call propagate(a(k03),a(k04),a(k02),a(k57),a(k18), a(k08),numelt,nstep)
-!!!!!      propagate(y     , z    , ix   , id   , u    , matp  ,numelt,nstep)
-      call overlap(a(k03),a(k04),a(k02),a(k08),a(k57),a(k18),a(k20), a(k07), a(k09))
-!!!!!!!!!e overlap(y     , z    , ix   , matp , id   , u    , usi  , freep , ym)
+!!!!!!!    call propagate(a(k03),a(k04),a(k02),a(k57),a(k18), a(k08),numelt,nstep)
+!!!!!!!    !!!!!      propagate(y     , z    , ix   , id   , u    , matp  ,numelt,nstep)
+!!!!!!!    call overlap(a(k03),a(k04),a(k02),a(k08),a(k57),a(k18),a(k20), a(k07), a(k09))
+!!!!!!!    !!!!!!!!!e overlap(y     , z    , ix   , matp , id   , u    , usi  , freep , ym)
+    CALL fractCheckCracking(a(k03),a(k04),a(k02),a(k57),a(k18), a(k08),a(k20), a(k07), a(k09),nstep)
+!!    CALL fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, ElemMaterial, &
+!!                                    usi  , freep , ym,SolStepCount)
+    CALL fractCheckCracking(a(k03),a(k04),a(k02),a(k57),a(k18), a(k08),a(k20), a(k07), a(k09),nstep)
+!    CALL fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, ElemMaterial, &
+!                              usi  , freep , ym,SolStepCount)
+
 
 
 	  if (update_flag==1) then

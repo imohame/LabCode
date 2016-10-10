@@ -21,6 +21,9 @@ module EC_Objects_manager
     Interface EC_SplitElem;                Module Procedure EC_SplitElem;                     End Interface
     Interface EC_CopyElemsData;            Module Procedure EC_CopyElemsData;                 End Interface
     Interface EC_CopyNodesData;            Module Procedure EC_CopyNodesData;                 End Interface
+    Interface EC_GetElemUnloadingCount;            Module Procedure EC_GetElemUnloadingCount;                 End Interface
+    Interface EC_GetElemAreaRatio;            Module Procedure EC_GetElemAreaRatio;                 End Interface
+    Interface EC_GetElemSplit;            Module Procedure EC_GetElemSplit;                 End Interface
 
 
 !##############################################################################
@@ -114,8 +117,8 @@ module EC_Objects_manager
     integer i,ElemIdNeighbor,EdgeIdNeighbor,bIntersect,edgeNode1,edgeNode2
     real*8 Vx,Vy,p1(2),p2(2),q1(2),q2(2),rPtc(2),pRatio,qRatio
     real*8 ElemAreaTotal
-    !-- calculate elem area
-    call pEC_ElemData(ElemId)%EC_CalcAreaRatio(ElemCoordx,ElemCoordy,4)
+    !-- calculate elem area -- no need for it, it's done initialy
+    ! call pEC_ElemData(ElemId)%EC_CalcAreaRatio(ElemCoordx,ElemCoordy,4)
     !- this elem is cracked either on cleavage planes, or on the neighboring edges
     !-- set all edges to inner side crack
     pEC_ElemData(ElemId)%EdgeStatus(1:4)=EC_eCrackInnerSide
@@ -126,7 +129,7 @@ module EC_Objects_manager
         !-- if the edge is outter, has no neighbors then make it EC_eCrackBothSides
         if( EdgeIdNeighbor == 0) then
             pEC_ElemData(ElemId)%EdgeStatus(i)=EC_eCrackBothSides
-            continue ! go to next edge
+            cycle ! go to next i, edge
         endif
         !-if the neighboring edge is inner cracked then set this edge on both sides as cracked
         if(pEC_ElemData(ElemIdNeighbor)%EdgeStatus(EdgeIdNeighbor)==EC_eCrackInnerSide) then
@@ -143,6 +146,7 @@ module EC_Objects_manager
     !- make a crack line given a starting point and a direction
     CALL GetLineStartEndPts(rStartPt,Vx,Vy,EC_ElemAverageDia*2,p1,p2)
     !- intersect the crack line with the edges
+    write(iFU_frac_crackEdgeSplit,*) '------------------------------------------',ElemId
     do i=1,4
         edgeNode1=EC_ElemEdgesConnect(1,i)
         edgeNode2=EC_ElemEdgesConnect(2,i)
@@ -152,9 +156,8 @@ module EC_Objects_manager
         q2(2)=ElemCoordy(edgeNode2)
         CALL LineSegIntersection(p1,p2,q1,q2,pRatio,qRatio,rPtc,bIntersect)
         if(bIntersect==1) then !- there is an intersection
-            pEC_ElemData(ElemId)%rCoordRatioCracking(i)=qRatio
+            pEC_ElemData(ElemId)%rCoordRatioCracking(i)=1-qRatio
             !--- elem id , step no, edge no, edge node 1, edge node 2, intersection ratio, edge status
-            write(iFU_frac_crackEdgeSplit,*) '------------------------------------------'
             write(iFU_frac_crackEdgeSplit,*) ElemId,mSolStepCount,i,edgeNode1,edgeNode2,qRatio,pEC_ElemData(ElemId)%EdgeStatus(i)
             !-- this for the neighboring edge properties
             if(pEC_ElemData(ElemId)%EdgeStatus(i)==EC_eCrackBothSides) then !- then set this value to the other edge
@@ -163,7 +166,7 @@ module EC_Objects_manager
                 !-- if the edge is outter, has no neighbors then make it EC_eCrackBothSides
                 if( EdgeIdNeighbor /= 0) then
                     !- 1-qRatio because the edge nodes order is reversed from elem to the neighboring elem
-                    pEC_ElemData(ElemIdNeighbor)%rCoordRatioCracking(EdgeIdNeighbor)=1-qRatio
+                    pEC_ElemData(ElemIdNeighbor)%rCoordRatioCracking(EdgeIdNeighbor)=qRatio
                     write(iFU_frac_crackEdgeSplit,*) ElemIdNeighbor,mSolStepCount,EdgeIdNeighbor, &
                                                 1-qRatio,pEC_ElemData(ElemIdNeighbor)%EdgeStatus(EdgeIdNeighbor)
                 endif
@@ -195,7 +198,7 @@ module EC_Objects_manager
 
         integer , intent(in)::ElemId
         integer i,j
-        real*8 ElemAreaTotal
+        real*8 ElemAreaTotal,xs(4),ys(4)
         integer EdgeStatus(4),mEdgeCount,mUniqueEdge
         INTEGER bDone,EC_ElemCountCurrent_old
         integer :: mElemIdsList1(16) !-- find the neighbors of mElemIdsList1 in mElemIdsList2
@@ -216,13 +219,17 @@ module EC_Objects_manager
         do while(bDone==0 .and. mEdgeCount<5)
             mEdgeCount=mEdgeCount+1
             if(pEC_ElemData(ElemId)%EdgeStatus(mEdgeCount)==EC_eCrackBothSides) then
+                write(*,*)ElemId,pEC_ElemData(ElemId)%iElemStatus,pEC_ElemData(ElemId)%iElemSplit
                 CALL EC_SplitEdge(ElemId,mEdgeCount,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl,  &
                         ElemMaterial,usi  , freep , ym,mSolStepCount)
+                !-- reset the elem
+                write(*,*)ElemId,pEC_ElemData(ElemId)%iElemStatus,pEC_ElemData(ElemId)%iElemSplit
+                pEC_ElemData(ElemId)%iElemSplit=1               
                 !-- split only one edge per elem per time step
                 bDone=1
             endif
         enddo
-
+        !--- this is to update the elem neighbors due to the creation of new elem
         if(bDone==1) then
             !-- find this elem neghbors
             !-- add the cuurent elem
@@ -253,10 +260,16 @@ module EC_Objects_manager
             !- elem no, step no, elem connect, elem neighbors
             do i=1,mElemCount2
                 e1=mElemIdsList2(i)
-                write(iFU_frac_crackOverlapInfo,*) e1,pEC_ElemData(e1)%iElemConnectivity
+                write(iFU_frac_crackOverlapInfo,*) e1,pEC_ElemData(e1)%iElemConnectivity,pEC_ElemData(e1)%EC_GetMyAreaRatio()
                 do j=1,4
                     write(iFU_frac_crackOverlapInfo,*) pEC_ElemData(e1)%iElemEdgeNeighbors(:,j)
                 enddo
+                do j=1, 4
+                    xs(j)=NodesCoordx(ElemConnect(j,e1))+NodesDispl(DofIds(1,ElemConnect(j,e1)))
+                    ys(j)=NodesCoordy(ElemConnect(j,e1))+NodesDispl(DofIds(2,ElemConnect(j,e1)))
+                enddo
+                write(iFU_frac_crackOverlapInfo,*) xs
+                write(iFU_frac_crackOverlapInfo,*) ys
                 write(iFU_frac_crackOverlapInfo,*) '-------------------'
             enddo
         endif
@@ -353,17 +366,31 @@ module EC_Objects_manager
         enddo
         !- loop over all the temp elems and nodes and add them
 !!!        write(iFU_frac_crackOverlapInfo,*) '------------------------------------------step#',mSolStepCount
+        !-- add the nodes first, b/c the connectivity uses it
         bEdgeCracked=0
         do j=1,4    !--each edge can be shared between more than one elem
             if(bElemValidMain(j) ==1) then
                 bEdgeCracked=1
+                exit
+            endif
+        enddo
+        
+        if(bEdgeCracked ==1) then
+            !- then add the new nodes --- EC_NodeCountCurrent already incremented
+            CALL EC_AddOneNode(edgeNodeOld1,edgeNodeNew1,NodesCoordx, NodesCoordy, DofIds, NodesDispl,usi  , freep , ym)
+            !-- --- EC_NodeCountCurrent already incremented
+            CALL EC_AddOneNode(edgeNodeOld2,edgeNodeNew2,NodesCoordx, NodesCoordy, DofIds, NodesDispl,usi  , freep , ym)
+        endif
+        
+        do j=1,4    !--each edge can be shared between more than one elem
+            if(bElemValidMain(j) ==1) then
                 ElemIdtemp=ElemIdsNewMain(j)
                 !- to get the elem nodes coordinates
                 do i=1, 4
                     xs(i)=NodesCoordx(ElemConnect(i,ElemIdtemp))+NodesDispl(DofIds(1,ElemConnect(i,ElemIdtemp)))
                     ys(i)=NodesCoordy(ElemConnect(i,ElemIdtemp))+NodesDispl(DofIds(2,ElemConnect(i,ElemIdtemp)))
                 enddo
-                CALL ElemCrackingClassMain(j)%EC_CalcCrackedElemAreaRatio (xs,ys,4)
+                CALL ElemCrackingClassMain(j)%EC_CalcCrackedElemAreaRatio (xs,ys,4,ElemConnect(:,ElemIdtemp))
 
                 !-- copy elem in EC_BaseClass copies also the connectivity, ... update that in the next two line
                 CALL EC_CopyElemsData(ElemIdsNewMain(j),ElemIdsNewMain(j),ElemCrackingClassMain(j),ElemCrackingClassMain(j), &
@@ -371,6 +398,7 @@ module EC_Objects_manager
                 !-- ... update that in the next two line
                 ElemConnect(1:4,ElemIdtemp)=ElemCrackingClassMain(j)%iElemConnectivity(1:4)
                 pEC_ElemData(ElemIdsNewMain(j))%iElemConnectivity(1:4)=ElemCrackingClassMain(j)%iElemConnectivity(1:4)
+                pEC_ElemData(ElemIdsNewMain(j))%rAreaRatio=ElemCrackingClassMain(j)%rAreaRatio
 
                 !-- set the related elem to overlap
                 pEC_ElemData(ElemIdsNewMain(j))%iElemOverlapping=ElemIdsNewOverlapping(j)
@@ -384,21 +412,27 @@ module EC_Objects_manager
             endif
             if(bElemValidOverlapping(j) ==1) then
                 ElemIdtemp=ElemIdsNewOverlapping(j)
-                !- to get the elem nodes coordinates
-                do i=1, 4
-                    xs(i)=NodesCoordx(ElemConnect(i,ElemIdtemp))+NodesDispl(DofIds(1,ElemConnect(i,ElemIdtemp)))
-                    ys(i)=NodesCoordy(ElemConnect(i,ElemIdtemp))+NodesDispl(DofIds(2,ElemConnect(i,ElemIdtemp)))
-                enddo
-                !-- calc the new elem area ratio, arrange the new elem connectivity
-                CALL ElemCrackingClassOverlapping(j)%EC_CalcCrackedElemAreaRatio (xs,ys,4)
                 !-- copy elem in EC_BaseClass copies also the connectivity, ... update that in the next two line
                 CALL EC_CopyElemsData(ElemIdsNewMain(j),ElemIdtemp,ElemCrackingClassMain(j), &
                                         ElemCrackingClassOverlapping(j),ElemMaterial, freep,ym )
                 !-- ... update that in the next two line
                 ElemConnect(1:4,ElemIdtemp)=ElemCrackingClassOverlapping(j)%iElemConnectivity(1:4)
                 pEC_ElemData(ElemIdsNewOverlapping(j))%iElemConnectivity(1:4)=ElemCrackingClassOverlapping(j)%iElemConnectivity(1:4)
+                !- has to be done here after the connectivity has been done
+                !- to get the elem nodes coordinates
+                do i=1, 4
+                    xs(i)=NodesCoordx(ElemConnect(i,ElemIdtemp))+NodesDispl(DofIds(1,ElemConnect(i,ElemIdtemp)))
+                    ys(i)=NodesCoordy(ElemConnect(i,ElemIdtemp))+NodesDispl(DofIds(2,ElemConnect(i,ElemIdtemp)))
+                enddo
+                !-- calc the new elem area ratio, arrange the new elem connectivity
+                CALL ElemCrackingClassOverlapping(j)%EC_CalcCrackedElemAreaRatio (xs,ys,4,ElemConnect(:,ElemIdtemp))
+                pEC_ElemData(ElemIdsNewOverlapping(j))%rAreaRatio=ElemCrackingClassOverlapping(j)%rAreaRatio
                 !-- set the related elem to main
                 pEC_ElemData(ElemIdsNewOverlapping(j))%iElemOverlapping=ElemIdsNewMain(j)
+                !====================================================================
+                !====================================================================
+                !================ here where to update the EC_ElemCountCurrent
+                !====================================================================
                 !-- increment EC_ElemCountCurrent
                 EC_ElemCountCurrent=ElemIdsNewOverlapping(j)
                 !-- track the split elem in the file iFU_frac_crackOverlapInfo
@@ -407,12 +441,6 @@ module EC_Objects_manager
 !!!!                                                    pEC_ElemData(e1)%iElemEdgeNeighbors
             endif
         enddo
-        if(bEdgeCracked ==1) then
-            !- then add the new nodes --- EC_NodeCountCurrent already incremented
-            CALL EC_AddOneNode(edgeNodeOld1,edgeNodeNew1,NodesCoordx, NodesCoordy, DofIds, NodesDispl,usi  , freep , ym)
-            !-- --- EC_NodeCountCurrent already incremented
-            CALL EC_AddOneNode(edgeNodeOld2,edgeNodeNew2,NodesCoordx, NodesCoordy, DofIds, NodesDispl,usi  , freep , ym)
-        endif
 
     end subroutine EC_SplitEdge
 !##############################################################################
@@ -495,7 +523,12 @@ module EC_Objects_manager
 
         !- copy nodes data to the new nodes
         CALL EC_CopyNodesData(NodeFrom,NodeTo,NodesCoordx, NodesCoordy, DofIds,NodesDispl, usi  , freep , ym)
-        !---------------------------1- add Dof
+    !!!================================================================
+    !!!================================================================
+    !!!========= update this global count b/c it's used in the rest of the code
+    !!!================================================================
+    !!!================================================================
+    !---------------------------1- add Dof
         DofIds(1,NodeTo)=neq+1
         DofIds(2,NodeTo)=neq+2
 
@@ -588,8 +621,8 @@ module EC_Objects_manager
     nnn2(ElemTo,1)=nnn2(ElemFrom,1)
     !!--- lumped mass matrix
     do j=1,4
-        ym(j,ElemTo)=ym(j,ElemFrom)*ElemCrackingClassMain%EC_GetElemAreaRatio()
-        ym(j,ElemFrom)=ym(j,ElemFrom)*ElemCrackingClassOverlapping%EC_GetElemAreaRatio()
+        ym(j,ElemTo)=ym(j,ElemFrom)*ElemCrackingClassMain%EC_GetMyAreaRatio()
+        ym(j,ElemFrom)=ym(j,ElemFrom)*ElemCrackingClassOverlapping%EC_GetMyAreaRatio()
     end do
 
     fhg(ElemTo,1:8)=fhg(ElemFrom,1:8)
@@ -800,6 +833,21 @@ module EC_Objects_manager
 !!!---------------------------------------------------------------------- debugging
 
     end subroutine EC_CalcElemNeighborsInList
+!##############################################################################
+    integer function EC_GetElemUnloadingCount (ElemId)
+        integer, intent(in) :: ElemId
+        EC_GetElemUnloadingCount=pEC_ElemData(ElemId)%iElemStatus
+    end function EC_GetElemUnloadingCount
+!##############################################################################
+    integer function EC_GetElemSplit (ElemId)
+        integer, intent(in) :: ElemId
+        EC_GetElemSplit=pEC_ElemData(ElemId)%iElemSplit
+    end function EC_GetElemSplit
+!##############################################################################
+    real*8 function EC_GetElemAreaRatio (ElemId)
+        integer, intent(in) :: ElemId
+        EC_GetElemAreaRatio=pEC_ElemData(ElemId)%rAreaRatio
+    end function EC_GetElemAreaRatio
 !##############################################################################
 
 end module EC_Objects_manager

@@ -130,7 +130,7 @@
 !!!ccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 		 
-		 write(993,*) ElemFractCode(ink)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!		 write(993,*) ElemFractCode(ink)
 !!!!!		 write(938,*) planeflag(ink)
 !!!!!!!!!!!!!!!!!!		 write(2101,*) hycon(ink,1)         !hydrogen_con.out
 !!!!!!!!!!!c        print out pressure gradient

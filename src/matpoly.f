@@ -51,6 +51,7 @@
 !+++++++++++++++++++++++++++++++++
       use mod_parameters
       use CN_Objects_manager
+      use EC_Objects_manager
       
       integer			 :: elem_mat_no, ss_m,nssm
       integer			 :: pd_counter(nume), ipr
@@ -733,7 +734,7 @@
 	   
 	     gbtr_tot=0.0
 !c         call dsolve(dt,timexx,nssm)   ! line for updating using rk5, implicit algorithm
-         if (ElemFractCode(ink)==0) then
+         if (EC_GetElemSplit(ink)==0) then
              call dsolve(dt,timexx,nssm)   ! line for updating using rk5, implicit algorithm
 		 end if
 		 do j = 1, nssm
@@ -749,7 +750,7 @@
      >         (abs(tau(j)/taur(j))**(xmhigh(j)-1.))*(tau(j)/taur(j))*								!This Line: strain rate(alpha), Zikry & Nasser, 1990 pg 217
      >         exp(-gbco*0.5*gsh**2*b_v**3*ugb(j)/(1.38E-23*temp))
 	 
-	         if (ElemFractCode(ink) == 0) then			 
+	         if (EC_GetElemSplit(ink) == 0) then			 
 !!			     if (gbflag(ink,1) .ne. 0) then
 !!			         if (slipgb(j) .ne. 0) then
 !!	                   den_gbtot = den_gbtot + dt
@@ -796,7 +797,7 @@
 		 spin_e21= spin_21 + spin_p12                  !Elastic Spin
 		 spin_e12= -spin_e21       
 		           
-		 if (ElemFractCode(ink)==0) then
+		 if (EC_GetElemSplit(ink)==0) then
 !!!!!!!!!!$OMP PARALLEL DO       
 		     do j = 1 , nssm
 		         n_dot1=spin_e21*slip_n(j,2)		           !rate of change of slip normals				!These 4 Lines: n_dot and s_dot, Zikry & Nasser, 1990 pg 217
@@ -834,7 +835,7 @@
          ssdev2 = sdev2+twomu*dt*(Dij_dev(2)-D22_p) + o22      !22 deviatoric cauchy stress
          ssdev3 = sdev3+twomu*dt*(Dij_dev(3)-D33_p)            !33 deviatoric cauchy stress
 
-         if (ElemFractCode(ink)==0) then
+         if (EC_GetElemSplit(ink)==0) then
 		   DijSij = ssdev1*D11_p + ssdev2*D22_p     +		       !This Line: StressPower, Zikry: 1992-1993, pg 275
      >              2.00*ssdev4*D12_p	
      >              +ssdev3*D33_p                       !REMOVED ABS Values WML 9/19/08
@@ -875,7 +876,9 @@
            sign2(i) = ssdev2 + press 
            sign3(i) = ssdev3 + press
            sign4(i) = ssdev4
-		 else if(ElemFractCode(ink)==1) then
+!!!!!!!!!!!!!!!!!!!!!		 else if(ElemFractCode(ink)==1) then
+		 else if(EC_GetElemSplit(ink)>0) then
+             
 		   if(ecount(ink)==0) then
 		       qp=plastic_work
 			   qe=elas_energy
@@ -905,7 +908,9 @@
            sign2(i) = sig(2,i)*doptimizedConst
            sign3(i) = sig(3,i)*doptimizedConst
            sign4(i) = sig(4,i)*doptimizedConst
-         else if(ElemFractCode(ink)==2) then
+!!!!!!!!!!!!!!!!!!!!!!!!!!!         else if(ElemFractCode(ink)==2) then
+         else if(EC_GetElemSplit(ink)>0) then
+             
 		   sign1(i) = 0.0
            sign2(i) = 0.0
            sign3(i) = 0.0
@@ -928,7 +933,7 @@
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !c                Update Temperature and Plastic Work
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-		 if (ElemFractCode(ink)==0) then
+		 if (EC_GetElemSplit(ink)==0) then
 !!!!		         if (thermalflag==0 .or. 
 !!!!     >			     (thermalflag==1 .and. TDflag==1)) then     !if diffusion
 		         if (thermalflag==0 .or. thermalflag==2) then !if no thermal or diffusion only
@@ -964,7 +969,7 @@
 		 nnne = ink													!This Line: Pass apposite element number
   
 
-		 if (ElemFractCode(ink)==0) then
+		 if (EC_GetElemSplit(ink)==0) then
 		    call dsolve1 (dt,timexx,nmo+nim)									!This Line: Call Rho_mobile & Rho_immobile Updating subroutine
 		
 !!!!!!$OMP PARALLEL DO       
@@ -1034,7 +1039,7 @@
 		 his(362,ink,nintg) = den_gbtot
 		 his(396,ink,nintg) = gbtr_tot
 		 
-		 if (ElemFractCode(ink)==0) then
+		 if (EC_GetElemSplit(ink)==0) then
 		     angle_Psi              = angle_Psi + spin_e21*dt										
 		     his(1,ink,nintg) = angle_Psi*(180.0/pi)								!This Line: Angle through which Slip Planes & Directions have rotated,
 		     dgamma=0.666666667*dt*sqrt(D11_p**2+D22_p**2+2*D12_p**2)
