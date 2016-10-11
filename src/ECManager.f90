@@ -192,6 +192,9 @@ module EC_Objects_manager
         INTEGER ElemConnect(4,*),ElemMaterial(*),DofIds(2,*)
         INTEGER mSolStepCount
 
+        common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
+        INTEGER nprnt,mprint,itmpop,numelt,jprint,idump,locstr
+        
         common/bk17/dn1,dn2,nwebuf,ntime,numnp,neq,ibar,mthsol
         integer nwebuf,ntime,numnp,neq,ibar,mthsol
         real dn1,dn2
@@ -277,6 +280,12 @@ module EC_Objects_manager
                 write(iFU_frac_crackOverlapInfo,*) ys
                 write(iFU_frac_crackOverlapInfo,*) '-------------------'
             enddo
+        !!!================================================================
+        !!!================================================================
+        !!!========= update this global count b/c it's used in the rest of the code
+        !!!================================================================
+        !!!================================================================
+            numelt=EC_ElemCountCurrent
         endif
 
 

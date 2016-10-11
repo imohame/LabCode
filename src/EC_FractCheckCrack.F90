@@ -115,7 +115,7 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
     do i=1, EC_ElemCountInput
       !--- check if the elem is failed and decaying, then go to next elem
       if( pEC_ElemData(i)%CheckDecaying(i,SolStepCount)==1) then
-        continue
+          cycle !- goto next i
       endif
       !---- remeber to add check for zone limit
       !----------------
@@ -171,11 +171,11 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
         endif
         endif
     enddo !--do i=1, EC_ElemCountInput
-!!!================================================================
-!!!================================================================
-!!!========= update this global count b/c it's used in the rest of the code
-!!!================================================================
-!!!================================================================
-    numelt=EC_ElemCountCurrent
+!!!!!!!!================================================================
+!!!!!!!!================================================================
+!!!!!!!!========= update this global count b/c it's used in the rest of the code
+!!!!!!!!================================================================
+!!!!!!!!================================================================
+!!!!!    numelt=EC_ElemCountCurrent
 
 END subroutine fractCheckCracking

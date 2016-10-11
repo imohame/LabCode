@@ -311,17 +311,23 @@
         elpt1=time2-time1
         write(iFU_times_out,*)'---- time of conduction/diffusion code=',elpt1
 !    endif
+        fhg(1:numelt, 1:8) = fhghis(1:numelt, 1:8)
+        hgsstore(1:numelt) = hgshis(1:numelt)
+        hgenerstore(1:numelt) = hgenerhis(1:numelt)
+        totenerstore(1:numelt) = totenerhis(1:numelt)
+        hgstress1store(1:numelt) = hgstress1his(1:numelt)
+        hgstress2store(1:numelt) = hgstress2his(1:numelt)
 
-    do i = 1, numelt
-        do j = 1, 8
-            fhg(i, j) = fhghis(i, j)
-        enddo
-        hgsstore(i) = hgshis(i)
-        hgenerstore(i) = hgenerhis(i)
-        totenerstore(i) = totenerhis(i)
-        hgstress1store(i) = hgstress1his(i)
-        hgstress2store(i) = hgstress2his(i)
-    enddo
+!!    do i = 1, numelt
+!!        do j = 1, 8
+!!            fhg(i, j) = fhghis(i, j)
+!!        enddo
+!!        hgsstore(i) = hgshis(i)
+!!        hgenerstore(i) = hgenerhis(i)
+!!        totenerstore(i) = totenerhis(i)
+!!        hgstress1store(i) = hgstress1his(i)
+!!        hgstress2store(i) = hgstress2his(i)
+!!    enddo
 
     nn=nn+1
 

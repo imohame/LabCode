@@ -178,13 +178,13 @@ subroutine FractReadApplyPreCrackCleavagePlanes(NodesCoordx,NodesCoordy,ElemConn
     mEC_bCracking=0
     write(*, *) 'beginning of CrackProp ... reading cracks.in'
 
-    open(60, file = 'cracks.in', status = 'old',IOSTAT=IERR, ERR=90)
+    open(60, file = 'frac_cracks.in', status = 'old',IOSTAT=IERR, ERR=90)
     read (60, *) mEC_bCracking !-- 1=allow fracture
     if(mEC_bCracking==0) then
       close(60)
       return
     endif
-    open(6011, file = 'cracks2.out', status = 'unknown')
+    open(6011, file = 'frac_cracks2.out', status = 'unknown')
     ierr=setvbuf3f_local(6011,1,100)
 
     write(6011, *) mEC_bCracking !-- 1=allow fracture
@@ -247,6 +247,7 @@ subroutine FractReadApplyPreCrackCleavagePlanes(NodesCoordx,NodesCoordy,ElemConn
             x(j)=NodesCoordx(ElemConnect(j,elemId))
             y(j)=NodesCoordy(ElemConnect(j,elemId))
         enddo
+        write(iFU_frac_crackFailedInfo,*) elemId,0,vn,'---pre-cracked'
         call EC_MarkElemForCrack(elemId,Ptc,x,y,0)
         !--- for debugging
         ! call pEC_ElemData(elemId)%PrintTest(elemId)
@@ -261,12 +262,12 @@ subroutine FractReadApplyPreCrackCleavagePlanes(NodesCoordx,NodesCoordy,ElemConn
 
     close(60)
     close(6011)
-!!!================================================================
-!!!================================================================
-!!!========= update this global count b/c it's used in the rest of the code
-!!!================================================================
-!!!================================================================
-    numelt=EC_ElemCountCurrent
+!!!!!!!!!!!================================================================
+!!!!!!!!!!!================================================================
+!!!!!!!!!!!========= update this global count b/c it's used in the rest of the code
+!!!!!!!!!!!================================================================
+!!!!!!!!!!!================================================================
+!!!!!!!!    numelt=EC_ElemCountCurrent
     
 !!    !---------------- debugging
 !!    do i=7100,7106

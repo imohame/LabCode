@@ -180,6 +180,7 @@
       real DijSij,DijSij_e,temp
       integer ink
       dimension den_im2SQRT(87)
+      integer mElemUnloadingCount
 !=======================================================================
 ! timep      : point in time
 ! dt		 : time step size
@@ -835,8 +836,8 @@
 	     ssdev1 = sdev1+twomu*dt*(Dij_dev(1)-D11_p) + o11      !11 deviatoric cauchy stress
          ssdev2 = sdev2+twomu*dt*(Dij_dev(2)-D22_p) + o22      !22 deviatoric cauchy stress
          ssdev3 = sdev3+twomu*dt*(Dij_dev(3)-D33_p)            !33 deviatoric cauchy stress
-
-         if (EC_GetElemSplit(ink)==0) then
+         mElemUnloadingCount=EC_GetElemUnloadingCount(ink)
+         if (mElemUnloadingCount==0) then
 		   DijSij = ssdev1*D11_p + ssdev2*D22_p     +		       !This Line: StressPower, Zikry: 1992-1993, pg 275
      >              2.00*ssdev4*D12_p	
      >              +ssdev3*D33_p                       !REMOVED ABS Values WML 9/19/08
@@ -878,7 +879,8 @@
            sign3(i) = ssdev3 + press
            sign4(i) = ssdev4
 !!!!!!!!!!!!!!!!!!!!!		 else if(ElemFractCode(ink)==1) then
-		 else if(EC_GetElemSplit(ink)>0) then
+		 else if((mElemUnloadingCount>0).and. 
+     >        (mElemUnloadingCount <= EC_DecayCount)) then
              
 		   if(ecount(ink)==0) then
 		       qp=plastic_work
@@ -904,13 +906,15 @@
 !c			   end if
 !c		   end if
 !c		   write(*,*) ink, qe, qp, qe/qp, exp(-qe/(qp*100.0))
-           doptimizedConst=(inie(ink)**(ElemDecayCount(ink)**f_decay))
+!!!!!!!!!!!!!!           doptimizedConst=(inie(ink)**(ElemDecayCount(ink)**f_decay))
+           doptimizedConst=(inie(ink)**(mElemUnloadingCount**f_decay))
 		   sign1(i) = sig(1,i)*doptimizedConst
            sign2(i) = sig(2,i)*doptimizedConst
            sign3(i) = sig(3,i)*doptimizedConst
            sign4(i) = sig(4,i)*doptimizedConst
 !!!!!!!!!!!!!!!!!!!!!!!!!!!         else if(ElemFractCode(ink)==2) then
-         else if(EC_GetElemSplit(ink)>0) then
+!!!!!!!!!!         else if(EC_GetElemSplit(ink)>0) then
+         else if(mElemUnloadingCount > EC_DecayCount) then
              
 		   sign1(i) = 0.0
            sign2(i) = 0.0

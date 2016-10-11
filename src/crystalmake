@@ -30,8 +30,14 @@ crystal2d:
 	$(FC) $(FFLAGS) -c CNManager.f90
 	$(FC) $(FFLAGS) -c EC_BaseClass.f90
 	$(FC) $(FFLAGS) -c ECManager.f90
- 	$(FC) $(FFLAGS) -c *.f90
- 	$(FC) $(FFLAGS) -c *.F90
+	
+#   	$(FC) $(FFLAGS) -c EC_FractCheckCrack.f90
+#   	$(FC) $(FFLAGS) -c EC_OutputMesh.f90
+#  	$(FC) $(FFLAGS) -c *.f90
+	
+###  	$(FC) $(FFLAGS) -c EC_Fractfuncs.f90
+### 	$(FC) $(FFLAGS) -c *.F90
+	$(FC) $(FFLAGS) -c *.f90
 	$(FC) $(FFLAGS) -c *.f
 	$(FC) $(FFLAGS) -o crystal2d  *.o
 	
