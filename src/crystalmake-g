@@ -1,0 +1,15 @@
+# run me like this: make -f makefilename,,, add pgi64_hydra ....  -mp  pgf90
+# flags -Mextend=132   -Mextend  -mcmodel=medium
+#source /usr/local/apps/openmpi/ompi184_pgi151.csh
+FFLAGS =  -mcmodel=medium
+FC = gfortran
+crystal2d:
+	$(FC) $(FFLAGS) -c mod_blocks.f90
+	$(FC) $(FFLAGS) -c CN_BaseClass.f90
+	$(FC) $(FFLAGS) -c CN_Diffusion.f90
+	$(FC) $(FFLAGS) -c CN_Thermal.f90
+	$(FC) $(FFLAGS) -c CNManager.f90
+	$(FC) $(FFLAGS) -c *.f90
+	$(FC) $(FFLAGS) -c *.f
+	$(FC) $(FFLAGS) -o crystal2d  *.o
+	

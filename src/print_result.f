@@ -1,6 +1,7 @@
       subroutine print_result(ink,nintg,slip_n,slip_s,tauy)
       
       use CN_Objects_manager
+      use EC_Objects_manager
       
 !!      parameter(nume = 40000, nss = 24)
       common/hgenergy/hgenerstore(40000),hgenerhis(40000),
@@ -130,7 +131,7 @@
 !!!ccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 		 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!		 write(993,*) ElemFractCode(ink)
+		 write(993,*) EC_GetElemSplit(ink)
 !!!!!		 write(938,*) planeflag(ink)
 !!!!!!!!!!!!!!!!!!		 write(2101,*) hycon(ink,1)         !hydrogen_con.out
 !!!!!!!!!!!c        print out pressure gradient

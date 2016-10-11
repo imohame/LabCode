@@ -613,6 +613,8 @@ module EC_Objects_manager
     real freep(5,*),ym(4,*)
     INTEGER ElemMaterial(*)
     integer j
+    real*8 :: RetVal8(4)
+    real*4 :: RetVal4(4)
 
     freep(1:5,ElemTo)=freep(1:5,ElemFrom)
 
@@ -654,6 +656,13 @@ module EC_Objects_manager
 
     CALL CNmanager_CopyElemnt(ElemFrom,ElemTo)
     CALL pEC_ElemData(ElemFrom)%EC_CopyElem (pEC_ElemData(ElemTo))
+    
+    !--- copy stress
+    RetVal4=0
+    RetVal8=0
+    CALL CNmanager_Get_sigalt(ElemFrom,RetVal8)
+    RetVal4=RetVal8
+    CALL CNmanager_Set_sigalt(ElemTo,RetVal4)
 
     end subroutine EC_CopyElemsData
 !##############################################################################

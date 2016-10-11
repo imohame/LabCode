@@ -1,0 +1,37 @@
+# run me like this: make -f makefilename,,, add pgi64_hydra ....  -mp  pgf90 .....-tp=nehalem  ...-llapack
+# flags -Mextend=132   -Mextend  -mcmodel=medium -L/usr/lib64  -Kieee
+#source /usr/local/apps/openmpi/ompi184_pgi151.csh
+#source /usr/local/apps/openmpi/pgi151_ompi.csh
+
+##### portland fortran
+# FFLAGS = -tp=nehalem -mp=nonuma
+##	$(FC) $(FFLAGS) -Mfree -c *.f90
+ FFLAGS = -fastsse -Msave  -Munroll -mcmodel=medium  -tp=nehalem 
+ FC = pgf95
+
+######------------------ gfortran
+# FFLAGS = -O3  -mcmodel=medium
+# FC = gfortran
+
+# source /usr/local/apps/openmpi/intel2013_ompi.csh
+# http://wiki.seas.harvard.edu/geos-chem/index.php/Intel_Fortran_Compiler
+# -O2 Enables optimizations for speed
+# -O3 Enables -O2 optimizations plus more aggressive optimizations
+
+##### intel fortran
+# FFLAGS = -O2 -mcmodel=medium
+# FC = ifort
+  
+crystal2d:
+	$(FC) $(FFLAGS) -c mod_blocks.f90
+	$(FC) $(FFLAGS) -c CN_BaseClass.f90
+	$(FC) $(FFLAGS) -c CN_Diffusion.f90
+	$(FC) $(FFLAGS) -c CN_Thermal.f90
+	$(FC) $(FFLAGS) -c CNManager.f90
+	$(FC) $(FFLAGS) -c EC_BaseClass.f90
+	$(FC) $(FFLAGS) -c ECManager.f90
+ 	$(FC) $(FFLAGS) -c *.f90
+ 	$(FC) $(FFLAGS) -c *.F90
+	$(FC) $(FFLAGS) -c *.f
+	$(FC) $(FFLAGS) -o crystal2d  *.o
+	

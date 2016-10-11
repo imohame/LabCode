@@ -145,21 +145,21 @@
 	  common /test11/ ink
 	  common /overlapping/ intersec(4, nume), area_coeff(nume),
      > update_flag
-	  common /stroverlap/ sflg
+!!	  common /stroverlap/ sflg
 	  common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
-	  common /crackopen/ ElemDecayed(nume), overlapele(2,nume)
+!!!	  common /crackopen/ ElemDecayed(nume), overlapele(2,nume)
 	  common /sigfrac/ sigmacrit0, sigmacrit1, sigmacrit2, 
      > sigmacrit3, DecayCount, f_decay, penalty,fractFlag
-	  common /ovsum/ ovs
+!!	  common /ovsum/ ovs
 	  common /strvect/ stra(nelemg,4)
 	  common /elas_energ/ inie(nume), ecount(nume)
 	  common /energbox/ gbco
 !!!!!!	  common/couplinganalysis/ TDflag
 !!c	  common /gbtranr/ gbtr(14)
       real :: intener, ystart1(67), yprime1(67),  cleave        !!!!!!sigalt,
-	  integer :: ElemFractCode, ElemDecayCount,
-     >  ElemDecayed,overlapele,ele,oele
-	  integer ovs, ecount, DecayCount, fractFlag !!!!TDflag,
+	  integer :: ElemFractCode, ElemDecayCount
+      integer ElemDecayed,overlapele,ele,oele
+	  integer ecount, DecayCount, fractFlag !!!!TDflag,ovs, 
 	  real  tempgb,ngb,taurgb,taugb, gdotgb, den_im2gb !gbvec,
 	  real den_imgb, den_mgb, slip_ngb, slip_sgb, thermal_factorgb
 	  real bres, cb, sb, cnu, snu, psgb, ugb1, ugb, beff, magvec1
@@ -203,21 +203,22 @@
           end do
 	  end if
 !      return
-!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!c
-!c            update stress for new added element
-!c
-!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc	
-      do oele=1,ovs
-	      ele=overlapele(1,oele)
-          if (ElemDecayed(ele)==1 .and. sflg==0) then
-		      do i=1,4
-	              sig(i,overlapele(2,oele))=sig(i,overlapele(1,oele))
-	          end do
-		  end if
-	  end do
-	  sflg=sflg+1
-!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      !-- no need for the following, it's done in copy elem
+!!!!!!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!!!!!!c
+!!!!!!c            update stress for new added element
+!!!!!!c
+!!!!!!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc	
+!!!!!      do oele=1,ovs
+!!!!!	      ele=overlapele(1,oele)
+!!!!!          if (ElemDecayed(ele)==1 .and. sflg==0) then
+!!!!!		      do i=1,4
+!!!!!	              sig(i,overlapele(2,oele))=sig(i,overlapele(1,oele))
+!!!!!	          end do
+!!!!!		  end if
+!!!!!	  end do
+!!!!!	  sflg=sflg+1
+!!!!!!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 	 !-------------------------------------------------
 	 !  Define The Intervals at which Output is Printed

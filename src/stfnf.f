@@ -1025,7 +1025,7 @@ c     Is this incremental??
 		if(EC_GetElemSplit(ink)>0) then !-- already decayed
           Aratio=EC_GetElemAreaRatio (ink)
 !!!        if((ink==200).or.(ink==401))then
-            write(*,*)ink,Aratio
+!!!!            write(*,*)ink,Aratio
 !!        endif
 		  r1(i)=Aratio*r1(i)
 		  r2(i)=Aratio*r2(i)

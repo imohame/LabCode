@@ -1,0 +1,9 @@
+
+FFLAGS = -g -mcmodel=medium
+FC = pgf90
+crystal2d:
+	$(FC) $(FFLAGS) -c mod*.f90
+	$(FC) $(FFLAGS) -c *.f90
+	$(FC) $(FFLAGS) -c *.f
+	$(FC) $(FFLAGS) -o crystal2d  *.o
+	
