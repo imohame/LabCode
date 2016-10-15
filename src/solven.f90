@@ -117,7 +117,8 @@
       ovs=0
 !!!!	  ncrack=0
 !!!!	  excf=1
-	  update_flag=0
+!!!!!	  update_flag=0
+      EC_UpdateMesh=0 !-to update some parameters and redo the step again  
 
       !-- this for writing the forplot disp/stress every 100 step
       iaa = 0
@@ -190,7 +191,8 @@
 !!!!!!        write(*,*)a(k17:k17+neq)
 !!!!!!!        stop
 
-      if(update_flag==0) then
+      if(EC_UpdateMesh==0) then !-to update some parameters and redo the step again  
+!!!!      if(update_flag==0) then
 	      call total_Qe(a(k03),a(k04),a(k02))   ! calculate total elastic energy
 	  end if
 
@@ -267,9 +269,10 @@
 
 
 
-	  if (update_flag==1) then
-		  go to 80
-	  end if
+        if(EC_UpdateMesh==1) then !-to update some parameters and redo the step again  
+!!!!!	  if (update_flag==1) then
+            go to 80
+        end if
 
 	  call GNDloop(a(k03),a(k04),a(k02),a(k57),a(k18),numelt,numnp)
       call CPU_TIME(time2)

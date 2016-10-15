@@ -2,7 +2,7 @@
 module CN_Consts
     use mod_parameters
     implicit none
-    public
+    public 
     integer:: ElemCountAct,NodeCountAct
     integer:: NodCountB,ElemCountB,iBCcount
     real*8 :: pid=3.14159265358979  !4.d0*atan(1.d0) ! a circle constant

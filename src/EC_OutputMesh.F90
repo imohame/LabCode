@@ -5,18 +5,21 @@ module EC_OutputData
     save
 end module EC_OutputData
 
-subroutine EC_WriteConnectivity(ElemConnect,NodesCoordx, NodesCoordy,NodesDispl,DofIds,ElemMaterial)
-    use EC_Objects_manager
+subroutine EC_WriteConnectivity(ElemConnect,NodesCoordx, NodesCoordy,NodesDispl,DofIds,ElemMaterial, &
+                                udt,udtt,temp)
+    use EC_Objects_manager   
     use EC_Consts
     use EC_OutputData
 
     implicit none
-    INTEGER,    intent(in) :: DofIds(2,*),ElemConnect(4,*),ElemMaterial(*)
-    real,     intent(in) :: NodesCoordx(*), NodesCoordy(*),NodesDispl(*)
+    INTEGER    :: DofIds(2,*),ElemConnect(4,*),ElemMaterial(*)
+    real       :: NodesCoordx(*), NodesCoordy(*),NodesDispl(*)
+    real       :: udt(*),udtt(*),temp(*)
 
     INTEGER :: i,j,k,node1,node2,mphantomNode,nodeOut
     INTEGER mElemEdgeNeighborsList(6),ElemId2,ElemEdgeId2
     real*8 ::DistRatio,rPtc(2)
+
 
     iNodeCountCurrentNew=EC_NodeCountCurrent
     iElemCountCurrentNew=EC_ElemCountCurrent
@@ -26,9 +29,13 @@ subroutine EC_WriteConnectivity(ElemConnect,NodesCoordx, NodesCoordy,NodesDispl,
     allocate(iElemConnectivityNew(4,int(EC_ElemCountCurrent*1.2)+100))
     !- it's used to mark the node if it's already adjusted for the actual coordinates or not
     bNodeFlag=0 !- 0=not yet ,  1= adjusted / calcualted
-    rNodesCoords(1,1:EC_NodeCountCurrent)=NodesCoordx(1:EC_NodeCountCurrent)
-    rNodesCoords(2,1:EC_NodeCountCurrent)=NodesCoordy(1:EC_NodeCountCurrent)
+!!!!!!!!    rNodesCoords(1,1:EC_NodeCountCurrent)=NodesCoordx(1:EC_NodeCountCurrent)
+!!!!!!!!    rNodesCoords(2,1:EC_NodeCountCurrent)=NodesCoordy(1:EC_NodeCountCurrent)
+
     iElemConnectivityNew(1:4,1:EC_ElemCountCurrent)=ElemConnect(1:4,1:EC_ElemCountCurrent)
+    call hspwr (NodesDispl,udt,udtt,DofIds,temp,NodesCoordx, NodesCoordy)
+!!!!     hspwr (a(k18),a(k55),a(k56),a(k57),a(k81+1),a(k03),a(k04))
+      !--          u  , udt  ,udtt  ,dof   ,temp     ,x,y
 
 !-- loop over all the elems to change the nodes coordinates if the nodes are phantom
     do i=1, EC_ElemCountCurrent

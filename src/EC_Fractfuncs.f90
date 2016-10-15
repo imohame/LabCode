@@ -257,7 +257,7 @@ subroutine FractReadApplyPreCrackCleavagePlanes(NodesCoordx,NodesCoordy,ElemConn
 
             CALL EC_SplitElem(ElemIdsPreCracked(i),NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, ElemMaterial, &
                             usi  , freep , ym,1)
-            pEC_ElemData(ElemIdsPreCracked(i))%iElemSplit =1             
+            pEC_ElemData(ElemIdsPreCracked(i))%iElemSplit =1
     end do
 
     close(60)
@@ -268,7 +268,7 @@ subroutine FractReadApplyPreCrackCleavagePlanes(NodesCoordx,NodesCoordy,ElemConn
 !!!!!!!!!!!================================================================
 !!!!!!!!!!!================================================================
 !!!!!!!!    numelt=EC_ElemCountCurrent
-    
+
 !!    !---------------- debugging
 !!    do i=7100,7106
 !!        close(i)

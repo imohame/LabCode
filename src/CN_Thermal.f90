@@ -2,7 +2,7 @@
 ! ###########################################################
 ! ###########################################################
 module CN_Thermal
-    use CN_BaseClass
+    use CN_BaseClass 
     implicit none
 !!!        ---------------------------------------
     type,extends( CN_Base):: ThermalClass

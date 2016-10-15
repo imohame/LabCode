@@ -3,7 +3,7 @@
 !!    use CN_Objects_manager
 !!    use mod_file_units
 !!
-!!    use mod_parameters
+!!    use mod_parameters 
 !!!    use EC_ElemCrackingBaseClass
 !!    use EC_Objects_manager
 !!    implicit none
@@ -86,10 +86,16 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
 
     use mod_parameters
     use EC_Objects_manager
-    
+
     implicit none
     common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
     INTEGER nprnt,mprint,itmpop,numelt,jprint,idump,locstr
+
+    common/bk02/ioofc,iphase,imass,lpar(9)
+    integer ioofc,iphase,imass,lpar
+
+    common/bk32/nsref,nequit,time,timep,lprint,nprint
+    integer nsref,nequit,time,timep,lprint,nprint
 
     real NodesCoordx(*), NodesCoordy(*),NodesDispl(*)
     real usi(*),freep(5,*), ym(4,*)
@@ -113,33 +119,33 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
 
 !--- this part checks for failed element and start unloading them
     do i=1, EC_ElemCountInput
-      !--- check if the elem is failed and decaying, then go to next elem
-      if( pEC_ElemData(i)%CheckDecaying(i,SolStepCount)==1) then
-          cycle !- goto next i
-      endif
-      !---- remeber to add check for zone limit
-      !----------------
-      !----------------
+        !--- check if the elem is failed and decaying, then go to next elem
+        if( pEC_ElemData(i)%CheckDecaying(i,SolStepCount)==1) then
+            cycle !- goto next i
+        endif
+        !---- remeber to add check for zone limit
+        !----------------
+        !----------------
 
-      !-- get the stress at the current elem
-      CALL CNmanager_Get_sigalt(i,ElemStress)
-      !- get the critical stress at the current elem
-      ElemCriticalStress100=sigfrac0(i)		! {100} planes
-      !-- get the cleavage planes direction from abc
-      do j = 1, 3
-        ElemCleavagePlanes(1,j)=abc(362+j,i,1)
-        ElemCleavagePlanes(2,j)=abc(365+j,i,1)
-        ElemCleavagePlanes(3,j)=abc(368+j,i,1)
-      enddo
-      !-- calc. maximum normal component of the traction on cleavage planes and corresponding normal vector
-      call pEC_ElemData(i)%CalcElemMaxStress(ElemCleavagePlanes,ElemStress,MaxStress100,iPlaneId)
+        !-- get the stress at the current elem
+        CALL CNmanager_Get_sigalt(i,ElemStress)
+        !- get the critical stress at the current elem
+        ElemCriticalStress100=sigfrac0(i)		! {100} planes
+        !-- get the cleavage planes direction from abc
+        do j = 1, 3
+          ElemCleavagePlanes(1,j)=abc(362+j,i,1)
+          ElemCleavagePlanes(2,j)=abc(365+j,i,1)
+          ElemCleavagePlanes(3,j)=abc(368+j,i,1)
+        enddo
+        !-- calc. maximum normal component of the traction on cleavage planes and corresponding normal vector
+        call pEC_ElemData(i)%CalcElemMaxStress(ElemCleavagePlanes,ElemStress,MaxStress100,iPlaneId)
 
-      !-- estimate failure, change element status flag
-      if((pEC_ElemData(i)%iElemStatus==0) .and. (MaxStress100 > ElemCriticalStress100)) then
-          call pEC_ElemData(i)%SetFailed(1,ElemCleavagePlanes(iPlaneId,1:3))
-          !-- write to crackprog.out
-          write(iFU_frac_crackFailedInfo,*) i,SolStepCount,MaxStress100,ElemCriticalStress100,ElemCleavagePlanes(iPlaneId,1:3)
-      end if
+        !-- estimate failure, change element status flag
+        if((pEC_ElemData(i)%iElemStatus==0) .and. (MaxStress100 > ElemCriticalStress100)) then
+            call pEC_ElemData(i)%SetFailed(1,ElemCleavagePlanes(iPlaneId,1:3))
+            !-- write to crackprog.out
+            write(iFU_frac_crackFailedInfo,*) i,SolStepCount,MaxStress100,ElemCriticalStress100,ElemCleavagePlanes(iPlaneId,1:3)
+        end if
     enddo !--do i=1, EC_ElemCountInput
 
 !-- this part checks for the completely unloaded elems and crack/split them
@@ -171,6 +177,13 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
         endif
         endif
     enddo !--do i=1, EC_ElemCountInput
+    if(EC_UpdateMesh==1) then !-to update some parameters and redo the step again
+        lpar(4)=numelt
+        lpar(2)=lpar(4)
+!!!        nodep(2,1)=numnp
+        lprint=lprint-1
+        nprint=nprint-1
+    endif
 !!!!!!!!================================================================
 !!!!!!!!================================================================
 !!!!!!!!========= update this global count b/c it's used in the rest of the code

@@ -2,7 +2,7 @@
       integer*4 setvbuf3f_local
       integer*4 fileid,size1,size2,ierr
       setvbuf3f_local=0
-      err=setvbuf3f(fileid,size1,size2)
+!      err=setvbuf3f(fileid,size1,size2)
 
       end
 

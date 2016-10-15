@@ -3,7 +3,7 @@
 ! ###########################################################
 module CN_Diffusion
     use CN_BaseClass
-    implicit none
+    implicit none 
 !!!        ---------------------------------------
     type,extends( CN_Base):: DiffusionClass
     end type DiffusionClass

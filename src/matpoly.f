@@ -914,7 +914,8 @@
            sign4(i) = sig(4,i)*doptimizedConst
 !!!!!!!!!!!!!!!!!!!!!!!!!!!         else if(ElemFractCode(ink)==2) then
 !!!!!!!!!!         else if(EC_GetElemSplit(ink)>0) then
-         else if(mElemUnloadingCount > EC_DecayCount) then
+!!         else if(mElemUnloadingCount > EC_DecayCount) then
+		 else if(EC_GetElemSplit(ink)>0) then !-- already decayed
              
 		   sign1(i) = 0.0
            sign2(i) = 0.0

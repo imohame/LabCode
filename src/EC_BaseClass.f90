@@ -34,6 +34,7 @@ module EC_Consts
     real*8  EC_ElemEdgeMin !--- min elem edge
     real*8  EC_ElemEdgeMax !--- max elem edge
     real*8  EC_ElemAverageDia !--- average elem diagonal
+    INTEGER EC_UpdateMesh !--- used to redo the step in case there are added cracked elems
 
     integer EC_PreCrackedElemCount !- number of pre-cracked elems
     integer EC_NodesCountAdded !-- nodes added as overlap nodes
@@ -138,6 +139,7 @@ module EC_Consts
         call ECcalcAverageElemStatistics (ElemConnect,rNodesCoordx,rNodesCoordy)
         EC_ZoneRadius=EC_ZoneFactor*EC_ElemEdgeMin
 
+        EC_UpdateMesh=0
     end subroutine ECinitializeConsts
 !##############################################################################
 !##############################################################################
@@ -459,7 +461,7 @@ module EC_ElemCrackingBaseClass
         !-- to check if the elem is failed and unloading
         !- if elem is unloading then increase the unloading steps
         if((tEC_object%iElemStatus <= EC_DecayCount) .and.  (tEC_object%iElemStatus>0)) then
-          tEC_object%iElemStatus=tEC_object%iElemStatus+1          
+          tEC_object%iElemStatus=tEC_object%iElemStatus+1
           write(iFU_frac_crackUnloading,*) ele,nstep,tEC_object%iElemStatus,EC_DecayCount,tEC_object%iElemSplit
           bDecaying= 1
         elseif( tEC_object%iElemStatus > EC_DecayCount) then !-for elem that unloaded but not split
@@ -546,12 +548,12 @@ module EC_ElemCrackingBaseClass
         ElemNodesCoordx(1:4)=xs(1:4)
         ElemNodesCoordy(1:4)=ys(1:4)
         ElemNodesCoordx(5:6)=rPtc(1,1:2)
-        ElemNodesCoordy(5:6)=rPtc(2,1:2)
+        ElemNodesCoordy(5:6)=rPtc(2,1:2) 
         do i = 1, 4
             xNew(i)=ElemNodesCoordx(nodesOrder(i))
             yNew(i)=ElemNodesCoordy(nodesOrder(i))
         end do
- 
+
         AreaTemp=CalcPolygonArea(xNew,yNew,4)
 !!!        write(*,*)tEC_object%rArea,AreaTemp
         tEC_object%rAreaRatio=AreaTemp/tEC_object%rArea

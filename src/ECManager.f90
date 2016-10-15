@@ -1,7 +1,7 @@
 
 ! ###########################################################
 module EC_Objects_manager
-    use EC_ElemCrackingBaseClass
+    use EC_ElemCrackingBaseClass  
     use EC_Consts
 !    implicit none
     public
@@ -115,7 +115,7 @@ module EC_Objects_manager
     real*8 , intent(in)::rStartPt(2) !- the crack staring point
     real*8 , intent(in)::ElemCoordx(4),ElemCoordy(4)
     integer i,ElemIdNeighbor,EdgeIdNeighbor,bIntersect,edgeNode1,edgeNode2
-    real*8 Vx,Vy,p1(2),p2(2),q1(2),q2(2),rPtc(2),pRatio,qRatio
+    real*8 Vx,Vy,p1(2),p2(2),q1(2),q2(2),rPtc(2),pRatio,qRatio,rStartPtAct(2)
     real*8 ElemAreaTotal
     !-- calculate elem area -- no need for it, it's done initialy
     ! call pEC_ElemData(ElemId)%EC_CalcAreaRatio(ElemCoordx,ElemCoordy,4)
@@ -129,6 +129,7 @@ module EC_Objects_manager
         !-- if the edge is outter, has no neighbors then make it EC_eCrackBothSides
         if( EdgeIdNeighbor == 0) then
             pEC_ElemData(ElemId)%EdgeStatus(i)=EC_eCrackBothSides
+            rStartPtAct=rStartPt
             cycle ! go to next i, edge
         endif
         !-if the neighboring edge is inner cracked then set this edge on both sides as cracked
@@ -144,7 +145,7 @@ module EC_Objects_manager
     Vy=-pEC_ElemData(ElemId)%rCleavagePlane(2)
 
     !- make a crack line given a starting point and a direction
-    CALL GetLineStartEndPts(rStartPt,Vx,Vy,EC_ElemAverageDia*2,p1,p2)
+    CALL GetLineStartEndPts(rStartPtAct,Vx,Vy,EC_ElemAverageDia*2,p1,p2)
     !- intersect the crack line with the edges
     write(iFU_frac_crackEdgeSplit,*) '------------------------------------------',ElemId
     do i=1,4
@@ -194,7 +195,7 @@ module EC_Objects_manager
 
         common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
         INTEGER nprnt,mprint,itmpop,numelt,jprint,idump,locstr
-        
+
         common/bk17/dn1,dn2,nwebuf,ntime,numnp,neq,ibar,mthsol
         integer nwebuf,ntime,numnp,neq,ibar,mthsol
         real dn1,dn2
@@ -226,14 +227,16 @@ module EC_Objects_manager
                 CALL EC_SplitEdge(ElemId,mEdgeCount,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl,  &
                         ElemMaterial,usi  , freep , ym,mSolStepCount)
                 !-- reset the elem
-                pEC_ElemData(ElemId)%iElemSplit=1               
+                pEC_ElemData(ElemId)%iElemSplit=1
                 write(*,*)ElemId,pEC_ElemData(ElemId)%iElemStatus,pEC_ElemData(ElemId)%iElemSplit
                 !-- split only one edge per elem per time step
                 bDone=1
             endif
         enddo
         !--- this is to update the elem neighbors due to the creation of new elem
+        EC_UpdateMesh=0 !-to update some parameters and redo the step again
         if(bDone==1) then
+            EC_UpdateMesh=1 !-to update some parameters and redo the step again
             !-- find this elem neghbors
             !-- add the cuurent elem
             mElemCount1=mElemCount1+1
@@ -388,14 +391,14 @@ module EC_Objects_manager
                 exit
             endif
         enddo
-        
+
         if(bEdgeCracked ==1) then
             !- then add the new nodes --- EC_NodeCountCurrent already incremented
             CALL EC_AddOneNode(edgeNodeOld1,edgeNodeNew1,NodesCoordx, NodesCoordy, DofIds, NodesDispl,usi  , freep , ym)
             !-- --- EC_NodeCountCurrent already incremented
             CALL EC_AddOneNode(edgeNodeOld2,edgeNodeNew2,NodesCoordx, NodesCoordy, DofIds, NodesDispl,usi  , freep , ym)
         endif
-        
+
         do j=1,4    !--each edge can be shared between more than one elem
             if(bElemValidMain(j) ==1) then
                 ElemIdtemp=ElemIdsNewMain(j)
@@ -665,7 +668,7 @@ module EC_Objects_manager
 
     CALL CNmanager_CopyElemnt(ElemFrom,ElemTo)
     CALL pEC_ElemData(ElemFrom)%EC_CopyElem (pEC_ElemData(ElemTo))
-    
+
     !--- copy stress
     RetVal4=0
     RetVal8=0

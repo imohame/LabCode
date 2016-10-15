@@ -16,7 +16,7 @@ module mod_parameters
 !!!!      integer ElemCountB,NodCountB
 
       save
-end module mod_parameters
+end module mod_parameters 
 
 !#####################################################
 module mod_DiffCoeffTable
@@ -124,7 +124,7 @@ module mod_file_units
     integer :: iFU_temperElemID_out         =55555
     integer :: iFU_temperNodeID_out         =66666
     !--- fracture files
-    integer :: iFU_crackinput_out           =7100 
+    integer :: iFU_crackinput_out           =7100
     integer :: iFU_frac_crackUnloading      =7101
     integer :: iFU_frac_crackEdgeSplit      =7102
     integer :: iFU_frac_crackOverlapInfo    =7103
