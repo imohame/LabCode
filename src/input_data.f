@@ -21,7 +21,7 @@
      > np3(87)
 	  common /aij/ aijhcp(24,87), aijfcc(12,18), aijbcc(24,43),
      >          aijhcpt(24,86)
-	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
+!!!	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
 !!!!	  common /gbblock/ gbvec(nume,3), gbflag(nume,3)
 	  common/bk00/
      1 k01,k02,k03,k04,k05,k06,k07,k08,k09,k10,k11,k12,
@@ -46,7 +46,7 @@
 
       character *80 txt
 	  real dum, b_v, inie,  gbco!!, gbvec
-	  integer ElemFractCode, ElemDecayCount !!, gbflag
+!!!	  integer ElemFractCode, ElemDecayCount !!, gbflag
 	  integer var_no(1000), ngbctr, DecayCount ,fractFlag
 	  real slip_s00(4,24,3), slip_n00(4,24,3)
 	  real cleave_n, cleave_n0, sigmacrit0, sigmacrit1, sigmacrit2,
@@ -162,16 +162,16 @@
 
 
 	  do i = 1, nume
-!!!!	  planeflag(i)=0
-!!!!	  planeflag0(i)=0
-	  ElemFractCode(i) = 0
-	  ElemDecayCount(i) = 1
-!!!!	  gbvec(i,1) = 0.0
-!!!!	  gbvec(i,2) = 0.0
-!!!!	  gbvec(i,3) = 0.0
-!!!!	  gbflag(i,1) = 0
-!!!!	  gbflag(i,2) = 0
-!!!!	  gbflag(i,2) = 0
+!!!!!!	  planeflag(i)=0
+!!!!!!	  planeflag0(i)=0
+!!	  ElemFractCode(i) = 0
+!!	  ElemDecayCount(i) = 1
+!!!!!!	  gbvec(i,1) = 0.0
+!!!!!!	  gbvec(i,2) = 0.0
+!!!!!!	  gbvec(i,3) = 0.0
+!!!!!!	  gbflag(i,1) = 0
+!!!!!!	  gbflag(i,2) = 0
+!!!!!!	  gbflag(i,2) = 0
 	  inie(i)=0.0
 	  ecount(i)=0
 	  end do

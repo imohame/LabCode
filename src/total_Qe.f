@@ -1,8 +1,10 @@
       subroutine total_Qe(y, z, ix)
-	  integer, parameter :: nume       = 40000
+      use EC_Objects_manager
+
+!!      integer, parameter :: nume       = 40000
 	  common/bk08/kprint,nstep,ite,ilimit,newstf
 	  common/wblock8/  abc(573,nume,4), his(573,nume,4) 
-	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
+!!!	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
 	  common/meshnum/ numnpo, numelto
 	  common /t_Qe/ totqe, totqe_last, ele_area
 	  
@@ -24,7 +26,8 @@
 	  totqe_last=totqe
 	  totqe=0.0
 	  do ele=1,numelto
-	      if(ElemFractCode(ele)<2) then
+		  if(EC_GetElemSplit(ele)==0) then !-- already decayed
+!!!	      if(ElemFractCode(ele)<2) then
 		      totqe=totqe+abc(3,ele,1)*ele_area
 		  end if
       end do

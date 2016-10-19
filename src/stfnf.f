@@ -125,9 +125,9 @@
      > inertia(nelemg)
       common/intener/intener(nelemg)
       common/hourglassstress/hgstress1c(nelemg),hgstress2c(nelemg)
-	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
-	  common /overlapping/ intersec(4, nume), area_coeff(nume),
-     > update_flag
+!!!	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
+!!!	  common /overlapping/ intersec(4, nume), area_coeff(nume),
+!!!     > update_flag
 	  common /strvect/ stra(nelemg,4)
 !c.....END    
       integer ink,llt,lft,nftm1
@@ -139,7 +139,8 @@
      > cg22c(nelemg),
      1 cg13c(nelemg),cg23c(nelemg),cg14c(nelemg),cg24c(nelemg)
       equivalence (lpar(1),model),(lpar(5),ityp2d)
-      real intener, area_coeff, stra
+!!!      real area_coeff
+      real intener, stra
       real Aratio
 	  integer ElemFractCode, update_flag
 !c.....Parameter for hourglass control type

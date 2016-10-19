@@ -137,14 +137,14 @@
      >                aijhcpt(24,86)
 	  common /intgr/ rgen(24), rrecov(87), rintr(87), rintr_n(87),
      >               rintr_p(87)
-	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
+!!!	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
 !!!	  common /gbblock/ gbvec(nume,3), gbflag(nume,3)
 !!!!!!!!!!!!!!!	  common /propag/ sigalt(4,40000)
       common/effmod/effmod(nelemg)
 	  common /cleavage_plane0/ cleave_n0(3,3)
 	  common /test11/ ink
-	  common /overlapping/ intersec(4, nume), area_coeff(nume),
-     > update_flag
+!!!	  common /overlapping/ intersec(4, nume), area_coeff(nume),
+!!!     > update_flag
 !!	  common /stroverlap/ sflg
 	  common/bk06/nprnt,mprint,itmpop,numelt,jprint,idump,locstr
 !!!	  common /crackopen/ ElemDecayed(nume), overlapele(2,nume)
@@ -157,15 +157,15 @@
 !!!!!!	  common/couplinganalysis/ TDflag
 !!c	  common /gbtranr/ gbtr(14)
       real :: intener, ystart1(67), yprime1(67),  cleave        !!!!!!sigalt,
-	  integer :: ElemFractCode, ElemDecayCount
+!!	  integer :: ElemFractCode, ElemDecayCount
       integer ElemDecayed,overlapele,ele,oele
 	  integer ecount, DecayCount, fractFlag !!!!TDflag,ovs, 
 	  real  tempgb,ngb,taurgb,taugb, gdotgb, den_im2gb !gbvec,
 	  real den_imgb, den_mgb, slip_ngb, slip_sgb, thermal_factorgb
 	  real bres, cb, sb, cnu, snu, psgb, ugb1, ugb, beff, magvec1
 	  real magvec2,bresdot,den_gb(24),den_gbtot,den_ggb(24),dumabc
-	  real intersec, area_coeff, f_decay, stra, qe, qp, 
-     > inie, elas_energy
+	  real stra, qe, qp, inie, elas_energy
+!!!      real intersec, area_coeff, f_decay
 	  real deltarm, deltarim
 	  real gbtr(24), gbtr_tot, gbco, gsh, gsh2, shearslip(24)
 	  real sigmacrit0, sigmacrit1, sigmacrit2, sigmacrit3

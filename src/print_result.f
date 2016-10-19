@@ -22,7 +22,7 @@
      >          aijhcpt(24,86)
 	  common /intgr/ rgen(24), rrecov(87), rintr(87), rintr_n(87),
      >               rintr_p(87)
-	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
+!!	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
       common /energbox/ gbco
 	  common /gbtranr/ gbtr(14)
 !!!!!!	  common/hydrodiffusion/ hycon(nume,1)

@@ -71,11 +71,11 @@
       common/hourglassstress/hgstress1c(nelemg),hgstress2c(nelemg)
       common/hgstress/hgstress1store(40000),hgstress2store(40000),
      >   hgstress1his(40000),hgstress2his(40000)
-	  common /overlapping/ intersec(4, nume), area_coeff(nume), 
-     > update_flag
-	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
-	  common /sigfrac/ sigmacrit0, sigmacrit1, sigmacrit2,sigmacrit3,
-     >   DecayCount, f_decay, penalty,fractFlag
+!!	  common /overlapping/ intersec(4, nume), area_coeff(nume), 
+!!     > update_flag
+!!	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
+!!	  common /sigfrac/ sigmacrit0, sigmacrit1, sigmacrit2,sigmacrit3,
+!!     >   DecayCount, f_decay, penalty,fractFlag
       
       
   
@@ -87,7 +87,8 @@
       logical icolht
 !c	  real rp1(128), rp2(128), rp3(128), rp4(128), rp5(128)
 !c	 1     rp6(128), rp7(128), rp8(128)
-      real rp(8,nelemg), area_coeff
+      real rp(8,nelemg)
+!!!      real  area_coeff
 	  real xo, xp, yo, yp, dx, dy, penalty
 	  integer ElemFractCode, ElemDecayCount, DecayCount, q,fractFlag
 	  real sigmacrit0, sigmacrit1, sigmacrit2, sigmacrit3

@@ -72,7 +72,7 @@
 !!!!!      common/WMLthermal/thermalflag  !!!!,thermalconstraint(nume),Tinit(nume),Rqold(nume)
       common/hgstress/hgstress1store(40000),hgstress2store(40000),hgstress1his(40000),hgstress2his(40000)
 	  common/mbsize/numelt2, numnp2, neq2
-	  common /overlapping/ intersec(4, nume), area_coeff(nume),update_flag
+!!!	  common /overlapping/ intersec(4, nume), area_coeff(nume),update_flag
 	  common /ovsum/ ovs
 !!	  common /excflag/ excf
 !!!!	  common /tipvelocity/ ncrack, nelefail(1000),tipelenum(1000,nume)
@@ -84,7 +84,7 @@
       integer  update_flag, ovs
 !!      integer excf       !!thermalflag,
 !!!!	  integer ncrack, nelefail, tipelenum
-	  real intersec, area_coeff
+!!!	  real intersec, area_coeff
       real timesteps,time0,time1,time2,elpt1,timebase,timetotal
       real*8 tim(2), tim2(2)
       real*4 elapsed, wdiff
@@ -269,10 +269,10 @@
 
 
 
-        if(EC_UpdateMesh==1) then !-to update some parameters and redo the step again  
-!!!!!	  if (update_flag==1) then
-            go to 80
-        end if
+!!        if(EC_UpdateMesh==1) then !-to update some parameters and redo the step again  
+!!!!!!!	  if (update_flag==1) then
+!!            go to 80
+!!        end if
 
 	  call GNDloop(a(k03),a(k04),a(k02),a(k57),a(k18),numelt,numnp)
       call CPU_TIME(time2)

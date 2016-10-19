@@ -17,7 +17,7 @@ subroutine EC_WriteConnectivity(ElemConnect,NodesCoordx, NodesCoordy,NodesDispl,
     real       :: udt(*),udtt(*),temp(*)
 
     INTEGER :: i,j,k,node1,node2,mphantomNode,nodeOut
-    INTEGER mElemEdgeNeighborsList(6),ElemId2,ElemEdgeId2
+    INTEGER :: ElemId2,ElemEdgeId2,EdgeCount
     real*8 ::DistRatio,rPtc(2)
 
 
@@ -79,18 +79,17 @@ subroutine EC_WriteConnectivity(ElemConnect,NodesCoordx, NodesCoordy,NodesDispl,
                     end if
 !!                    write(*,*)i,iElemConnectivityNew(:,i)
                     !-- find the edge neighbors and update the elems connectivity
-                    call pEC_ElemData(i)%EC_GetElemEdgeNeighbors (j,mElemEdgeNeighborsList)
-                    do k=1,3    !--each edge can be shared between more than one elem
-                        if(mElemEdgeNeighborsList((k-1)*2+1) > 0) then
-                            ElemId2=mElemEdgeNeighborsList((k-1)*2+1)
-                            ElemEdgeId2=mElemEdgeNeighborsList((k-1)*2+2)
-                            CALL pEC_ElemData(ElemId2)%EC_FindNodeEdgeWithPhantomNode (nodeOut)
-                            if ( nodeOut>0 ) then
+!!                    call pEC_ElemData(i)%EC_GetElemEdgeNeighbors (j,mElemEdgeNeighborsList)
+                    EdgeCount=pEC_ElemData(i)%iElemEdgeNeighborsCount(j)
+                    do k=1,EdgeCount    !--each edge can be shared between more than one elem
+                        ElemId2    =pEC_ElemData(i)%iElemEdgeNeighbors((k-1)*2+1,j)
+                        ElemEdgeId2=pEC_ElemData(i)%iElemEdgeNeighbors((k-1)*2+2,j)
+                        CALL pEC_ElemData(ElemId2)%EC_FindNodeEdgeWithPhantomNode (nodeOut)
+                        if ( nodeOut>0 ) then
 !!!                                write(*,*)ElemId2,iElemConnectivityNew(:,ElemId2)
-                                iElemConnectivityNew(nodeOut,ElemId2)=iNodeCountCurrentNew
+                            iElemConnectivityNew(nodeOut,ElemId2)=iNodeCountCurrentNew
 !!!                                write(*,*)ElemId2,iElemConnectivityNew(:,ElemId2)
-                            end if
-                        endif
+                        end if
                     enddo
                 endif
             endif !- if(pEC_ElemData(i)%rCoordRatioCracking(j)>0.0) then

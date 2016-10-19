@@ -207,6 +207,7 @@ module EC_ElemCrackingBaseClass
         real*8  :: rAreaRatio,rArea !- for area ratio with respect of the original elem. also area value
         integer :: iElemOverlapping=EC_eElemOriginMain !- for the added new/overlapping/phantom elem;0=main, 1=overlap
         integer :: iElemEdgeNeighbors(6,4) !- each col lists the neighbors of this edge index
+        integer :: iElemEdgeNeighborsCount(4) !- number of the edge neighbors
         integer :: iElemConnectivity(4) !- elem nodes
         integer :: iElemSplit !- to indicate that the elem is failed, cracked and split 0=not, 1=splitted...
 
@@ -250,6 +251,8 @@ module EC_ElemCrackingBaseClass
             tEC_object%iElemEdgeNeighbors(1,i)=mInList(i)
             tEC_object%iElemEdgeNeighbors(2,i)=mInList(i+4)
         enddo
+        tEC_object%iElemEdgeNeighborsCount=1
+        
     end subroutine EC_SetElemEdgeNeighbors
 !##############################################################################
      integer function EC_CheckElemValid (tEC_object)
@@ -281,17 +284,21 @@ module EC_ElemCrackingBaseClass
      subroutine EC_ElemRemoveFromNeighbors (tEC_object,mElemOther)
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
         integer, intent(in) :: mElemOther
-        integer i,j,k,e1,ed1,mMyEdgeId
+        integer i,j,k,e1,ed1,mMyEdgeId,EdgeCount,EdgeCountOld
         !- to mark the removed neighbors
         do k=1,4 !-- over all edges
             mMyEdgeId=k
-            do i=1,3
+            EdgeCount=tEC_object%iElemEdgeNeighborsCount(k)
+            EdgeCountOld=EdgeCount
+            do i=1,EdgeCount
                 if(tEC_object%iElemEdgeNeighbors((i-1)*2+1,mMyEdgeId) == mElemOther) then
-                    !- find the last one in the list that is not zero and replce the removed one with it
+                    !- find the last one in the list that is not zero and replace the removed one with it
                     tEC_object%iElemEdgeNeighbors((i-1)*2+1,mMyEdgeId)=0
                     tEC_object%iElemEdgeNeighbors((i-1)*2+2,mMyEdgeId)=0
-                    do j=3,i,-1 !-- start the loop from the end
-                        if(tEC_object%iElemEdgeNeighbors((j-1)*2+1,mMyEdgeId) /= 0) then
+                    EdgeCount=EdgeCount-1
+                    tEC_object%iElemEdgeNeighborsCount(k)=EdgeCount
+                    do j=EdgeCountOld,i,-1 !-- start the loop from the end
+                        if(tEC_object%iElemEdgeNeighbors((j-1)*2+1,mMyEdgeId) > 0) then
                             e1=tEC_object%iElemEdgeNeighbors((j-1)*2+1,mMyEdgeId)
                             ed1=tEC_object%iElemEdgeNeighbors((j-1)*2+2,mMyEdgeId)
                             !-- replace the removed one
@@ -300,6 +307,7 @@ module EC_ElemCrackingBaseClass
                             !-- null the e1,ed1 location
                             tEC_object%iElemEdgeNeighbors((j-1)*2+1,mMyEdgeId)=0
                             tEC_object%iElemEdgeNeighbors((j-1)*2+2,mMyEdgeId)=0
+                            
                             return
                         endif
                     enddo
@@ -311,16 +319,21 @@ module EC_ElemCrackingBaseClass
      subroutine EC_ElemAddToNeighbors (tEC_object,mMyEdgeId,mElemOther,mEdgeOther)
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
         integer, intent(in) :: mMyEdgeId,mElemOther,mEdgeOther
-        integer i
-        do i=1,3
+        integer EdgeCount,i
+        
+        EdgeCount=tEC_object%iElemEdgeNeighborsCount(mMyEdgeId)
+        !-if it does exist then do not add and return
+        do i=1,EdgeCount
             if(tEC_object%iElemEdgeNeighbors((i-1)*2+1,mMyEdgeId) == mElemOther) return
-            if(tEC_object%iElemEdgeNeighbors((i-1)*2+1,mMyEdgeId) == 0) then
-                tEC_object%iElemEdgeNeighbors((i-1)*2+1,mMyEdgeId)=mElemOther
-                tEC_object%iElemEdgeNeighbors((i-1)*2+2,mMyEdgeId)=mEdgeOther
-                return
-            endif
         enddo
-    end subroutine EC_ElemAddToNeighbors
+        !-- add it 
+        EdgeCount=EdgeCount+1
+        i=EdgeCount
+        tEC_object%iElemEdgeNeighbors((i-1)*2+1,mMyEdgeId)=mElemOther
+        tEC_object%iElemEdgeNeighbors((i-1)*2+2,mMyEdgeId)=mEdgeOther
+        tEC_object%iElemEdgeNeighborsCount(mMyEdgeId)=EdgeCount
+        
+end subroutine EC_ElemAddToNeighbors
 !##############################################################################
     real*8 function EC_GetMyAreaRatio (tEC_object)
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
@@ -363,6 +376,8 @@ module EC_ElemCrackingBaseClass
         tEC_object%iElemType=EC_eElemTypeQuad
         tEC_object%iElemOverlapping=EC_eElemOriginMain
         tEC_object%iElemEdgeNeighbors=-1
+        tEC_object%iElemEdgeNeighborsCount=0
+        
         tEC_object%iElemConnectivity=-1
         tEC_object%iElemSplit=0
 
@@ -457,7 +472,9 @@ module EC_ElemCrackingBaseClass
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
         integer, intent(in):: ele,nstep
         integer bDecaying
-
+!!!-------------------------------------debug        
+!!write(*,*)tEC_object%iElemStatus,ele,nstep
+!!!-------------------------------------debug        
         !-- to check if the elem is failed and unloading
         !- if elem is unloading then increase the unloading steps
         if((tEC_object%iElemStatus <= EC_DecayCount) .and.  (tEC_object%iElemStatus>0)) then

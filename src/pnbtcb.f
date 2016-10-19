@@ -2,10 +2,10 @@
 !c     implicit double precision (a-h,o-z)                                    dp
        use mod_parameters
       common/range/mft,mlt,lft,llt,nftm1
-	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
+!!	  common /stressflag/ ElemFractCode(nume),ElemDecayCount(nume)
 !c	  common /overlapping/ intersec(4, nume), area_coeff(nume), update_flag
 !c	  real area_coeff
-	  integer ElemFractCode
+!!	  integer ElemFractCode
 !c      integer update_flag
       common/vect4/
      1 py1(nelemg),py2(nelemg),py3(nelemg),py4(nelemg),

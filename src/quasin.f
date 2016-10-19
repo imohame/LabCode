@@ -36,7 +36,7 @@ c
       common/double/iprec,ncpw,unit
       dimension ui(*),usi(*),tvc2(*),r(*),u(*),tvc1(*)
       common/main_block/ a(1)
-	  common /overlapping/ intersec(4, nume), area_coeff(nume), update_flag
+!!!!	  common /overlapping/ intersec(4, nume), area_coeff(nume), update_flag
 	  
 	  integer update_flag
 c

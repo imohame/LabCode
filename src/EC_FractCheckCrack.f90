@@ -119,6 +119,9 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
 
 !--- this part checks for failed element and start unloading them
     do i=1, EC_ElemCountInput
+!!!-------------------------------------debug        
+!!write(*,*)i,pEC_ElemData(i)%iElemStatus,SolStepCount
+!!!-------------------------------------debug        
         !--- check if the elem is failed and decaying, then go to next elem
         if( pEC_ElemData(i)%CheckDecaying(i,SolStepCount)==1) then
             cycle !- goto next i
@@ -180,9 +183,9 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
     if(EC_UpdateMesh==1) then !-to update some parameters and redo the step again
         lpar(4)=numelt
         lpar(2)=lpar(4)
-!!!        nodep(2,1)=numnp
-        lprint=lprint-1
-        nprint=nprint-1
+!!!!!        nodep(2,1)=numnp
+!!        lprint=lprint-1
+!!        nprint=nprint-1
     endif
 !!!!!!!!================================================================
 !!!!!!!!================================================================
