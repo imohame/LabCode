@@ -96,7 +96,10 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
 
     common/bk32/nsref,nequit,time,timep,lprint,nprint
     integer nsref,nequit,time,timep,lprint,nprint
-
+    
+    common/bk08/kprint,nstep,ite,ilimit,newstf
+    integer kprint,nstep,ite,ilimit,newstf
+    
     real NodesCoordx(*), NodesCoordy(*),NodesDispl(*)
     real usi(*),freep(5,*), ym(4,*)
     INTEGER ElemConnect(4,*),ElemMaterial(*),DofIds(2,*)
@@ -116,7 +119,7 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
     if (EC_bCracking == 0) then
         return
     endif
-
+    EC_UpdateMesh=0
 !--- this part checks for failed element and start unloading them
     do i=1, EC_ElemCountInput
 !!!-------------------------------------debug        
@@ -183,6 +186,7 @@ subroutine fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, Nod
     if(EC_UpdateMesh==1) then !-to update some parameters and redo the step again
         lpar(4)=numelt
         lpar(2)=lpar(4)
+        newstf=0
 !!!!!        nodep(2,1)=numnp
 !!        lprint=lprint-1
 !!        nprint=nprint-1

@@ -1,4 +1,3 @@
-
 ! ###########################################################
 module EC_Objects_manager
     use EC_ElemCrackingBaseClass
@@ -114,17 +113,19 @@ module EC_Objects_manager
     integer , intent(in)::ElemId,mSolStepCount
     real*8 , intent(in)::rStartPt(2) !- the crack staring point
     real*8 , intent(in)::ElemCoordx(4),ElemCoordy(4)
+
     integer i,j,ElemIdNeighbor,EdgeIdNeighbor,bIntersect,edgeNode1,edgeNode2
     real*8 Vx,Vy,p1(2),p2(2),q1(2),q2(2),rPtc(2),pRatio,qRatio,rStartPtAct(2)
-    real*8 ElemAreaTotal
-    integer EdgeCount
+    real*8 edgeRatio
+    integer EdgeCount,node1,node2
+    real*8 rP2(2),rP1(2)
+    
     !-- calculate elem area -- no need for it, it's done initialy
     ! call pEC_ElemData(ElemId)%EC_CalcAreaRatio(ElemCoordx,ElemCoordy,4)
     !- this elem is cracked either on cleavage planes, or on the neighboring edges
     !-- set all edges to inner side crack
     pEC_ElemData(ElemId)%EdgeStatus(1:4)=EC_eCrackInnerSide
     !--- set the starting point of the cracking line to the input of the subroutine
-    !-- check if there is edge with cracking pint then make it the starting point
     rStartPtAct=rStartPt
     !-- loop over each edge and check the neighbor for possible cracking
     do i=1,4
@@ -134,14 +135,38 @@ module EC_Objects_manager
             rStartPtAct=rStartPt
             cycle ! go to next i, edge
         endif
+
         do j=1,EdgeCount    !--each edge can be shared between more than one elem
+!!!---------------------------------debugging   
+!!write(*,*)ElemId,pEC_ElemData(ElemId)%EdgeStatus          
+!!write(*,*)pEC_ElemData(ElemId)%rCoordRatioCracking          
+!!!---------------------------------debugging            
             ElemIdNeighbor=pEC_ElemData(ElemId)%iElemEdgeNeighbors((j-1)*2+1,i)
             EdgeIdNeighbor=pEC_ElemData(ElemId)%iElemEdgeNeighbors((j-1)*2+2,i)
+!!!---------------------------------debugging   
+!!write(*,*)ElemIdNeighbor,pEC_ElemData(ElemIdNeighbor)%EdgeStatus          
+!!write(*,*)pEC_ElemData(ElemIdNeighbor)%rCoordRatioCracking          
+!!!---------------------------------debugging            
             !-- if the edge is outter, has no neighbors then make it EC_eCrackBothSides
            !-if the neighboring edge is inner cracked then set this edge on both sides as cracked
             if(pEC_ElemData(ElemIdNeighbor)%EdgeStatus(EdgeIdNeighbor)==EC_eCrackInnerSide) then
                 pEC_ElemData(ElemId)%EdgeStatus(i)=EC_eCrackBothSides
                 pEC_ElemData(ElemIdNeighbor)%EdgeStatus(EdgeIdNeighbor)=EC_eCrackBothSides
+                !-- check if there is edge with cracking pint then make it the starting point
+                !-- when there is a semi cracked elem or elem has one cracked edge, one of the edges is shared among 3 elems
+                edgeRatio=pEC_ElemData(ElemIdNeighbor)%rCoordRatioCracking(EdgeIdNeighbor)
+                if(edgeRatio>0.0) then
+                    !-- the ratio for the current edge is 1- neighbor edge ratio
+                    edgeRatio=1-edgeRatio
+                    node1=EC_ElemEdgesConnect(1,i)
+                    node2=EC_ElemEdgesConnect(2,i)
+
+                    rP1(1)=ElemCoordx(node1)
+                    rP1(2)=ElemCoordy(node1)
+                    rP2(1)=ElemCoordx(node2)
+                    rP2(2)=ElemCoordy(node2)
+                    CALL GetPtOnLine(rP1,rP2,edgeRatio,rStartPtAct)
+                endif
             endif
         enddo
     enddo
@@ -164,21 +189,25 @@ module EC_Objects_manager
         q2(2)=ElemCoordy(edgeNode2)
         CALL LineSegIntersection(p1,p2,q1,q2,pRatio,qRatio,rPtc,bIntersect)
         if(bIntersect==1) then !- there is an intersection
-            pEC_ElemData(ElemId)%rCoordRatioCracking(i)=1-qRatio
+            pEC_ElemData(ElemId)%rCoordRatioCracking(i)=qRatio
             !--- elem id , step no, edge no, edge node 1, edge node 2, intersection ratio, edge status
             write(iFU_frac_crackEdgeSplit,*) ElemId,mSolStepCount,i,edgeNode1,edgeNode2,qRatio,pEC_ElemData(ElemId)%EdgeStatus(i)
             !-- this for the neighboring edges
-            if(pEC_ElemData(ElemId)%EdgeStatus(i)==EC_eCrackBothSides) then !- then set this value to the other edge
+!!            if(pEC_ElemData(ElemId)%EdgeStatus(i)==EC_eCrackBothSides) then !- then set this value to the other edge
                 EdgeCount=pEC_ElemData(ElemId)%iElemEdgeNeighborsCount(i)
                 do j=1,EdgeCount    !--each edge can be shared between more than one elem
                     ElemIdNeighbor=pEC_ElemData(ElemId)%iElemEdgeNeighbors((j-1)*2+1,i)
                     EdgeIdNeighbor=pEC_ElemData(ElemId)%iElemEdgeNeighbors((j-1)*2+2,i)
                     !- 1-qRatio because the edge nodes order is reversed from elem to the neighboring elem
-                    pEC_ElemData(ElemIdNeighbor)%rCoordRatioCracking(EdgeIdNeighbor)=qRatio
+                    pEC_ElemData(ElemIdNeighbor)%rCoordRatioCracking(EdgeIdNeighbor)=1-qRatio
+!!!---------------------------------debugging   
+!!write(*,*)ElemIdNeighbor,pEC_ElemData(ElemIdNeighbor)%EdgeStatus          
+!!write(*,*)pEC_ElemData(ElemIdNeighbor)%rCoordRatioCracking          
+!!!---------------------------------debugging            
                     write(iFU_frac_crackEdgeSplit,*) ElemIdNeighbor,mSolStepCount,EdgeIdNeighbor, &
                                                 1-qRatio,pEC_ElemData(ElemIdNeighbor)%EdgeStatus(EdgeIdNeighbor)
                 enddo
-            endif
+!!            endif
         endif
     enddo
 
@@ -208,14 +237,15 @@ module EC_Objects_manager
         real dn1,dn2
 
         integer , intent(in)::ElemId
-        integer i,j
+        integer i,j,k
         real*8 ElemAreaTotal,xs(4),ys(4)
         integer EdgeStatus(4),mEdgeCount,mUniqueEdge
         INTEGER bDone,EC_ElemCountCurrent_old
         integer :: mElemIdsList1(16) !-- find the neighbors of mElemIdsList1 in mElemIdsList2
         integer :: mElemIdsList2(16) !-- assume any elem has 16 neghbors
+        integer :: ElemIdsNewMain(4),ElemIdsNewOverlapping(4)
         integer :: mElemCount1,mElemCount2 !-- count the actual neighobrs
-        integer :: e1,EdgeCount
+        integer :: e1,EdgeCount,ElemIdtemp
 
         mElemIdsList1=0
         mElemIdsList2=0
@@ -232,7 +262,7 @@ module EC_Objects_manager
             if(pEC_ElemData(ElemId)%EdgeStatus(mEdgeCount)==EC_eCrackBothSides) then
 !!                write(*,*)ElemId,pEC_ElemData(ElemId)%iElemStatus,pEC_ElemData(ElemId)%iElemSplit
                 CALL EC_SplitEdge(ElemId,mEdgeCount,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl,  &
-                        ElemMaterial,usi  , freep , ym,mSolStepCount)
+                        ElemMaterial,usi  , freep , ym,mSolStepCount,ElemIdsNewMain,ElemIdsNewOverlapping)
                 !-- reset the elem
                 pEC_ElemData(ElemId)%iElemSplit=1
 !!                write(*,*)ElemId,pEC_ElemData(ElemId)%iElemStatus,pEC_ElemData(ElemId)%iElemSplit
@@ -245,28 +275,50 @@ module EC_Objects_manager
         if(bDone==1) then
             EC_UpdateMesh=1 !-to update some parameters and redo the step again
             !-- find this elem neghbors
-            !-- add the cuurent elem
-            mElemCount1=mElemCount1+1
-            mElemIdsList1(mElemCount1)=ElemId
-            mElemCount2=mElemCount2+1
-            mElemIdsList2(mElemCount2)=ElemId
-            do i=1,4    !--4 edges
-                EdgeCount=pEC_ElemData(ElemId)%iElemEdgeNeighborsCount(i)
-                do j=1,EdgeCount    !--each edge can be shared between more than one elem
+            !-- add the modified elems and the new elems
+            do i=1,4    
+                ElemIdtemp=ElemIdsNewMain(i)
+                if(ElemIdtemp>0) then
+                    mElemCount1=mElemCount1+1
+                    mElemIdsList1(mElemCount1)=ElemIdtemp
                     mElemCount2=mElemCount2+1
-                    mElemIdsList2(mElemCount2)=pEC_ElemData(ElemId)%iElemEdgeNeighbors((j-1)*2+1,i)
+                    mElemIdsList2(mElemCount2)=ElemIdtemp
+                endif
+            enddo
+            do i=1,4    
+                ElemIdtemp=ElemIdsNewOverlapping(i)
+                if(ElemIdtemp>0) then
+                    mElemCount1=mElemCount1+1
+                    mElemIdsList1(mElemCount1)=ElemIdtemp
+                    mElemCount2=mElemCount2+1
+                    mElemIdsList2(mElemCount2)=ElemIdtemp
+                endif
+            enddo
+!!!!            mElemCount1=mElemCount1+1
+!!!!            mElemIdsList1(mElemCount1)=ElemId
+!!!!            mElemCount2=mElemCount2+1
+!!!!            mElemIdsList2(mElemCount2)=ElemId
+            !-- get the niehgbors of the modified/new elems
+            do k=1,mElemCount1    !--
+                ElemIdtemp=mElemIdsList1(k)
+                do i=1,4    !--4 edges
+                    EdgeCount=pEC_ElemData(ElemIdtemp)%iElemEdgeNeighborsCount(i)
+                    do j=1,EdgeCount    !--each edge can be shared between more than one elem
+                        mElemCount2=mElemCount2+1
+                        mElemIdsList2(mElemCount2)=pEC_ElemData(ElemIdtemp)%iElemEdgeNeighbors((j-1)*2+1,i)
+                    enddo
                 enddo
             enddo
 
-        !-- add the new overlapping elems to the list
-            do i=1,EC_ElemCountCurrent-EC_ElemCountCurrent_old
-                mElemCount1=mElemCount1+1
-                mElemIdsList1(mElemCount1)=EC_ElemCountCurrent_old+i
-                mElemCount2=mElemCount2+1
-                mElemIdsList2(mElemCount2)=EC_ElemCountCurrent_old+i
-            enddo
+!!!        !-- add the new overlapping elems to the list
+!!!            do i=1,EC_ElemCountCurrent-EC_ElemCountCurrent_old
+!!!                mElemCount1=mElemCount1+1
+!!!                mElemIdsList1(mElemCount1)=EC_ElemCountCurrent_old+i
+!!!                mElemCount2=mElemCount2+1
+!!!                mElemIdsList2(mElemCount2)=EC_ElemCountCurrent_old+i
+!!!            enddo
             !-- update edges neighbors
-            CALL EC_CalcElemNeighborsInList(mElemIdsList1,mElemCount1,mElemIdsList2,mElemCount2) !0=only these elem
+            CALL EC_CalcElemNeighborsInList(mElemIdsList1,mElemCount1,mElemIdsList2,mElemCount2) 
             !-- add tracking info
             write(iFU_frac_crackOverlapInfo,*) '------------------------------------------step#',mSolStepCount
             !- elem no, step no, elem connect, elem neighbors
@@ -303,7 +355,7 @@ module EC_Objects_manager
 !##############################################################################
 !##############################################################################
     subroutine EC_SplitEdge(ElemId,ElemEdgeId,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, ElemMaterial, &
-                            usi  , freep , ym,mSolStepCount)
+                            usi  , freep , ym,mSolStepCount,ElemIdsNewMain,ElemIdsNewOverlapping)
                 !-a(k03)    ,a(k04)      ,a(k02)      ,a(k57)  ,a(k18)     , a(k08)      ,a(k20), a(k07), a(k09))
         use EC_Consts
         use EC_ElemCrackingBaseClass
@@ -322,9 +374,10 @@ module EC_Objects_manager
 
         integer , intent(in)::ElemId,ElemEdgeId
         integer ::ElemId2,ElemEdgeId2,j,i,ElemIdtemp
+        integer , intent(inout)::ElemIdsNewMain(4),ElemIdsNewOverlapping(4)
         ! integer EdgeNode1,EdgeNode2,EdgeNode1N(4),EdgeNode2N(4),j
         type ( EC_ElemCrackingClass ) :: ElemCrackingClassMain(4),ElemCrackingClassOverlapping(4)
-        INTEGER bElemValidMain(4),bElemValidOverlapping(4),ElemIdsNewMain(4),ElemIdsNewOverlapping(4)
+        INTEGER bElemValidMain(4),bElemValidOverlapping(4)
         INTEGER edgeNodeOld1,edgeNodeOld2,edgeNodeNew1,edgeNodeNew2
         INTEGER bEdgeCracked !-- 0=not cracked, 1= cracked with elems added
         INTEGER nodeIdLocal,edge1,edge2,mMyEdgeId,mElemOther,mEdgeOther,e1,EdgeCount
@@ -537,6 +590,9 @@ module EC_Objects_manager
         real usi(*),freep(5,*), ym(4,*)
         INTEGER DofIds(2,*)
         !
+        common/fissn0/maxneq,mwspac,ntpe0,ntpe1,nfissl(3)
+        integer maxneq,mwspac,ntpe0,ntpe1,nfissl
+        
         common/bk17/dn1,dn2,nwebuf,ntime,numnp,neq,ibar,mthsol
         integer nwebuf,ntime,numnp,neq,ibar,mthsol
         real dn1,dn2
@@ -553,7 +609,8 @@ module EC_Objects_manager
         DofIds(2,NodeTo)=neq+2
 
         numnp=numnp+1
-        neq=neq+1
+        neq=neq+2
+        maxneq=neq
         EC_NodeCountCurrent=EC_NodeCountCurrent+1
 
     end subroutine EC_AddOneNode
@@ -676,8 +733,10 @@ module EC_Objects_manager
     RetVal4=0
     RetVal8=0
     CALL CNmanager_Get_sigalt(ElemFrom,RetVal8)
-    RetVal4=RetVal8
+    RetVal4=RetVal8*0.5
     CALL CNmanager_Set_sigalt(ElemTo,RetVal4)
+    !--- try to set the stress to half its value --- for testing
+    CALL CNmanager_Set_sigalt(ElemFrom,RetVal4)
 
     end subroutine EC_CopyElemsData
 !##############################################################################

@@ -1,13 +1,13 @@
       subroutine quasin(ui,usi,r,tvc2,u,tvc1,tt,ierr)
-c     implicit double precision (a-h,o-z)                                    dp
-c
-c     quasi-newton iteration methods
-c
-c     bfgs method by matthies and strang ---  published in
-c     international journal for numerical methods in engineering
-c     volume 14, pages 1613-1626, 1979, broyden's method
-c     davidon-fletcher-powell method, and modified newton
-c
+!c     implicit double precision (a-h,o-z)                                    dp
+!c
+!c     quasi-newton iteration methods
+!c
+!c     bfgs method by matthies and strang ---  published in
+!c     international journal for numerical methods in engineering
+!c     volume 14, pages 1613-1626, 1979, broyden's method
+!c     davidon-fletcher-powell method, and modified newton
+!c
       parameter (nume=40000)
       common/bk00/
      1k01,k02,k03,k04,k05,k06,k07,k08,k09,k10,k11,k12,
@@ -78,30 +78,30 @@ c
 c---- evaluate rhs -------------------------------------------------
 c
       call assmrs (ui,usi,tvc2,r,u,tvc1,tt,step,0,g)
-c
-c---- line search --------------------------------------------------
-c
-cc.... perform line search if necessary
-c      if (abs(g).gt.(tolls*abs(g0)).and.g0*g.le.0.)then
-c      call lnesch (ui,usi,r,tvc2,u,tvc1,tt,step,g,g0,rlnew,riksf,alfa)
-cc
-cc.... when line search step is small set flags for reform
-c      if(step.le.stpper)then
-c      if(ite.eq.1)icount=icount+1
-c      if(ite.ne.1.or.icount.le.7)then
-c      if(step.lt.stpper)then
-c        if(imeth.eq.0)then
-c        ite=ilimit+1
-c        else
-c        iline=1
-c        endif
-c      endif
-c      endif
-c      endif
-c      endif
-c
-c---- update displacement, compute norms ----------------------------
-c
+!c
+!c---- line search --------------------------------------------------
+!c
+!cc.... perform line search if necessary
+!c      if (abs(g).gt.(tolls*abs(g0)).and.g0*g.le.0.)then
+!c      call lnesch (ui,usi,r,tvc2,u,tvc1,tt,step,g,g0,rlnew,riksf,alfa)
+!cc
+!cc.... when line search step is small set flags for reform
+!c      if(step.le.stpper)then
+!c      if(ite.eq.1)icount=icount+1
+!c      if(ite.ne.1.or.icount.le.7)then
+!c      if(step.lt.stpper)then
+!c        if(imeth.eq.0)then
+!c        ite=ilimit+1
+!c        else
+!c        iline=1
+!c        endif
+!c      endif
+!c      endif
+!c      endif
+!c      endif
+!c
+!c---- update displacement, compute norms ----------------------------
+!c
       do 50 i=1,neq
       ui(i)=ui(i)+step*tvc2(i)
       usi(i)=ui(i)
@@ -136,14 +136,14 @@ c.... original or largest residual norm
 c.... current residual norm
       xnormc(3)=sqrt(rhsvn)
       write(*,*) xnorm0(1),xnormc(1),gc,g0,xnorm0(3),xnormc(3)
-c
-c---- double secret convergence check --------------------------------
-c
-c.... solution is way out
+!c
+!c---- double secret convergence check --------------------------------
+!c
+!c.... solution is way out
       if (abs(g0/(gc+1.e-06)).gt.100000.0)then
       icase=0
       else
-c.... convergence check if new residual less than old
+!c.... convergence check if new residual less than old
       if(rhsvn.le.rhsn)then
       if((unm.le.tol).and.
      1   (abs(g0).le.ectl*abs(gc).or.unm/10000.0.le.tol))then
@@ -160,7 +160,7 @@ c.... convergence check if new residual less than old
         icase=2
       endif
       endif
-c.... residual larger than old one
+!c.... residual larger than old one
       else
       write(lfnt(2),160)ite
       rhsn=rhsvn
@@ -172,17 +172,17 @@ c.... residual larger than old one
       endif
       mthsll=mthsol
       endif
-c
+
       rhsn=max(rhsvn,rhsn)
-c
-c---- stop execution of program (icase=0) ------------------------
-c
+!c
+!c---- stop execution of program (icase=0) ------------------------
+!c
       if(icase.eq.0)then
       ierr=1
       return
-c
-c---- reform stiffness and solve (icase=1) -----------------------
-c
+!c
+!c---- reform stiffness and solve (icase=1) -----------------------
+!c
       elseif(icase.eq.1)then
       iteref=iteref+1
       if(imeth.eq.0)write(lfnt(2),150)
@@ -201,9 +201,9 @@ c
       newstf=1
       iphase=3
       go to 30
-c
-c---- stiffness update and solve (icase=2) -------------------------
-c
+!c
+!c---- stiffness update and solve (icase=2) -------------------------
+!c
       elseif(icase.eq.2)then
       if (mthsll.eq.1) call bfgs (tvc2,r,tvc1,step,g,g0,dinorm)
       if (mthsll.eq.2) call broy (tvc2,r,tvc1,step)
@@ -217,11 +217,11 @@ c
       endif
       g0=dotprd(tvc2,r)
       go to 30
-c
-c------------------- E N D   I T E R A T I O N ------------------
-c
-c---- solution has converged (icase=3) -------------------------
-c
+!c
+!c------------------- E N D   I T E R A T I O N ------------------
+!c
+!c---- solution has converged (icase=3) -------------------------
+!c
       else
       iphase=2
       dn2=max(dn1,dn2)

@@ -93,7 +93,7 @@
 	  integer ElemFractCode, ElemDecayCount, DecayCount, q,fractFlag
 	  real sigmacrit0, sigmacrit1, sigmacrit2, sigmacrit3
 !c
-!c      equivalence (lpar(2),numel)
+      equivalence (lpar(2),numel)
 !c
 !c      penalty=2.281E+5
 
@@ -280,11 +280,12 @@
 !c
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !$OMP PARALLEL DO       
-      do i=lft, llt
-	      do j=1, 8
-		      rp(j,i)=0.0
-		  end do
-	  end do
+      rp(1:8,lft:llt)=0.0
+!!      do i=lft, llt
+!!	      do j=1, 8
+!!		      rp(j,i)=0.0
+!!		  end do
+!!	  end do
 	  
 !c	  do i=lft,llt
 !c

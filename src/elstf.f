@@ -46,12 +46,12 @@ c
       logical icolht
       data icolht/.false./,mprntl/0/
       real sigmacrit0, sigmacrit1, sigmacrit2, sigmacrit3
-c
 
 
-c        write(7777,*) '-- elstf.f'
 
-c
+!c        write(7777,*) '-- elstf.f'
+
+
       if (nstep.gt.2) then
       do 4 i=1,numelt
       if (fail(i).lt.0.24) then
@@ -63,57 +63,58 @@ c
       iesf =0
       iopta=-4
       if(numfrq.ne.0.and.imass.ge.1)imass=0
-c
-c---- compute and assemble external load term ----------------------
-c
-c.... find value of load curves at current time
+!c
+!c---- compute and assemble external load term ----------------------
+!c
+!c.... find value of load curves at current time
       if (.not.rezone)then
         call ldcset (a(k57+2*numnp2),a(k63),a(k64),time)
       endif
-c
-c.... add concentrated nodal load contribution to a(k19)
+!c
+!c.... add concentrated nodal load contribution to a(k19)
       call loadcn (a(k57),a(k18),a(k19),a(k63),a(k64),a(k58),a(k59),a
      1 (k60),a(k61),a(k62),time)
-c
-c.... add pressure load contribution to a(k19)
+!c
+!c.... add pressure load contribution to a(k19)
       call loadpr (a(k57),a(k18),a(k19),a(k63),a(k64),a(k65),a(k66),
      1 a(k67),a(k68),a(k69),a(k70),time)
-c
-c.... zero external load term a(k19) for prescribed displacement dof
+!c
+!c.... zero external load term a(k19) for prescribed displacement dof
       if(numdc.ne.0)then
         call zrorhs(a(k57),a(k72),a(k19),a(k73),numdc)
       endif
-c
-c---- compute temperatures --------------------------------------
-c
+!c
+!c---- compute temperatures --------------------------------------
+!c
       if(ithopi.ge.-3.and.ithopi.ne.0)then
       call gtemp(a(k81),a(k81+1),a(k82),a(k82+1))
       endif
-c
-c-----------------------------------------------------------------
+!c
+!c-----------------------------------------------------------------
       call azero (a(k17),neq)
       melemt=0
-c
-c---- only for new stiffness form and factor----------------------
-c
+!c
+!c---- only for new stiffness form and factor----------------------
+!c
       if (newstf.eq.0)then
-c.... for finite elements find column heights
+!c.... for finite elements find column heights
       icolht=.true.
       call blkcpy (a(k16),a(k13),nwebuf)
 
-cw      call ovrlay ('crystal2d',3,0,'recall')
-        call ovrlay (3,0)
+!cw      call ovrlay ('crystal2d',3,0,'recall')
+!!!        call ovrlay (3,0)
+        call fem2dm()
 
 
-c
-c.... for slideline elements find column heights, lhs, and rhs,
-c     and assemble rhs
-ck      if(nsl.ne.0)call slidln
+!c
+!c.... for slideline elements find column heights, lhs, and rhs,
+!c     and assemble rhs
+!ck      if(nsl.ne.0)call slidln
       icolht=.false.
-c
-c.... determine matrix profile / block structure
+!c
+!c.... determine matrix profile / block structure
       call bsolvr (a(k17),a(ntlen),1,4)
-c.... print information on matrix profile / block structure
+!c.... print information on matrix profile / block structure
       mprnt=mwsusd+matpr+maxch+mench+numblk
       if(mprnt.ne.mprntl)then
       mprntl=mprnt
@@ -149,7 +150,8 @@ c     compute lhs and assemble
       call blkcpy(a(k16),a(k13),nwebuf)
 
 cw      call ovrlay('crystal2d',3,0,'recall')
-      call ovrlay(3,0)
+!!!      call ovrlay(3,0)
+        call fem2dm()
 
 
       if (.not.rezone)

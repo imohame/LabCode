@@ -73,7 +73,7 @@
       common/hgstress/hgstress1store(40000),hgstress2store(40000),hgstress1his(40000),hgstress2his(40000)
 	  common/mbsize/numelt2, numnp2, neq2
 !!!	  common /overlapping/ intersec(4, nume), area_coeff(nume),update_flag
-	  common /ovsum/ ovs
+!!	  common /ovsum/ ovs
 !!	  common /excflag/ excf
 !!!!	  common /tipvelocity/ ncrack, nelefail(1000),tipelenum(1000,nume)
 !!!!!      character*8 namef
@@ -114,11 +114,10 @@
       write(5701,41)
    41 format(5x,'ZONE')
 
-      ovs=0
+!!      ovs=0
 !!!!	  ncrack=0
 !!!!	  excf=1
 !!!!!	  update_flag=0
-      EC_UpdateMesh=0 !-to update some parameters and redo the step again  
 
       !-- this for writing the forplot disp/stress every 100 step
       iaa = 0
@@ -141,6 +140,7 @@
       CALL SYSTEM_CLOCK(COUNT=nb_ticks_initial)
 
    10 nstep=nstep+1
+      EC_UpdateMesh=0 !-to update some parameters and redo the step again  
       nbcku=0
       ntt=0
 
@@ -260,6 +260,7 @@
 !!!!!!!    !!!!!      propagate(y     , z    , ix   , id   , u    , matp  ,numelt,nstep)
 !!!!!!!    call overlap(a(k03),a(k04),a(k02),a(k08),a(k57),a(k18),a(k20), a(k07), a(k09))
 !!!!!!!    !!!!!!!!!e overlap(y     , z    , ix   , matp , id   , u    , usi  , freep , ym)
+    EC_UpdateMesh=0
     CALL fractCheckCracking(a(k03),a(k04),a(k02),a(k57),a(k18), a(k08),a(k20), a(k07), a(k09),nstep)
 !!    CALL fractCheckCracking(NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl, ElemMaterial, &
 !!                                    usi  , freep , ym,SolStepCount)
@@ -269,10 +270,10 @@
 
 
 
-!!        if(EC_UpdateMesh==1) then !-to update some parameters and redo the step again  
-!!!!!!!	  if (update_flag==1) then
-!!            go to 80
-!!        end if
+        if(EC_UpdateMesh==1) then !-to update some parameters and redo the step again  
+!!!!!	  if (update_flag==1) then
+            go to 80
+        end if
 
 	  call GNDloop(a(k03),a(k04),a(k02),a(k57),a(k18),numelt,numnp)
       call CPU_TIME(time2)

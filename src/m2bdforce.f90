@@ -34,8 +34,10 @@
         ij    = idir(ii)
         dispp = dispp + u(ij)
     enddo 
-
+    !- average displ
     dispp = dispp/numdc
+    !-- strain
+    dispp = dispp/x_area
 !!!c ------------------------------------- 
     do  ii = 1 ,numdc
         ndd = nodes(ii)

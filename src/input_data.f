@@ -38,8 +38,8 @@
 	  common /sigfrac/ sigmacrit0, sigmacrit1,sigmacrit2, sigmacrit3,
      >      DecayCount, f_decay, penalty,fractFlag
 	  common /precrack/ npc, elepc(100)
-      common /elas_energ/ inie(nume), ecount(nume)
-	  common /energbox/ gbco
+!!      common /elas_energ/ inie(nume), ecount(nume)
+!!!	  common /energbox/ gbco
 	  common /cracktipcircle/ ndcircle
 !!!!	  common /fractureplane/ planeflag(nume), planeflag0(nume)
 !!	  common /precrack2/ rlflag
@@ -161,20 +161,20 @@
 	  cleave_n0(3,3) = 1.
 
 
-	  do i = 1, nume
-!!!!!!	  planeflag(i)=0
-!!!!!!	  planeflag0(i)=0
-!!	  ElemFractCode(i) = 0
-!!	  ElemDecayCount(i) = 1
-!!!!!!	  gbvec(i,1) = 0.0
-!!!!!!	  gbvec(i,2) = 0.0
-!!!!!!	  gbvec(i,3) = 0.0
-!!!!!!	  gbflag(i,1) = 0
-!!!!!!	  gbflag(i,2) = 0
-!!!!!!	  gbflag(i,2) = 0
-	  inie(i)=0.0
-	  ecount(i)=0
-	  end do
+!!!	  do i = 1, nume
+!!!!!!!!!	  planeflag(i)=0
+!!!!!!!!!	  planeflag0(i)=0
+!!!!!	  ElemFractCode(i) = 0
+!!!!!	  ElemDecayCount(i) = 1
+!!!!!!!!!	  gbvec(i,1) = 0.0
+!!!!!!!!!	  gbvec(i,2) = 0.0
+!!!!!!!!!	  gbvec(i,3) = 0.0
+!!!!!!!!!	  gbflag(i,1) = 0
+!!!!!!!!!	  gbflag(i,2) = 0
+!!!!!!!!!	  gbflag(i,2) = 0
+!!!	  inie(i)=0.0
+!!!	  ecount(i)=0
+!!!	  end do
 
 !!!	  read(89,*) ngbctr
 !!!	  write(999,*) ngbctr
