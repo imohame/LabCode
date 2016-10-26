@@ -232,20 +232,7 @@
        ! ** Loop to update Internal and Field variables, **
        ! **  for Elements in the set: (mft,mlt)          **
        !------------------------------------------------------
-
         ink = i + nftm1
-        mElemSplitCode=EC_GetElemSplit(ink)
-        mElemUnloadingCount=EC_GetElemUnloadingCount(ink)
-!!!!---------------------------debugging      
-!!!      if((ink == 197).and.(mElemSplitCode /= 0)) then
-!!!          qwer=0
-!!!      endif
-!!!!---------------------------debugging      
-!!--------------------------------------debugging
-!      write(969, *) 'matpoly loop',mft, mlt 
-!         matid= matp(ink)
-!         write(969, *) ink,matid,nssmat(matid),nssimmat(matid)
-!!--------------------------------------debugging
        !--------------------------------------------------
        !  Define deviatoric deformation rate 
        ! (work conjugate to Cauchy Stress, 
@@ -306,7 +293,41 @@
                 call print_str(i,ink,matp)
             end if          
         end if
-
+        mElemSplitCode=EC_GetElemSplit(ink)
+        mElemUnloadingCount=EC_GetElemUnloadingCount(ink)
+        
+        if(mElemUnloadingCount > 0) then
+        
+            if((mElemUnloadingCount>0).and.(mElemUnloadingCount <= EC_DecayCount)) then
+                doptimizedConst=1- mElemUnloadingCount / EC_DecayCount
+                sign1(i) = sig(1,i)*doptimizedConst
+                sign2(i) = sig(2,i)*doptimizedConst
+                sign3(i) = sig(3,i)*doptimizedConst
+                sign4(i) = sig(4,i)*doptimizedConst
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!         else if(ElemFractCode(ink)==2) then
+    !!!!!!!!!!!!!!!         else if(EC_GetElemSplit(ink)>0) then
+            else if(mElemUnloadingCount > EC_DecayCount) then
+    !!!!!!!		 else if(mElemSplitCode>0) then !-- already decayed
+                sign1(i) = 0.0
+                sign2(i) = 0.0
+                sign3(i) = 0.0
+                sign4(i) = 0.0
+            end if
+            sig(1,i) = sign1(i)              !11 stress updated
+            sig(2,i) = sign2(i)              !22 stress updated
+            sig(3,i) = sign3(i)              !33 stress updated
+            sig(4,i) = sign4(i)              !12 stress updated
+            RetVal(1:4)=sig(1:4,i)
+            CALL CNmanager_Set_sigalt(ink,RetVal)
+             cycle !-goto next elem if the elem is split/overlap
+        endif
+!!!!---------------------------debugging      
+!!!      if((ink == 197).and.(mElemSplitCode /= 0)) then
+!!!          qwer=0
+!!!      endif
+!!!!---------------------------debugging      
+!!--------------------------------------debugging
+      
        !---------------------------------------------------------
        ! Load internal variables independent of slip systems
        !---------------------------------------------------------
@@ -320,8 +341,7 @@
             if (nstep.eq.0)then
                temp=tempr
             end if
-!!!		  	     else if((thermalflag==1 .and. TDflag==0)       !if thermal
-!!!     >				     .or.thermalflag==2) then
+!!!		  	     else if((thermalflag==1 .and. TDflag==0).or.thermalflag==2) then       !if thermal			     
         else if(thermalflag==1 .or. thermalflag==3)then       !if there is thermal; thermal only or both
             temp=CNmanagerGetElemTemp(ink)
 !!!!!			 DijSije(ink)=0.0            
@@ -332,9 +352,9 @@
         end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!         temp=0
 !		 temp         = max(temp,tempr)				!max of previous or initial temperature
-        enthalpy_coef= thermalEnthalpy(matp(ink))			!Enthalpy coefficent now material dependent WML
-    !c		 thermal_coef = enthalpy_coef/tempr			!This Line: coefficient = (H/[kT]) for dPm/dt and dPim/dt calculartions
-        porosity     = abc(5,ink,nintg)
+!!!!!!        enthalpy_coef= thermalEnthalpy(matp(ink))			!Enthalpy coefficent now material dependent WML
+!!!!!!    !c		 thermal_coef = enthalpy_coef/tempr			!This Line: coefficient = (H/[kT]) for dPm/dt and dPim/dt calculartions
+!!!!!!!!!!        porosity     = abc(5,ink,nintg)
         plastic_work = abc(6,ink,nintg)
 
         nssm=nssmat(matp(ink))
@@ -513,17 +533,17 @@
 
 
 !!!!!!!!$OMP PARALLEL DO       
-       do j = 1, nssm
        !------------------------------------------------------------
        ! Calculated for the Computation of Tau_dot						
        ! ========		
         !This loop: Pij(alpha)*Dij',  Zikry & Nasser, 1990 pg 218
         !Calculates time derivative of resolved shear stress
         !UPDATED FOR (3,3) term, WML 9/19/08 FOR OLD WAY, JUST COMMENT OUT
-            Pij_Dijdev(j) = p(j,1)*Dij_dev(1)+p(j,2)*Dij_dev(2)+ &
-                            2*p(j,3)*Dij_dev(4)+p(j,4)*Dij_dev(3)	
-      !-------------------------------------------------------------
+        do j = 1, nssm
+             Pij_Dijdev(j) = p(j,1)*Dij_dev(1)+p(j,2)*Dij_dev(2)+ &
+                             2*p(j,3)*Dij_dev(4)+p(j,4)*Dij_dev(3)	
         end do
+      !-------------------------------------------------------------
 
       !-------------------------------------------------------------
       ! Slip System Dependent taur
@@ -587,13 +607,13 @@
         bres(1:24,1:24)=0.0
 
 
-       gbtr_tot=0.0
+        gbtr_tot=0.0
     !c         call dsolve(dt,timexx,nssm)   ! line for updating using rk5, implicit algorithm
-       if (mElemUnloadingCount==0) then
-           call dsolve(dt,timexx,nssm)   ! line for updating using rk5, implicit algorithm
-       elseif (mElemUnloadingCount > 0) then
-           tau(1:nssm)=1.0
-       end if
+        if (mElemUnloadingCount==0) then
+            call dsolve(dt,timexx,nssm)   ! line for updating using rk5, implicit algorithm
+        elseif (mElemUnloadingCount > 0) then
+            tau(1:nssm)=1.0
+        end if
         do j = 1, nssm
             gbtr(j)=0.0
             b_v=bv(matp(ink),j)
@@ -662,13 +682,12 @@
         call unit_vector(3,3,cleave,cleave_n0)							!This Line: Normalize slip vectors to unity:
 
       !-------------------------------------------------------------
-
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc	
 !c           Update  Cauchy Stresses from Objective Rates		!Next 7 Lines: Zikry & Nasser, 1990, pg 217
 !c           This follows the work done by WML and Khalil to show that we need sigma dot and not sigma hat to update the stresses
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-        o12=       -dt*spin_e12*(sdev1 - sdev2)	           !Cauchy stress rate derived from Jaumann rate corotational with elastic lattice distortion	!OBJECTIVE COMPONENTS ADDED TO MAKE STRESS RATES OBJECTIVE
+        o12=     -dt*spin_e12*(sdev1 - sdev2)	           !Cauchy stress rate derived from Jaumann rate corotational with elastic lattice distortion	!OBJECTIVE COMPONENTS ADDED TO MAKE STRESS RATES OBJECTIVE
         o11= 2.00*dt*spin_e12*(sdev4)
         o22= -o11		                                       !o33=0, this is correct, no 13 terms	 
         ssdev4 = sdev4+twomu*dt*(Dij_dev(4)-D12_p) + o12      !12 deviatoric cauchy stress
@@ -734,19 +753,13 @@
 !c                Update Temperature and Plastic Work
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         if (mElemUnloadingCount==0) then
-!!!!		         if (thermalflag==0 .or. 
-!!!!     >			     (thermalflag==1 .and. TDflag==1)) then     !if diffusion
+!!!         if (thermalflag==0 .or.(thermalflag==1 .and. TDflag==1)) then     !if diffusion 
             if (thermalflag==0 .or. thermalflag==2) then !if no thermal or diffusion only
-!!!!!                    dKa_RaoCp= rMatTH_x(ink)/
-!!!!!     >                   (rMatTH_Ro(ink)*rMatTH_cp(ink))
-!!!!!!!!!                    dKa_RaoCp= thermalx(ink)/
-!!!!!!!!!     >                   (thermalRo(ink)*thermalcp(ink))
+!!!!!       dKa_RaoCp= rMatTH_x(ink)/(rMatTH_Ro(ink)*rMatTH_cp(ink))dKa_RaoCp= thermalx(ink)/(thermalRo(ink)*thermalcp(ink))
 !!!!!	             temp         = temp         + dt*DijSij*dKa_RaoCp				!This Line: Adiabatic Temp Update, Zikry: 1992-1993, pg 275, commented out for quasi-static
                 CALL CNmanagerCal_AdiabaticTemp(ink,DijSij,temp)
-!!!		  	     else if((thermalflag==1 .and. TDflag==0)       !if thermal
-!!!     >				     .or.thermalflag==2) then
+!!!		  	     else if((thermalflag==1 .and. TDflag==0).or.thermalflag==2) then       !if thermal
             else if(thermalflag==1 .or. thermalflag==3) then      !if there is thermal; thermal only or both
-!!!!!		         DijSije(ink)=DijSij*thermalx(ink)
 !!!!!		         DijSije(ink)=DijSij*rMatTH_x(ink)
                 CALL CNmanagerSet_DijSij(ink,DijSij)
             end if
@@ -770,7 +783,7 @@
 
 
         if (mElemUnloadingCount==0) then
-           call dsolve1 (dt,timexx,nmo+nim)									!This Line: Call Rho_mobile & Rho_immobile Updating subroutine
+           call dsolve1 (dt,timexx,nmo+nim)			!This Line: Call Rho_mobile & Rho_immobile Updating subroutine
 
     !!!!!!$OMP PARALLEL DO       
            do j = 1, nmo
@@ -848,7 +861,7 @@
         his(3,ink,nintg) = elas_energy										!This Line: New Reference Shear, qwu: save elastic energy
         his(4,ink,nintg) = temp										!This Line: New Temperature
 
-        his(5,ink,nintg) = porosity									!This Line: New Porosity
+!!!!!        his(5,ink,nintg) = porosity									!This Line: New Porosity
         his(6,ink,nintg) = plastic_work								!This Line: Updated Plastic Work
         his(7,ink,nintg) = spin_e12
         his(8,ink,nintg) = spin_p12
@@ -874,7 +887,7 @@
             end do
         end if
 
-                if (nssimmat(matp(ink)) == 86) then
+        if (nssimmat(matp(ink)) == 86) then
             ctr = 1
             do j = 1, 86
                 his(460+j,ink,nintg) = rrecov(j)
@@ -884,8 +897,6 @@
                 end if
             end do
         end if
-
-
 
         if (nssimmat(matp(ink)) == 87) then
             his(460+1:460+87,ink,nintg) = rrecov(1:87)

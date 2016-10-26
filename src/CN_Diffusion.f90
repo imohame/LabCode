@@ -2,8 +2,8 @@
 ! ###########################################################
 ! ###########################################################
 module CN_Diffusion
-    use CN_BaseClass
-    implicit none 
+    use CN_BaseClass  
+    implicit none
 !!!        ---------------------------------------
     type,extends( CN_Base):: DiffusionClass
     end type DiffusionClass

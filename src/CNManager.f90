@@ -2,7 +2,7 @@
 ! ###########################################################
 module CN_Objects_manager
     use CN_Thermal
-    use CN_Diffusion
+    use CN_Diffusion    
     use CN_Consts
 !    implicit none
     public

@@ -2,8 +2,8 @@
 ! ###########################################################
 ! ###########################################################
 module CN_Thermal
-    use CN_BaseClass 
-    implicit none
+    use CN_BaseClass
+    implicit none   
 !!!        ---------------------------------------
     type,extends( CN_Base):: ThermalClass
         real*8 , ALLOCATABLE :: rThermal_DijSij(:)

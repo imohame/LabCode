@@ -6,7 +6,7 @@ module mod_parameters
 !      IMPLICIT INTEGER(I-N)
       integer, parameter :: nelemg     =128 !512
 	  integer, parameter :: nume       = 40000
-      integer, parameter :: no_mat     = 1000
+      integer, parameter :: no_mat     = 1000 
       integer, parameter :: nss        = 24
       integer, parameter :: print_intv = 10000
       real, parameter  :: pi=3.14159265358979 !4.d0*atan(1.d0) ! a circle constant
@@ -16,7 +16,7 @@ module mod_parameters
 !!!!      integer ElemCountB,NodCountB
 
       save
-end module mod_parameters 
+end module mod_parameters
 
 !#####################################################
 module mod_DiffCoeffTable

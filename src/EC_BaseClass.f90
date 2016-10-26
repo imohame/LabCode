@@ -6,7 +6,7 @@ module EC_Consts
         INTEGER :: EC_NodeGlobalID=0    !--gobal id wrt all nodes
         real*8  :: EC_NodeLenRatio=0     !--ratio of the defined vector below
         INTEGER :: EC_NodeVectStart=0   !--start vector pt
-        INTEGER :: EC_NodeVectEnd=0     !--end vector pt
+        INTEGER :: EC_NodeVectEnd=0     !--end vector pt  
     end type  typeEC_IntersectionPtsData
 
 
@@ -252,7 +252,7 @@ module EC_ElemCrackingBaseClass
             tEC_object%iElemEdgeNeighbors(2,i)=mInList(i+4)
         enddo
         tEC_object%iElemEdgeNeighborsCount=1
-        
+
     end subroutine EC_SetElemEdgeNeighbors
 !##############################################################################
      integer function EC_CheckElemValid (tEC_object)
@@ -307,7 +307,7 @@ module EC_ElemCrackingBaseClass
                             !-- null the e1,ed1 location
                             tEC_object%iElemEdgeNeighbors((j-1)*2+1,mMyEdgeId)=0
                             tEC_object%iElemEdgeNeighbors((j-1)*2+2,mMyEdgeId)=0
-                            
+
                             return
                         endif
                     enddo
@@ -320,19 +320,19 @@ module EC_ElemCrackingBaseClass
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
         integer, intent(in) :: mMyEdgeId,mElemOther,mEdgeOther
         integer EdgeCount,i
-        
+
         EdgeCount=tEC_object%iElemEdgeNeighborsCount(mMyEdgeId)
         !-if it does exist then do not add and return
         do i=1,EdgeCount
             if(tEC_object%iElemEdgeNeighbors((i-1)*2+1,mMyEdgeId) == mElemOther) return
         enddo
-        !-- add it 
+        !-- add it
         EdgeCount=EdgeCount+1
         i=EdgeCount
         tEC_object%iElemEdgeNeighbors((i-1)*2+1,mMyEdgeId)=mElemOther
         tEC_object%iElemEdgeNeighbors((i-1)*2+2,mMyEdgeId)=mEdgeOther
         tEC_object%iElemEdgeNeighborsCount(mMyEdgeId)=EdgeCount
-        
+
 end subroutine EC_ElemAddToNeighbors
 !##############################################################################
     real*8 function EC_GetMyAreaRatio (tEC_object)
@@ -377,7 +377,7 @@ end subroutine EC_ElemAddToNeighbors
         tEC_object%iElemOverlapping=EC_eElemOriginMain
         tEC_object%iElemEdgeNeighbors=-1
         tEC_object%iElemEdgeNeighborsCount=0
-        
+
         tEC_object%iElemConnectivity=-1
         tEC_object%iElemSplit=0
 
@@ -472,9 +472,9 @@ end subroutine EC_ElemAddToNeighbors
         class ( EC_ElemCrackingClass ), intent(inout) :: tEC_object
         integer, intent(in):: ele,nstep
         integer bDecaying
-!!!-------------------------------------debug        
+!!!-------------------------------------debug
 !!write(*,*)tEC_object%iElemStatus,ele,nstep
-!!!-------------------------------------debug        
+!!!-------------------------------------debug
         !-- to check if the elem is failed and unloading
         !- if elem is unloading then increase the unloading steps
         if((tEC_object%iElemStatus <= EC_DecayCount) .and.  (tEC_object%iElemStatus>0)) then
@@ -565,7 +565,7 @@ end subroutine EC_ElemAddToNeighbors
         ElemNodesCoordx(1:4)=xs(1:4)
         ElemNodesCoordy(1:4)=ys(1:4)
         ElemNodesCoordx(5:6)=rPtc(1,1:2)
-        ElemNodesCoordy(5:6)=rPtc(2,1:2) 
+        ElemNodesCoordy(5:6)=rPtc(2,1:2)
         do i = 1, 4
             xNew(i)=ElemNodesCoordx(nodesOrder(i))
             yNew(i)=ElemNodesCoordy(nodesOrder(i))
