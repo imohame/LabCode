@@ -458,50 +458,15 @@ module EC_Objects_manager
         do j=1,4    !--each edge can be shared between more than one elem
             if(bElemValidMain(j) ==1) then
                 ElemIdtemp=ElemIdsNewMain(j)
-                !- to get the elem nodes coordinates
-                do i=1, 4
-                    xs(i)=NodesCoordx(ElemConnect(i,ElemIdtemp))+NodesDispl(DofIds(1,ElemConnect(i,ElemIdtemp)))
-                    ys(i)=NodesCoordy(ElemConnect(i,ElemIdtemp))+NodesDispl(DofIds(2,ElemConnect(i,ElemIdtemp)))
-                enddo
-                CALL ElemCrackingClassMain(j)%EC_CalcCrackedElemAreaRatio (xs,ys,4,ElemConnect(:,ElemIdtemp))
-
                 !-- copy elem in EC_BaseClass copies also the connectivity, ... update that in the next two line
                 CALL EC_CopyElemsData(ElemIdsNewMain(j),ElemIdsNewMain(j),ElemCrackingClassMain(j),ElemCrackingClassMain(j), &
-                                    ElemMaterial, freep,ym )
-                !-- ... update that in the next two line
-                ElemConnect(1:4,ElemIdtemp)=ElemCrackingClassMain(j)%iElemConnectivity(1:4)
-                pEC_ElemData(ElemIdsNewMain(j))%iElemConnectivity(1:4)=ElemCrackingClassMain(j)%iElemConnectivity(1:4)
-                pEC_ElemData(ElemIdsNewMain(j))%rAreaRatio=ElemCrackingClassMain(j)%rAreaRatio
-
-                !-- set the related elem to overlap
-                pEC_ElemData(ElemIdsNewMain(j))%iElemOverlapping=ElemIdsNewOverlapping(j)
-                !-- track the split elem in the file iFU_frac_crackOverlapInfo
-!!!!                e1=ElemIdsNewMain(j)
-!!!!                write(iFU_frac_crackOverlapInfo,*) e1,mSolStepCount,pEC_ElemData(e1)%iElemConnectivity, &
-!!!!                                                    pEC_ElemData(e1)%iElemEdgeNeighbors
-
-                !-- DO NOT increment EC_ElemCountCurrent ... it's the main elem
-!!!!!!                EC_ElemCountCurrent=ElemIdsNewMain(j)
+                    ElemMaterial, freep,ym ,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl,1)
             endif
             if(bElemValidOverlapping(j) ==1) then
                 ElemIdtemp=ElemIdsNewOverlapping(j)
                 !-- copy elem in EC_BaseClass copies also the connectivity, ... update that in the next two line
-                CALL EC_CopyElemsData(ElemIdsNewMain(j),ElemIdtemp,ElemCrackingClassMain(j), &
-                                        ElemCrackingClassOverlapping(j),ElemMaterial, freep,ym )
-                !-- ... update that in the next two line
-                ElemConnect(1:4,ElemIdtemp)=ElemCrackingClassOverlapping(j)%iElemConnectivity(1:4)
-                pEC_ElemData(ElemIdsNewOverlapping(j))%iElemConnectivity(1:4)=ElemCrackingClassOverlapping(j)%iElemConnectivity(1:4)
-                !- has to be done here after the connectivity has been done
-                !- to get the elem nodes coordinates
-                do i=1, 4
-                    xs(i)=NodesCoordx(ElemConnect(i,ElemIdtemp))+NodesDispl(DofIds(1,ElemConnect(i,ElemIdtemp)))
-                    ys(i)=NodesCoordy(ElemConnect(i,ElemIdtemp))+NodesDispl(DofIds(2,ElemConnect(i,ElemIdtemp)))
-                enddo
-                !-- calc the new elem area ratio, arrange the new elem connectivity
-                CALL ElemCrackingClassOverlapping(j)%EC_CalcCrackedElemAreaRatio (xs,ys,4,ElemConnect(:,ElemIdtemp))
-                pEC_ElemData(ElemIdsNewOverlapping(j))%rAreaRatio=ElemCrackingClassOverlapping(j)%rAreaRatio
-                !-- set the related elem to main
-                pEC_ElemData(ElemIdsNewOverlapping(j))%iElemOverlapping=ElemIdsNewMain(j)
+                CALL EC_CopyElemsData(ElemIdsNewMain(j),ElemIdtemp,ElemCrackingClassMain(j),ElemCrackingClassOverlapping(j), &
+                    ElemMaterial, freep,ym ,NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl,0)
                 !====================================================================
                 !====================================================================
                 !================ here where to update the EC_ElemCountCurrent
@@ -639,7 +604,8 @@ module EC_Objects_manager
     end subroutine EC_CopyNodesData
 !##############################################################################
 !##############################################################################
-    subroutine EC_CopyElemsData(ElemFrom,ElemTo,ElemCrackingClassMain,ElemCrackingClassOverlapping,ElemMaterial, freep,ym )
+    subroutine EC_CopyElemsData(ElemFrom,ElemTo,ElemCrackingClassMain,ElemCrackingClassOverlapping,ElemMaterial, freep,ym, &
+                                NodesCoordx, NodesCoordy, ElemConnect, DofIds, NodesDispl,bMain)
                              !-a(k03)    ,a(k04)      ,a(k02)      ,a(k57  ,a(k18)     , a(k08)      ,a(k20), a(k07), a(k09))
     use mod_parameters
     use CN_Objects_manager
@@ -647,8 +613,8 @@ module EC_Objects_manager
 
     implicit none
     type ( EC_ElemCrackingClass ), intent(inout) :: ElemCrackingClassMain,ElemCrackingClassOverlapping
-    integer, intent(in) :: ElemFrom,ElemTo
-
+    integer, intent(in) :: ElemFrom,ElemTo,bMain
+    !-- bMain=1 copy to a main elem.... -- bMain=0 copy to an overlapping elem....
 
     common/wblock8/  abc(573,nume,4), his(573,nume,4)
     real abc,his
@@ -682,13 +648,73 @@ module EC_Objects_manager
     real sigfrac0,sigfrac,decfrac
     real critfrac
 
+    real NodesCoordx(*), NodesCoordy(*),NodesDispl(*)
+    INTEGER ElemConnect(4,*),DofIds(2,*)
     real freep(5,*),ym(4,*)
     INTEGER ElemMaterial(*)
-    integer j
-    real*8 :: RetVal8(4)
+    integer j,i
+    real*8 :: RetVal8(4),xs(4),ys(4)
     real*4 :: RetVal4(4)
 
+    if(bMain==1)then
+        !- to get the elem nodes coordinates
+        do i=1, 4
+            xs(i)=NodesCoordx(ElemConnect(i,ElemFrom))+NodesDispl(DofIds(1,ElemConnect(i,ElemFrom)))
+            ys(i)=NodesCoordy(ElemConnect(i,ElemFrom))+NodesDispl(DofIds(2,ElemConnect(i,ElemFrom)))
+        enddo
+        CALL ElemCrackingClassMain%EC_CalcCrackedElemAreaRatio (xs,ys,4,ElemConnect(:,ElemFrom))
+    endif
+
+    CALL pEC_ElemData(ElemFrom)%EC_CopyElem (pEC_ElemData(ElemTo))
+
+    if(bMain==1)then
+        !-- copy elem in EC_BaseClass copies also the connectivity, ... update that in the next two line
+        ElemConnect(1:4,ElemFrom)=ElemCrackingClassMain%iElemConnectivity(1:4)
+        pEC_ElemData(ElemFrom)%iElemConnectivity(1:4)=ElemCrackingClassMain%iElemConnectivity(1:4)
+        pEC_ElemData(ElemFrom)%rAreaRatio=ElemCrackingClassMain%rAreaRatio
+        !-- set the related elem to overlap
+        pEC_ElemData(ElemFrom)%iElemOverlapping=ElemTo
+    endif
+    if(bMain==0)then    !--0= from main to overlap
+        !-- ... update that in the next two line
+        ElemConnect(1:4,ElemTo)=ElemCrackingClassOverlapping%iElemConnectivity(1:4)
+        pEC_ElemData(ElemTo)%iElemConnectivity(1:4)=ElemCrackingClassOverlapping%iElemConnectivity(1:4)
+        !- has to be done here after the connectivity has been done
+        !- to get the elem nodes coordinates
+        do i=1, 4
+            xs(i)=NodesCoordx(ElemConnect(i,ElemTo))+NodesDispl(DofIds(1,ElemConnect(i,ElemTo)))
+            ys(i)=NodesCoordy(ElemConnect(i,ElemTo))+NodesDispl(DofIds(2,ElemConnect(i,ElemTo)))
+        enddo
+        !-- calc the new elem area ratio, arrange the new elem connectivity
+        CALL ElemCrackingClassOverlapping%EC_CalcCrackedElemAreaRatio (xs,ys,4,ElemConnect(:,ElemTo))
+        pEC_ElemData(ElemTo)%rAreaRatio=ElemCrackingClassOverlapping%rAreaRatio
+        !-- set the related elem to main
+        pEC_ElemData(ElemTo)%iElemOverlapping=ElemFrom
+
+    endif
+
+    !--- copy stress
+    RetVal4=0
+    RetVal8=0
+    CALL CNmanager_Get_sigalt(ElemFrom,RetVal8)
+
+!!    if(bMain==1)then !--0= from main to overlap
+        RetVal4=RetVal8!*ElemCrackingClassOverlapping%rAreaRatio
+        CALL CNmanager_Set_sigalt(ElemTo,RetVal4)
+        !--- try to set the stress to half its value --- for testing
+        RetVal4=RetVal8!*ElemCrackingClassMain%rAreaRatio
+        CALL CNmanager_Set_sigalt(ElemFrom,RetVal4)
+!!    endif
+
+    !---- rest of arrays/properties
+    !-------------------------- needs to be done after calculating the area ratio
+    !---- lumped mass matrix
+    do j=1,4
+        ym(j,ElemTo)=ym(j,ElemFrom)!*ElemCrackingClassMain%rAreaRatio
+        ym(j,ElemFrom)=ym(j,ElemFrom)!*ElemCrackingClassOverlapping%rAreaRatio
+    end do
     freep(1:5,ElemTo)=freep(1:5,ElemFrom)
+    CALL CNmanager_CopyElemnt(ElemFrom,ElemTo)
 
     ElemMaterial(ElemTo)=ElemMaterial(ElemFrom)
     Y_modulus(ElemTo)=Y_modulus(ElemFrom)
@@ -698,11 +724,6 @@ module EC_Objects_manager
     his(1:573,ElemTo,1)=his(1:573,ElemFrom,1)
 
     nnn2(ElemTo,1)=nnn2(ElemFrom,1)
-    !!--- lumped mass matrix
-    do j=1,4
-        ym(j,ElemTo)=ym(j,ElemFrom)*ElemCrackingClassMain%rAreaRatio
-        ym(j,ElemFrom)=ym(j,ElemFrom)*ElemCrackingClassOverlapping%rAreaRatio
-    end do
 
     fhg(ElemTo,1:8)=fhg(ElemFrom,1:8)
     fhghis(ElemTo,1:8)=fhghis(ElemFrom,1:8)
@@ -725,19 +746,6 @@ module EC_Objects_manager
     sigfrac0(ElemTo)=sigfrac0(ElemFrom)
     sigfrac(ElemTo)=sigfrac(ElemFrom)
     decfrac(ElemTo)=decfrac(ElemFrom)
-
-    CALL CNmanager_CopyElemnt(ElemFrom,ElemTo)
-    CALL pEC_ElemData(ElemFrom)%EC_CopyElem (pEC_ElemData(ElemTo))
-
-    !--- copy stress
-    RetVal4=0
-    RetVal8=0
-    CALL CNmanager_Get_sigalt(ElemFrom,RetVal8)
-    RetVal4=RetVal8*ElemCrackingClassOverlapping%rAreaRatio
-    CALL CNmanager_Set_sigalt(ElemTo,RetVal4)
-    !--- try to set the stress to half its value --- for testing
-    RetVal4=RetVal8*ElemCrackingClassMain%rAreaRatio
-    CALL CNmanager_Set_sigalt(ElemFrom,RetVal4)
 
     end subroutine EC_CopyElemsData
 !##############################################################################
